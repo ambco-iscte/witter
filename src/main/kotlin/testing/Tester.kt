@@ -2,156 +2,162 @@ package testing
 
 import pt.iscte.strudel.javaparser.Java2Strudel
 import pt.iscte.strudel.model.*
-import pt.iscte.strudel.vm.IArray
-import pt.iscte.strudel.vm.IReference
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
+import tsl.*
 import java.io.File
-import kotlin.reflect.full.primaryConstructor
 
 class Tester(reference: File) {
     private val loader = Java2Strudel()
     private val ref: IModule = loader.load(reference)
 
-    private enum class Flags {
-        COUNT_ITERATIONS,
-        COUNT_ARRAY_ALLOCATIONS,
-        COUNT_ARRAY_ASSIGNMENTS,
-        COUNT_VARIABLE_ASSIGNMENTS
-    }
+    private fun Int.notInRange(start: Int, margin: Int): Boolean = !(this >= start - margin && this <= start + margin)
 
-    private val flags: MutableList<Flags> = mutableListOf()
+    private val IModule.definedTests: List<ProcedureTestSpecification>
+        get() {
+            val tests = mutableListOf<ProcedureTestSpecification>()
+            procedures.forEach { procedure ->
+                TestSpecifier.translate(procedure)?.let { tests.add(it) }
+            }
+            return tests.toList()
+        }
 
-    // Very meh builder pattern
-    fun countIterations(): Tester {
-        if (!flags.contains(Flags.COUNT_ITERATIONS)) flags.add(Flags.COUNT_ITERATIONS)
-        return this
-    }
-
-    fun countArrayAllocations(): Tester {
-        if (!flags.contains(Flags.COUNT_ARRAY_ALLOCATIONS)) flags.add(Flags.COUNT_ARRAY_ALLOCATIONS)
-        return this
-    }
-
-    fun countArrayAssignments(): Tester {
-        if (!flags.contains(Flags.COUNT_ARRAY_ASSIGNMENTS)) flags.add(Flags.COUNT_ARRAY_ASSIGNMENTS)
-        return this
-    }
-
-    fun countVariableAssignments(): Tester {
-        if (!flags.contains(Flags.COUNT_VARIABLE_ASSIGNMENTS)) flags.add(Flags.COUNT_VARIABLE_ASSIGNMENTS)
-        return this
-    }
-
-    private fun IModule.getProcedure(test: ITestCase): IProcedure = when (test) {
-        is StaticMethodTest -> getProcedure(test.getMethodName())
-        is InstanceMethodTest -> getProcedure(test.getMethodName(), test.namespace)
-    }
-
-    fun evaluate(vm: IVirtualMachine, file: File, tests: List<ITestCase>): Map<String, List<Evaluation>> {
+    fun execute(file: File): Map<IProcedure, List<Feedback>> {
         val subject: IModule = loader.load(file)
-        val results = mutableMapOf<String, MutableList<Evaluation>>()
+        val results = mutableMapOf<IProcedure, MutableList<Feedback>>()
 
-        val iterations = mutableMapOf<IProcedure, Int>()
-        val arrayAllocations = mutableMapOf<IProcedure, MutableList<IArray>>()
-        val arrayAssignments = mutableMapOf<IProcedure, MutableList<IArrayElementAssignment>>()
-        val variableAssignments = mutableMapOf<IProcedure, MutableList<IVariableAssignment>>()
+        ref.definedTests.forEach { specification ->
+            val referenceProcedure = specification.procedure
+            val subjectProcedure = subject.getProcedure(referenceProcedure.id!!)
+            val method = subjectProcedure.id!!
 
-        // Add listener
-        vm.addListener(object : IVirtualMachine.IListener {
-            override fun loopIteration(loop: ILoop) {
-                if (!flags.contains(Flags.COUNT_ITERATIONS)) return
+            if (!results.containsKey(subjectProcedure)) results[subjectProcedure] = mutableListOf()
 
-                val procedure = loop.ownerProcedure
-                if (!iterations.containsKey(procedure)) iterations[procedure] = 0
-                iterations[procedure] = iterations[procedure]!! + 1
-            }
+            specification.cases.forEach { arguments ->
+                val vm = IVirtualMachine.create()
 
-            override fun arrayAllocated(ref: IReference<IArray>) {
-                if (!flags.contains(Flags.COUNT_ARRAY_ALLOCATIONS)) return
+                // Allocate arguments twice so listeners don't end up attached to the same record or array
+                val args = TestSpecifier.parseArgumentsString(vm, arguments)
+                val argsCopy = TestSpecifier.parseArgumentsString(vm, arguments)
 
-                val procedure = vm.callStack.topFrame.procedure
-                if (!arrayAllocations.containsKey(procedure)) arrayAllocations[procedure] = mutableListOf()
-                arrayAllocations[procedure]!!.add(ref.target)
-            }
+                val listener = ProcedureTestListener(vm, specification)
+                vm.addListener(listener)
 
-            override fun arrayElementAssignment(a: IArrayElementAssignment, index: Int, value: IValue) {
-                if (!flags.contains(Flags.COUNT_ARRAY_ASSIGNMENTS)) return
+                val expected = vm.execute(referenceProcedure, *args.toTypedArray())?.value
+                val actual = vm.execute(subjectProcedure, *argsCopy.toTypedArray())?.value
 
-                val procedure = a.ownerProcedure
-                if (!arrayAssignments.containsKey(procedure)) arrayAssignments[procedure] = mutableListOf()
-                arrayAssignments[procedure]!!.add(a)
-            }
+                // ---------------------
+                //       BLACK-BOX
+                // ---------------------
 
-            override fun variableAssignment(a: IVariableAssignment, value: IValue) {
-                if (!flags.contains(Flags.COUNT_VARIABLE_ASSIGNMENTS)) return
+                // Check result equality
+                // TODO: find a way to include alternative solutions
+                if (actual != expected)
+                    results[subjectProcedure]!!.add(IncorrectInvocationResult(method, args, expected, actual))
 
-                val procedure = a.ownerProcedure
-                if (!variableAssignments.containsKey(procedure)) variableAssignments[procedure] = mutableListOf()
-                variableAssignments[procedure]!!.add(a)
-            }
-        })
+                // ---------------------
+                //       WHITE-BOX
+                // ---------------------
 
-        tests.forEach { test ->
-            val method: String = test.getMethodName()
+                // Check loop iterations
+                specification.get<CountLoopIterations>()?.let { parameter ->
+                    val expectedLoopIterations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val actualLoopIterations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-            if (!results.containsKey(method)) results[method] = mutableListOf()
+                    if (actualLoopIterations.notInRange(expectedLoopIterations, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "loop iterations",
+                            method, args, expectedLoopIterations, parameter.margin, actualLoopIterations))
+                }
 
-            val args = test.getMethodArguments().toTypedArray()
+                // Check record allocations
+                specification.get<CountRecordAllocations>()?.let { parameter ->
+                    val expectedRecordAllocations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val actualRecordAllocations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-            val referenceProcedure = ref.getProcedure(test)
-            val subjectProcedure = subject.getProcedure(test)
+                    if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "record allocations",
+                            method, args, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                }
 
-            val expected = vm.execute(referenceProcedure, *args)?.value
-            val actual = vm.execute(subjectProcedure, *args)?.value
+                // Check array allocations
+                specification.get<CountArrayAllocations>()?.let { parameter ->
+                    val expectedRecordAllocations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val actualRecordAllocations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-            // Check result equality
-            if (actual != expected)
-                results[method]!!.add(IncorrectInvocationResult(method, test.getMethodArguments(), expected, actual))
+                    if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "array allocations",
+                            method, args, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                }
 
-            // Check method iterations
-            // TODO - know which loop specifically iterated too many times
-            // Problem: how to know that two loops are "the same" if they can be in different positions
-            // in different procedures?
-            if (flags.contains(Flags.COUNT_ITERATIONS)) {
-                val expectedIterations = iterations[referenceProcedure] ?: 0
-                val actualIterations = iterations[subjectProcedure] ?: 0
+                // Check array read accesses
+                specification.get<CountArrayReadAccesses>()?.let { parameter ->
+                    val expectedArrayReads = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val actualArrayReads = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                if (actualIterations > expectedIterations)
-                    results[method]!!.add(TooManyIterations(method, test.getMethodArguments(), expectedIterations, actualIterations))
-            }
+                    if (actualArrayReads.notInRange(expectedArrayReads, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "array read accesses",
+                            method, args, expectedArrayReads, parameter.margin, actualArrayReads))
+                }
 
-            // Check array allocations
-            // TODO - feedback like "your array b[] was unnecessary"
-            // Problem: how to know two arrays with possibly different names are "the same" in both procedures?
-            if (flags.contains(Flags.COUNT_ARRAY_ALLOCATIONS)) {
-                val expectedArrayAllocations = arrayAllocations[referenceProcedure]?.size ?: 0
-                val actualArrayAllocations = arrayAllocations[subjectProcedure]?.size ?: 0
+                // Check array write accesses
+                specification.get<CountArrayWriteAccesses>()?.let { parameter ->
+                    val expectedRecordAllocations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val actualRecordAllocations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                if (actualArrayAllocations > expectedArrayAllocations)
-                    results[method]!!.add(TooManyArrayAllocations(method, test.getMethodArguments(), expectedArrayAllocations, actualArrayAllocations))
-            }
+                    if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "array write accesses",
+                            method, args, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                }
 
-            // Check array assignments
-            // TODO - feedback like "you didn't need to assign b[3] = item"
-            // Problem: how to know if the assigned array is "the same" + how the items are "the same"
-            if (flags.contains(Flags.COUNT_ARRAY_ASSIGNMENTS)) {
-                val expectedArrayAssignments = arrayAssignments[referenceProcedure]?.size ?: 0
-                val actualArrayAssignments = arrayAssignments[subjectProcedure]?.size ?: 0
+                // Check memory usage
+                specification.get<CountMemoryUsage>()?.let { parameter ->
+                    val expectedMemoryUsage = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val actualMemoryUsage = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                if (actualArrayAssignments > expectedArrayAssignments)
-                    results[method]!!.add(TooManyArrayAssignments(method, test.getMethodArguments(), expectedArrayAssignments, actualArrayAssignments))
-            }
+                    if (actualMemoryUsage.notInRange(expectedMemoryUsage, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "allocated memory bytes",
+                            method, args, expectedMemoryUsage, parameter.margin, actualMemoryUsage))
+                }
 
-            // Check variable assignments
-            // TODO - feedback like "you didn't need your 'count' variable"
-            // Problem: same thing as loopIteration
-            if (flags.contains(Flags.COUNT_VARIABLE_ASSIGNMENTS)) {
-                val expectedVariableAssignments = variableAssignments[referenceProcedure]?.size ?: 0
-                val actualVariableAssignments = variableAssignments[subjectProcedure]?.size ?: 0
+                // Check variable states for procedure arguments
+                specification.get<TrackParameterStates>()?.let { parameter ->
+                    val expectedParamStates = listener.getOrDefault(referenceProcedure, parameter::class, mapOf<IParameter, List<IValue>>())
+                    val actualParamStates = listener.getOrDefault(subjectProcedure, parameter::class, mapOf<IParameter, List<IValue>>())
 
-                if (actualVariableAssignments > expectedVariableAssignments)
-                    results[method]!!.add(TooManyVariableAssignments(method, test.getMethodArguments(), expectedVariableAssignments, actualVariableAssignments))
+                    referenceProcedure.parameters.forEachIndexed { i, param ->
+                        val e = expectedParamStates[param] ?: listOf()
+                        val a = actualParamStates[subjectProcedure.parameters[i]] ?: listOf()
+
+                        if (a != e)
+                            results[subjectProcedure]!!.add(InconsistentArgumentStates(
+                                method,
+                                args,
+                                param,
+                                e,
+                                a
+                            ))
+                    }
+                }
+
+                // Check parameter immutability
+                specification.get<CheckParameterMutability>()?.let { parameter ->
+                    val expectedChangesParameters = listener.getOrDefault(referenceProcedure, parameter::class, false)
+                    val actualChangesParameters = listener.getOrDefault(subjectProcedure, parameter::class, false)
+
+                    if (actualChangesParameters != expectedChangesParameters)
+                        results[subjectProcedure]!!.add(InconsistentParameterMutability(
+                            method,
+                            args,
+                            expectedChangesParameters,
+                            actualChangesParameters
+                        ))
+                }
             }
         }
 
