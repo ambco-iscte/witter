@@ -1,3 +1,5 @@
+package examples;
+
 public class Subject {
 
     public static int sum(int[] a) {

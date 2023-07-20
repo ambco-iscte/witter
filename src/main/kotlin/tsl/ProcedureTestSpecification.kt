@@ -20,6 +20,8 @@ object TrackParameterStates : ITestParameter
 
 object CheckParameterMutability: ITestParameter
 
+data class CountRecursiveCalls(val margin: Int): ITestParameter
+
 class ProcedureTestSpecification(val procedure: IProcedure, val cases: List<String>, val parameters: Set<ITestParameter>) {
 
     inline fun <reified T : ITestParameter> contains(): Boolean = parameters.find { it is T } != null

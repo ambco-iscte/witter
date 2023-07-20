@@ -48,6 +48,7 @@ object TestSpecifier {
         is TSLParser.CountMemoryUsageContext -> CountMemoryUsage(margin.text.toInt())
         is TSLParser.TrackVariableStatesContext -> TrackParameterStates
         is TSLParser.CheckParameterImmutabilityContext -> CheckParameterMutability
+        is TSLParser.CountRecursiveCallsContext -> CountRecursiveCalls(margin.text.toInt())
         else -> throw Exception("")
     }
 }

@@ -21,28 +21,38 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
         }
     }
 
-    // Count used memory
     override fun procedureCall(procedure: IProcedure, args: List<IValue>, caller: IProcedure?) {
+        // Count used memory
         previousArgumentsForProcedure[procedure] = args
         if (specification.contains<CountMemoryUsage>())
             vmMemoryBefore[procedure] = vm.usedMemory
 
+        // Track initial argument states
         if (specification.contains<TrackParameterStates>()) {
             val init = mutableMapOf<IParameter, List<IValue>>()
             procedure.parameters.forEachIndexed { i, param ->
-                init[param] = listOf(args[i])
+                val arg = args[i]
+                init[param] = listOf((if (arg is IReference<*>) arg.target else arg).copy())
             }
             setMetric<TrackParameterStates>(procedure, init)
         }
 
-        if (!specification.contains<CountArrayReadAccesses>()) return
+        // Count recursive calls
+        if (specification.contains<CountRecursiveCalls>() && caller == procedure) {
+            val rec = getOrDefault(procedure, CountRecursiveCalls::class, 0)
+            setMetric<CountRecursiveCalls>(procedure, rec + 1)
+
+
+        }
 
         // Count read accesses for argument arrays
-        args.forEach {
-            if (it is IArray)  {
-                it.addListener(ArrayReadAccessListener(procedure))
-            } else if (it is IReference<*> && it.target is IArray) {
-                (it.target as IArray).addListener(ArrayReadAccessListener(procedure))
+        if (specification.contains<CountArrayReadAccesses>()) {
+            args.forEach {
+                if (it is IArray)  {
+                    it.addListener(ArrayReadAccessListener(procedure))
+                } else if (it is IReference<*> && it.target is IArray) {
+                    (it.target as IArray).addListener(ArrayReadAccessListener(procedure))
+                }
             }
         }
     }
@@ -60,6 +70,16 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
         return if (values.containsKey(invocation) && values[invocation]!!.containsKey(parameter))
             values[invocation]!![parameter] as T
         else default
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getAll(procedure: IProcedure, parameter: KClass<out ITestParameter>): List<T> {
+        val all = mutableListOf<T>()
+        values.forEach { (invocation, metric) ->
+            if (invocation.first == procedure)
+                all.addAll(metric.values.map { it as T })
+        }
+        return all
     }
 
     private inline fun <reified T : ITestParameter> setMetric(procedure: IProcedure, value: Any) {
@@ -101,7 +121,7 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     }
 
     // Count array write (assignment) accesses
-    override fun arrayElementAssignment(ref: IReference<IArray>, index: Int, expression: IExpression, value: IValue) {
+    override fun arrayElementAssignment(a: IArrayElementAssignment, ref: IReference<IArray>, index: Int, value: IValue) {
         val procedure = vm.callStack.topFrame.procedure
 
         if (specification.contains<CountArrayWriteAccesses>()) {
@@ -111,9 +131,10 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
 
         if (!specification.contains<TrackParameterStates>()) return
 
-        procedure.parameters.find { it == ref || it == ref.target }?.let { param ->
+        // TODO using id seems iffy... better way?
+        procedure.parameters.find { it.id == a.arrayAccess.target.id }?.let { param ->
             val allStates = getOrDefault(procedure, TrackParameterStates::class, mutableMapOf<IParameter, List<IValue>>())
-            allStates[param] = (allStates[param] ?: listOf()) + listOf(ref.target)
+            allStates[param] = (allStates[param] ?: listOf()) + listOf(ref.target.copy())
             setMetric<TrackParameterStates>(procedure, allStates)
         }
     }
@@ -133,7 +154,7 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
 
         procedure.parameters.find { it == a.target }?.let { param ->
             val allStates = getOrDefault(procedure, TrackParameterStates::class, mutableMapOf<IParameter, List<IValue>>())
-            allStates[param] = (allStates[param] ?: listOf()) + listOf(value)
+            allStates[param] = (allStates[param] ?: listOf()) + listOf(value.copy())
             setMetric<TrackParameterStates>(procedure, allStates)
         }
     }

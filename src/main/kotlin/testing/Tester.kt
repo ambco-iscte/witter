@@ -37,6 +37,7 @@ class Tester(reference: File) {
                 val vm = IVirtualMachine.create()
 
                 // Allocate arguments twice so listeners don't end up attached to the same record or array
+                val unmodified = TestSpecifier.parseArgumentsString(vm, arguments)
                 val args = TestSpecifier.parseArgumentsString(vm, arguments)
                 val argsCopy = TestSpecifier.parseArgumentsString(vm, arguments)
 
@@ -53,7 +54,7 @@ class Tester(reference: File) {
                 // Check result equality
                 // TODO: find a way to include alternative solutions
                 if (actual != expected)
-                    results[subjectProcedure]!!.add(IncorrectInvocationResult(method, args, expected, actual))
+                    results[subjectProcedure]!!.add(IncorrectInvocationResult(method, unmodified, expected, actual))
 
                 // ---------------------
                 //       WHITE-BOX
@@ -67,7 +68,7 @@ class Tester(reference: File) {
                     if (actualLoopIterations.notInRange(expectedLoopIterations, parameter.margin))
                         results[subjectProcedure]!!.add(MeasuredValueNotInRange(
                             "loop iterations",
-                            method, args, expectedLoopIterations, parameter.margin, actualLoopIterations))
+                            method, unmodified, expectedLoopIterations, parameter.margin, actualLoopIterations))
                 }
 
                 // Check record allocations
@@ -78,7 +79,7 @@ class Tester(reference: File) {
                     if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
                         results[subjectProcedure]!!.add(MeasuredValueNotInRange(
                             "record allocations",
-                            method, args, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                            method, unmodified, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
                 }
 
                 // Check array allocations
@@ -89,7 +90,7 @@ class Tester(reference: File) {
                     if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
                         results[subjectProcedure]!!.add(MeasuredValueNotInRange(
                             "array allocations",
-                            method, args, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                            method, unmodified, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
                 }
 
                 // Check array read accesses
@@ -100,7 +101,7 @@ class Tester(reference: File) {
                     if (actualArrayReads.notInRange(expectedArrayReads, parameter.margin))
                         results[subjectProcedure]!!.add(MeasuredValueNotInRange(
                             "array read accesses",
-                            method, args, expectedArrayReads, parameter.margin, actualArrayReads))
+                            method, unmodified, expectedArrayReads, parameter.margin, actualArrayReads))
                 }
 
                 // Check array write accesses
@@ -111,7 +112,7 @@ class Tester(reference: File) {
                     if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
                         results[subjectProcedure]!!.add(MeasuredValueNotInRange(
                             "array write accesses",
-                            method, args, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                            method, unmodified, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
                 }
 
                 // Check memory usage
@@ -122,7 +123,19 @@ class Tester(reference: File) {
                     if (actualMemoryUsage.notInRange(expectedMemoryUsage, parameter.margin))
                         results[subjectProcedure]!!.add(MeasuredValueNotInRange(
                             "allocated memory bytes",
-                            method, args, expectedMemoryUsage, parameter.margin, actualMemoryUsage))
+                            method, unmodified, expectedMemoryUsage, parameter.margin, actualMemoryUsage))
+                }
+
+                // Check recursive calls
+                // TODO getAll could be used for more stuff when recursion is at play
+                specification.get<CountRecursiveCalls>()?.let { parameter ->
+                    val expectedRecursiveCalls = listener.getAll<Int>(referenceProcedure, parameter::class).sum()
+                    val actualRecursiveCalls = listener.getAll<Int>(subjectProcedure, parameter::class).sum()
+
+                    if (actualRecursiveCalls.notInRange(expectedRecursiveCalls, parameter.margin))
+                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
+                            "recursive calls",
+                            method, unmodified, expectedRecursiveCalls, parameter.margin, actualRecursiveCalls))
                 }
 
                 // Check variable states for procedure arguments
@@ -137,7 +150,7 @@ class Tester(reference: File) {
                         if (a != e)
                             results[subjectProcedure]!!.add(InconsistentArgumentStates(
                                 method,
-                                args,
+                                unmodified,
                                 param,
                                 e,
                                 a
@@ -153,7 +166,7 @@ class Tester(reference: File) {
                     if (actualChangesParameters != expectedChangesParameters)
                         results[subjectProcedure]!!.add(InconsistentParameterMutability(
                             method,
-                            args,
+                            unmodified,
                             expectedChangesParameters,
                             actualChangesParameters
                         ))

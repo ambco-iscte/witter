@@ -1,3 +1,5 @@
+package examples;
+
 public class Reference {
 
     /*
@@ -9,8 +11,8 @@ public class Reference {
     @CountArrayReadAccesses(0)
     @CountArrayWriteAccesses(0)
     @CountMemoryUsage(0)
-    @TrackVariableStates()
-    @CheckParameterImmutability()
+    @TrackArgumentStates()
+    @CheckParameterMutability()
      */
     public static int sum(int[] a) {
        int s = 0;

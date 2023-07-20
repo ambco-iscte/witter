@@ -10,8 +10,9 @@ annotation:
     | '@CountArrayReadAccesses(' margin=INTEGER ')' #countArrayReadAccesses
     | '@CountArrayWriteAccesses(' margin=INTEGER ')' #countArrayWriteAccesses
     | '@CountMemoryUsage(' margin=INTEGER ')' #countMemoryUsage
-    | '@TrackVariableStates()' #trackVariableStates
-    | '@CheckParameterImmutability()' #checkParameterImmutability
+    | '@TrackArgumentStates()' #trackVariableStates
+    | '@CheckParameterMutability()' #checkParameterImmutability
+    | '@CountRecursiveCalls(' margin=INTEGER ')' #countRecursiveCalls
     ;
 
 TEST_ARGUMENTS: '(' ( ~('(' | ')') | TEST_ARGUMENTS )* ')';
