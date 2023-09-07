@@ -1,6 +1,9 @@
 <div align="center">
 
 # Witter
+
+[![Published on the ACM Digital Library](https://img.shields.io/badge/ACM_Digital_Library-published-blue.svg)]()
+
 **Witter** is a software testing library that allows programming educators to define white-box
 tests for Java source code. Witter analyzes the execution of a method against a reference
 solution, to verify that the code not only produces correct results but is also in
@@ -24,13 +27,13 @@ Language (TSL), whose syntax is similar to Java’s
 annotation syntax:
 ```java
 /*
-@Test ({1 , 2, 3, 4, 5})
-@Test ({2 , 4, 6})
+@Test(new int[] { 1, 2, 3, 4, 5 })
+@Test(new int[] { 2, 4, 6 })
 @CountLoopIterations
 @CountArrayReads
 @CheckSideEffects
 */
-public static int sum( int [] a) { 
+public static int sum(int[] a) { 
     ... 
 }
 ```
@@ -75,8 +78,8 @@ holding the following information:
 Reference solution with recursion:
 ```java
 /*
-@Test (5)
-@CountRecursiveCalls (1)
+@Test(5)
+@CountRecursiveCalls(1)
 */
 static int factorial(int n) {
     if (n == 0) return 1;
@@ -111,12 +114,12 @@ Witter test results (black-box and white-box fail):
 Reference solution using binary search:
 ```java
 /*
-@Test ({1 , 2, 3, 4, 5, 6, 7}, 1)
-@Test ({1 , 3, 7, 9, 11, 13, 17, 19} , 18)
+@Test(new int[] { 1, 2, 3, 4, 5, 6, 7 }, 1)
+@Test(new int[] { 1, 3, 7, 9, 11, 13, 17, 19 }, 18)
 @CountLoopIterations
 @CheckSideEffects
 */
-static int binarySearch (int [] a, int e) {
+static int binarySearch (int[] a, int e) {
     int l = 0;
     int r = a. length - 1;
     while (l <= r) {
@@ -131,7 +134,7 @@ static int binarySearch (int [] a, int e) {
 
 Solution under testing (performing linear search):
 ```java
-static int binarySearch (int [] a, int e) {
+static int binarySearch (int[] a, int e) {
     for (int i = 0; i < a. length ; i++)
         if (a[i] == e) return i;
     return -1;
@@ -167,7 +170,7 @@ Witter test results (black-box pass, white-box fail):
 Reference solution performing insertion sort:
 ```java
 /*
-@Test ({5 , 4, 3, 2, 1})
+@Test(new int[] { 5, 4, 3, 2, 1 })
 @CountArrayReads
 @CountArrayWrites
 @CheckSideEffects

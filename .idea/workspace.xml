@@ -4,22 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Added paper test examples. Added README.">
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TSL.g4" beforeDir="false" afterPath="$PROJECT_DIR$/src/TSL.g4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/Reference.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/Subject.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/Feedback.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/testing/TestResult.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/testing/ProcedureTestListener.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/Tester.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/testing/Tester.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/tsl/ProcedureTestSpecification.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -247,7 +234,7 @@
       <workItem from="1691937941815" duration="196000" />
       <workItem from="1693924425870" duration="596000" />
       <workItem from="1694115250334" duration="3454000" />
-      <workItem from="1694118782379" duration="5565000" />
+      <workItem from="1694118782379" duration="6268000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -270,7 +257,15 @@
       <option name="project" value="LOCAL" />
       <updated>1689860494052</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format">
+      <option name="closed" value="true" />
+      <created>1694124529275</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1694124529277</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -291,7 +286,8 @@
     <MESSAGE value="Proof of concept." />
     <MESSAGE value="Finished white-box measurements. (Needs testing!)" />
     <MESSAGE value="Added paper test examples. Added README." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added paper test examples. Added README." />
+    <MESSAGE value="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
