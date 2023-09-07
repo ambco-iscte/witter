@@ -2,8 +2,6 @@
 
 # Witter
 
-[![Published on the ACM Digital Library](https://img.shields.io/badge/ACM_Digital_Library-published-blue.svg)]()
-
 **Witter** is a software testing library that allows programming educators to define white-box
 tests for Java source code. Witter analyzes the execution of a method against a reference
 solution, to verify that the code not only produces correct results but is also in

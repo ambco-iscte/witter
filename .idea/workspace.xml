@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format">
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Fixed README nitpicks.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
@@ -234,7 +234,7 @@
       <workItem from="1691937941815" duration="196000" />
       <workItem from="1693924425870" duration="596000" />
       <workItem from="1694115250334" duration="3454000" />
-      <workItem from="1694118782379" duration="6268000" />
+      <workItem from="1694118782379" duration="6329000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -265,7 +265,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694124529277</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fixed README nitpicks.">
+      <option name="closed" value="true" />
+      <created>1694125157217</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1694125157217</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -287,7 +295,8 @@
     <MESSAGE value="Finished white-box measurements. (Needs testing!)" />
     <MESSAGE value="Added paper test examples. Added README." />
     <MESSAGE value="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format" />
+    <MESSAGE value="Fixed README nitpicks." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed README nitpicks." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
