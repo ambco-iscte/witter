@@ -1,16 +1,15 @@
 package tsl
 
-import TSLLexer
-import TSLParser
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import pt.iscte.strudel.model.IProcedure
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
+import TSLParser
+import TSLLexer
 
 object TestSpecifier {
 
-    // I, obviously, did not come up with this myself
     // Splits strings into tokens separated by commas, but only considering commas NOT enclosed in (), [], or {}.
     private val ARGUMENT_SPLIT_REGEX: Regex = ",(?![^(\\[{]*[)\\]}])".toRegex()
 
@@ -40,15 +39,15 @@ object TestSpecifier {
     }
 
     private fun TSLParser.AnnotationContext.translate(): ITestParameter = when (this) {
-        is TSLParser.CountLoopIterationsContext -> CountLoopIterations(margin.text.toInt())
-        is TSLParser.CountObjectAllocationsContext -> CountRecordAllocations(margin.text.toInt())
-        is TSLParser.CountArrayAllocationsContext -> CountArrayAllocations(margin.text.toInt())
-        is TSLParser.CountArrayReadAccessesContext -> CountArrayReadAccesses(margin.text.toInt())
-        is TSLParser.CountArrayWriteAccessesContext -> CountArrayWriteAccesses(margin.text.toInt())
-        is TSLParser.CountMemoryUsageContext -> CountMemoryUsage(margin.text.toInt())
+        is TSLParser.CountLoopIterationsContext -> CountLoopIterations(margin?.text?.toInt() ?: 0)
+        is TSLParser.CountObjectAllocationsContext -> CheckObjectAllocations
+        is TSLParser.CountArrayAllocationsContext -> CheckArrayAllocations
+        is TSLParser.CountArrayReadAccessesContext -> CountArrayReadAccesses(margin?.text?.toInt() ?: 0)
+        is TSLParser.CountArrayWriteAccessesContext -> CountArrayWriteAccesses(margin?.text?.toInt() ?: 0)
+        is TSLParser.CountMemoryUsageContext -> CountMemoryUsage(margin?.text?.toInt() ?: 0)
         is TSLParser.TrackVariableStatesContext -> TrackParameterStates
-        is TSLParser.CheckParameterImmutabilityContext -> CheckParameterMutability
-        is TSLParser.CountRecursiveCallsContext -> CountRecursiveCalls(margin.text.toInt())
+        is TSLParser.CheckParameterImmutabilityContext -> CheckSideEffects
+        is TSLParser.CountRecursiveCallsContext -> CountRecursiveCalls(margin?.text?.toInt() ?: 0)
         else -> throw Exception("")
     }
 }

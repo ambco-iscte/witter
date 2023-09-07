@@ -1,3 +1,4 @@
+import pt.iscte.strudel.vm.IVirtualMachine
 import java.io.File
 
 import testing.Tester
@@ -13,15 +14,11 @@ private const val FACTORIAL_ITERATIVE = "src/main/java/examples/paper/factorial/
 
 fun main() {
     // Initialise tester
-    val tester = Tester(reference = File(FACTORIAL_RECURSIVE))
+    val tester = Tester(SORTING_INSERTION)
 
     // Run tests
-    val results = tester.execute(file = File(FACTORIAL_ITERATIVE))
+    val results = tester.execute(SORTING_SELECTION)
 
     // Print test results for each tested procedure
-    results.keys.forEach { procedure ->
-        results[procedure]!!.forEach {
-            println("[${procedure.id}]: ${it.message}\n")
-        }
-    }
+    results.forEach { println(it.toString() + "\n") }
 }

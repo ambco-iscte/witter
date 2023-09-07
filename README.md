@@ -1,122 +1,213 @@
-# Witter: A Library for White-Box Testing of Java Code
+<div align="center">
 
-## What is Witter?
-**Witter** is a software testing library that aims to provide
-a straightforward way for software testers to run white-box
-tests of Java source code. The library thus provides the tools
-for a software tester to analyse the execution of a proposed
-implementation against an accepted solution to verify that
-the code not only produces correct results, but also verifies
-certain efficiency or design pattern restrictions.
+# Witter
+**Witter** is a software testing library that allows programming educators to define white-box
+tests for Java source code. Witter analyzes the execution of a method against a reference
+solution, to verify that the code not only produces correct results but is also in
+accordance with a desired algorithm behaviour.
+
+[Specifying reference solutions](#specifying-reference-solutions) •
+[Testing arbitrary solutions](#testing-arbitrary-solutions) •
+[Examples](#examples)
+
+</div>
 
 <br>
 
-## Functionalities
-Witter provides a Kotlin library that allows the definition
-of annotated reference solutions and their execution and
-comparison against proposed implementations.
+## Specifying reference solutions
+One can define the test cases for a given exercise by writing
+a reference solution in a Java method, annotated with a
+header comment that defines the different test inputs and
+the metrics that should be measured during test execution.
+The content of the comments has to obey Witter’s Test Specification
+Language (TSL), whose syntax is similar to Java’s
+annotation syntax:
+```java
+/*
+@Test ({1 , 2, 3, 4, 5})
+@Test ({2 , 4, 6})
+@CountLoopIterations
+@CountArrayReads
+@CheckSideEffects
+*/
+public static int sum( int [] a) { 
+    ... 
+}
+```
 
-Witter currently supports the dynamic measurement of the
-following metrics relating to the execution of procedures:
-1. Loop iterations;
-2. Record (object) allocations;
-3. Array allocations;
-4. Array read and write accesses;
-5. Memory usage (in bytes);
-6. Recursive calls;
-7. Argument mutability;
-8. Tracking argument variable states, that is, the states
-   that each argument variable takes as the procedure
-   executes.
-   
-Naturally, the outputs of functions are also measured, to
-   allow for regular black-box testing.
+Witter currently supports the following runtime metrics.
 
-One can define the intended test cases for a given application
-by providing Witter with a reference solution written in Java
-and annotated with comments that detail the different inputs
-to test and the metrics that should be measured during test
-execution. Each procedure is thus annotated with a comment
-following Witter’s Test Specification Language (TSL) syntax, which is based on Java’s usual annotation syntax. The
-test specification relying on a purely textual comment is
-intended to simplify the process by removing the need to
-import external modules, while also giving us more freedom
-in handling the content of the provided annotations.
-TSL’s main annotation is the @Test annotation, which
-contains the arguments that should be passed when executing the procedure for a single test case. The arguments are
-enclosed in parentheses and follow Java’s usual syntax.
-Metrics 1-6 are associated with the testing of any given procedure by including their respective annotations in the 
-procedure’s test specification comment. Each of these annotations
-should be parametrised with an integer value that denotes
-an acceptable margin of deviation of the tested implementation from the reference solution when it comes to 
-each metric. For example, the annotation @CountLoopIterations(3)
-would measure the number of loop iterations on execution
-of a given procedure, and a solution is considered acceptable if that number lies within 3 iterations of the reference
-procedure. The annotations for metrics 7 and 8 do not require the inclusion of a margin value, thus being simply
-`@CheckParameterMutability` and `@TrackArgumentStates`, respectively.
+| **Metric**         | **Annotation**                      | **Verification**                                                                                  |
+|--------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
+| Return values      | @Test(_[...args]_)                  | Return value is equal to reference solution. Multiple annotations can be used.                    |
+| Side effects       | @CheckSideEffects                   | Side effects on arguments (presence and absence) are the same to those of the reference solution. |
+| Loop iterations    | @CountLoopIterations(_[threshold]_) | Total number of loop iterations matches the one of the reference solution.                        |
+| Array allocations  | @CheckArrayAllocations              | The array allocations match those of the reference solution (component types and lengths).        |
+| Array reads        | @CountArrayReads(_[threshold]_)     | The number of array read accesses is the same as in the reference solution.                       |
+| Array writes       | @CountArrayWrites(_[threshold]_)    | The number of array write accesses is the same as in the reference solution.                      |
+| Object allocations | @CheckObjectAllocations             | The number of object allocations and their types match those of the reference solution.           |
+| Recursive calls    | @CountRecursiveCalls(_[threshold]_) | The number of recursive calls matches the one of the reference solution.                          |
+
+<br>
+
+## Testing arbitrary solutions
+As Witter is designed for third-party integration, it provides
+a form of executing the tests programmatically. Tests are executed providing an annotated reference
+solution as described, and a solution that one wishes to assess:
+```java
+Test test = new Test("ReferenceSolution.java")
+        
+List<TestResult> results = test.execute("Solution.java")
+```
+
+The test results consist of a list of feedback
+items for each aspect defined in the test specification,
+holding the following information:
+- a flag indicating success or failure;
+- which kind of metric has failed (recall Table 1);
+- the location of code elements involved in the failed tests (e.g., procedure, parameters, loop structures);
+- a human-readable descriptive feedback message.
 
 <br>
 
 ## Examples
-### Example 1 - Test specification
-Consider we wish to assess an implementation of the binary search algorithm on an array of 
-integers. We thus provide Witter with an annotated reference solution that defines two 
-test cases and additionally compares the number of loop iterations between the reference 
-and submitted solutions. For the sake of showcasing the intended functionality, 
-assume that the submitted solution is instead implemented using a linear search algorithm.
-
-**Listing 1.** Reference solution.
+### Factorial (recursive)
+Reference solution with recursion:
 ```java
 /*
-@Test(new int[] { 1, 2, 3, 4, 5, 6 }, 6)
-@Test(new int[] { 1, 2, 3 }, 3)
-@CountLoopIterations(0)
- */
-public static int search(int[] a, int e) {
+@Test (5)
+@CountRecursiveCalls (1)
+*/
+static int factorial(int n) {
+    if (n == 0) return 1;
+    else return n * factorial (n - 1);
+}
+```
+
+Solution under testing (iterative, with a defect):
+```java
+static int factorial(int n) {
+    int f = 1;
+    for (int i = 0; i <= n; i++)
+        f *= i; // i starts at 0, f always 0
+    return f;
+}
+```
+
+Witter test results (black-box and white-box fail):
+```
+[fail] factorial(5)
+    Expected result: 120
+    Found: 0
+
+[fail] factorial(5)
+    Expected recursive calls: 4 (± 1)
+    Found: 0
+```
+
+<br>
+
+### Binary search (iterative)
+Reference solution using binary search:
+```java
+/*
+@Test ({1 , 2, 3, 4, 5, 6, 7}, 1)
+@Test ({1 , 3, 7, 9, 11, 13, 17, 19} , 18)
+@CountLoopIterations
+@CheckSideEffects
+*/
+static int binarySearch (int [] a, int e) {
     int l = 0;
-    int r = a.length - 1;
+    int r = a. length - 1;
     while (l <= r) {
         int m = l + (r - l) / 2;
-        if (a[m] == e)
-            return m;
-        if (a[m] < e)
-            l = m + 1;
-        else
-            r = m - 1;
+        if (a[m] == e) return m;
+        if (a[m] < e) l = m + 1;
+        else r = m - 1;
     }
     return -1;
 }
 ```
 
-**Listing 2.** Submitted solution.
+Solution under testing (performing linear search):
 ```java
-public static int search(int[] a, int e) {
-    for (int i = 0; i < a.length; i++) {
-        if (a[i] == e)
-            return i;
-    }
+static int binarySearch (int [] a, int e) {
+    for (int i = 0; i < a. length ; i++)
+        if (a[i] == e) return i;
     return -1;
 }
 ```
 
-We then execute the testing process, which gives a collection of results, grouped by each 
-executed procedure (in this example, only one procedure is considered):
+Witter test results (black-box pass, white-box fail):
 ```
-[search]: Incorrect count of loop iterations for invocation search([1, 2, 3, 4, 5, 6, 7], 1):
-          should have measured 3 +- 0 loop iterations, but measured 1.
+[pass] search([1, 2, 3, 4, 5, 6, 7], 1)
+	Expected result: 0 
 
-[search]: Incorrect count of loop iterations for invocation search([1, 2, 3], 3): should 
-          have measured 2 +- 0 loop iterations, but measured 3.
+[fail] search([1, 2, 3, 4, 5, 6, 7], 1)
+	Expected loop iterations: 3 
+	Found: 1
+
+[pass] search([1, 2, 3, 4, 5, 6, 7], 1)
+	Expected side effects: false 
+
+[pass] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
+	Expected result: -1 
+
+[fail] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
+	Expected loop iterations: 4 
+	Found: 8
+
+[pass] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
+	Expected side effects: false 
 ```
 
-### Example 2 - Test execution
-Witter provides a Tester class that, given an annotated reference solution as described above, and the solution that
-one wishes to assess, automatically handles the execution
-of the test cases and the collection of the desired metrics,
-outputting information of the results for each executed procedure.
-```kotlin
-val tester = Tester(reference = File("AnnotatedReferenceSolution.java"))
+<br>
 
-// Map associating each procedure to a list of result information
-val results = tester.execute(file = File("StudentSubmission.java"))
+### Insertion sort (procedure)
+Reference solution performing insertion sort:
+```java
+/*
+@Test ({5 , 4, 3, 2, 1})
+@CountArrayReads
+@CountArrayWrites
+@CheckSideEffects
+*/
+static void sort(int[] a) {
+    for (int i = 1; i < a. length; i++) {
+        for (int j = i; j > 0; j--) {
+            if (a[j] >= a[j - 1]) break;
+            int tmp = a[i];
+            a[i] = a[j];
+            a[j] = tmp;
+        }
+    }
+}
+```
+
+Solution under testing (performing selection sort):
+```java
+static void sort(int[] a) {
+    for (int i = 0; i < a. length - 1; i++) {
+        int min = i;
+        for (int j = i + 1; j < a. length ; j++)
+            if (a[j] < a[min]) min = j;
+        int tmp = a[i];
+        a[i] = a[min];
+        a[min] = tmp;
+    }
+}
+```
+
+Witter test results (black-box pass, white-box fail):
+```
+[fail] sort([5, 4, 3, 2, 1])
+	Expected array reads: 40 
+	Found: 28
+
+[fail] sort([5, 4, 3, 2, 1])
+	Expected array writes: 20 
+	Found: 8
+
+[pass] sort([5, 4, 3, 2, 1])
+	Expected side effects: false 
 ```

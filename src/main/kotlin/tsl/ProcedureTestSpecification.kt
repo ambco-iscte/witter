@@ -2,25 +2,45 @@ package tsl
 
 import pt.iscte.strudel.model.IProcedure
 
-sealed interface ITestParameter
+sealed interface ITestParameter {
+    fun description(): String
+}
 
-data class CountLoopIterations(val margin: Int): ITestParameter
+data class CountLoopIterations(val margin: Int): ITestParameter {
+    override fun description(): String  = "loop iterations"
+}
 
-data class CountRecordAllocations(val margin: Int): ITestParameter
+object CheckObjectAllocations : ITestParameter {
+    override fun description(): String = "object allocations"
+}
 
-data class CountArrayAllocations(val margin: Int): ITestParameter
+object CheckArrayAllocations : ITestParameter {
+    override fun description(): String = "array allocations"
+}
 
-data class CountArrayReadAccesses(val margin: Int): ITestParameter
+data class CountArrayReadAccesses(val margin: Int): ITestParameter {
+    override fun description(): String  = "array reads"
+}
 
-data class CountArrayWriteAccesses(val margin: Int): ITestParameter
+data class CountArrayWriteAccesses(val margin: Int): ITestParameter {
+    override fun description(): String  = "array writes"
+}
 
-data class CountMemoryUsage(val margin: Int): ITestParameter
+data class CountMemoryUsage(val margin: Int): ITestParameter {
+    override fun description(): String  = "used memory bytes"
+}
 
-object TrackParameterStates : ITestParameter
+object TrackParameterStates : ITestParameter {
+    override fun description(): String  = "parameter states"
+}
 
-object CheckParameterMutability: ITestParameter
+object CheckSideEffects: ITestParameter {
+    override fun description(): String  = "side effects"
+}
 
-data class CountRecursiveCalls(val margin: Int): ITestParameter
+data class CountRecursiveCalls(val margin: Int): ITestParameter {
+    override fun description(): String  = "recursive calls"
+}
 
 class ProcedureTestSpecification(val procedure: IProcedure, val cases: List<String>, val parameters: Set<ITestParameter>) {
 

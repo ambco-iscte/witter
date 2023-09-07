@@ -4,10 +4,9 @@ public class InsertionSort {
 
     /*
     @Test(new int[] { 5, 4, 3, 2, 1 })
-    @CountLoopIterations(0)
-    @CountArrayReadAccesses(0)
-    @CountArrayWriteAccesses(0)
-    @TrackArgumentStates()
+    @CountArrayReads
+    @CountArrayWrites
+    @CheckSideEffects
     */
     public static void sort(int[] a) {
         for (int i = 1; i < a.length; i++) {

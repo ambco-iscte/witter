@@ -4,33 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Finished white-box measurements. (Needs testing!)">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/LinearSearch.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/IterativeFactorial.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/SelectionSort.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../strudel/src/main/kotlin/pt/iscte/strudel/vm/IVirtualMachine.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../strudel/src/main/kotlin/pt/iscte/strudel/vm/IVirtualMachine.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../strudel/src/main/kotlin/pt/iscte/strudel/vm/impl/CFGExecution.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../strudel/src/main/kotlin/pt/iscte/strudel/vm/impl/CFGExecution.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../strudel/src/main/kotlin/pt/iscte/strudel/vm/impl/ProcedureInterpreter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../strudel/src/main/kotlin/pt/iscte/strudel/vm/impl/ProcedureInterpreter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Added paper test examples. Added README.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/TSL.g4" beforeDir="false" afterPath="$PROJECT_DIR$/src/TSL.g4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Reference.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/Reference.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Subject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/Subject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSL.interp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSL.interp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSL.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSL.tokens" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLBaseListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLBaseListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLBaseVisitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLBaseVisitor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLLexer.interp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLLexer.interp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLLexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLLexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLLexer.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLLexer.tokens" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/antlr/TSLVisitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/antlr/TSLVisitor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/Reference.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/Subject.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/Feedback.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/testing/TestResult.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/testing/ProcedureTestListener.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/Tester.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/testing/Tester.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/tsl/ProcedureTestSpecification.kt" afterDir="false" />
@@ -154,52 +139,26 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestDocumentation" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="whitebox-proof-of-concept [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
+        <option name="scriptParameters" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value=":strudel:test" />
-            <option value="--tests" />
-            <option value="&quot;pt.iscte.strudel.tests.TestDocumentation&quot;" />
+            <option value="jar" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
-      <ForceTestExec>true</ForceTestExec>
-      <method v="2" />
-    </configuration>
-    <configuration name="TestDocumentation.Parsed statement line comment" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":strudel:test" />
-            <option value="--tests" />
-            <option value="&quot;pt.iscte.strudel.tests.TestDocumentation.Parsed statement line comment&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <ForceTestExec>true</ForceTestExec>
+      <ForceTestExec>false</ForceTestExec>
       <method v="2" />
     </configuration>
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
@@ -216,13 +175,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="TesterKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="testing.TesterKt" />
+      <module name="whitebox-proof-of-concept.main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="Kotlin.TesterKt" />
+        <item itemvalue="Gradle.whitebox-proof-of-concept [jar]" />
         <item itemvalue="Application.InsertionSort" />
         <item itemvalue="Kotlin.TestSpecifierKt" />
-        <item itemvalue="Gradle.TestDocumentation" />
-        <item itemvalue="Gradle.TestDocumentation.Parsed statement line comment" />
       </list>
     </recent_temporary>
   </component>
@@ -273,6 +239,15 @@
       <workItem from="1689674245877" duration="2818000" />
       <workItem from="1689758080010" duration="10929000" />
       <workItem from="1689845626516" duration="3814000" />
+      <workItem from="1689860441526" duration="825000" />
+      <workItem from="1689935520766" duration="3915000" />
+      <workItem from="1689949593324" duration="126000" />
+      <workItem from="1690191229760" duration="4199000" />
+      <workItem from="1690201576066" duration="4734000" />
+      <workItem from="1691937941815" duration="196000" />
+      <workItem from="1693924425870" duration="596000" />
+      <workItem from="1694115250334" duration="3454000" />
+      <workItem from="1694118782379" duration="5565000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -288,7 +263,14 @@
       <option name="project" value="LOCAL" />
       <updated>1689634588455</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added paper test examples. Added README.">
+      <created>1689860494052</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1689860494052</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -308,7 +290,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Proof of concept." />
     <MESSAGE value="Finished white-box measurements. (Needs testing!)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Finished white-box measurements. (Needs testing!)" />
+    <MESSAGE value="Added paper test examples. Added README." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added paper test examples. Added README." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

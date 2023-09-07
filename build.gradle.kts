@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "1.8.20"
+    id("java")
+    id("application")
 }
 
 group = "iscte.ambco"
@@ -19,8 +21,4 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-kotlin {
-    jvmToolchain(17)
 }

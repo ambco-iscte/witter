@@ -41,8 +41,6 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
         if (specification.contains<CountRecursiveCalls>() && caller == procedure) {
             val rec = getOrDefault(procedure, CountRecursiveCalls::class, 0)
             setMetric<CountRecursiveCalls>(procedure, rec + 1)
-
-
         }
 
         // Count read accesses for argument arrays
@@ -76,8 +74,10 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     fun <T> getAll(procedure: IProcedure, parameter: KClass<out ITestParameter>): List<T> {
         val all = mutableListOf<T>()
         values.forEach { (invocation, metric) ->
-            if (invocation.first == procedure)
-                all.addAll(metric.values.map { it as T })
+            if (invocation.first == procedure) metric.forEach { (type, value) ->
+                if (type == parameter)
+                    all.add(value as T)
+            }
         }
         return all
     }
@@ -99,25 +99,27 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     }
 
     // Count record allocations
+    // TODO track types along with count
     override fun recordAllocated(ref: IReference<IRecord>) {
-        if (!specification.contains<CountRecordAllocations>()) return
+        if (!specification.contains<CheckObjectAllocations>()) return
 
         val procedure = vm.callStack.topFrame.procedure
-        val current = getOrDefault(procedure, CountRecordAllocations::class, 0)
-        setMetric<CountRecordAllocations>(procedure, current + 1)
+        val current = getOrDefault(procedure, CheckObjectAllocations::class, 0)
+        setMetric<CheckObjectAllocations>(procedure, current + 1)
     }
 
     // Count array allocations
+    // TODO track types along with count
     override fun arrayAllocated(ref: IReference<IArray>) {
-        if (!specification.contains<CountArrayAllocations>()) return
+        if (!specification.contains<CheckArrayAllocations>()) return
 
         val procedure = vm.callStack.topFrame.procedure
 
         // Count array read accesses
         ref.target.addListener(ArrayReadAccessListener(procedure))
 
-        val current = getOrDefault(procedure, CountArrayAllocations::class, 0)
-        setMetric<CountArrayAllocations>(procedure, current + 1)
+        val current = getOrDefault(procedure, CheckArrayAllocations::class, 0)
+        setMetric<CheckArrayAllocations>(procedure, current + 1)
     }
 
     // Count array write (assignment) accesses
@@ -144,9 +146,9 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
 
         // Check parameter mutability
         // TODO - more in-depth, say which parameter was modified when it shouldn't have been?
-        if (specification.contains<CheckParameterMutability>()) {
+        if (specification.contains<CheckSideEffects>()) {
             if (a.target in procedure.parameters)
-                setMetric<CheckParameterMutability>(procedure, true)
+                setMetric<CheckSideEffects>(procedure, true)
         }
 
         // Store argument states

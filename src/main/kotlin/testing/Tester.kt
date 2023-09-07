@@ -2,16 +2,26 @@ package testing
 
 import pt.iscte.strudel.javaparser.Java2Strudel
 import pt.iscte.strudel.model.*
+import pt.iscte.strudel.vm.IArray
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
 import tsl.*
 import java.io.File
 
-class Tester(reference: File) {
-    private val loader = Java2Strudel()
-    private val ref: IModule = loader.load(reference)
+@Suppress("UNCHECKED_CAST")
+private fun IValue.sameAs(other: IValue): Boolean =
+    if (this is IArray && other is IArray) (value as Array<IValue>).sameAs(other.value as Array<IValue>)
+    else value == other.value
 
-    private fun Int.notInRange(start: Int, margin: Int): Boolean = !(this >= start - margin && this <= start + margin)
+private fun Array<IValue>.sameAs(other: Array<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
+
+private fun Iterable<IValue>.sameAs(other: Iterable<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
+
+class Tester(referenceFile: String) {
+    private val loader = Java2Strudel()
+    private val ref: IModule = loader.load(File(referenceFile))
+
+    private fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
 
     private val IModule.definedTests: List<ProcedureTestSpecification>
         get() {
@@ -22,16 +32,13 @@ class Tester(reference: File) {
             return tests.toList()
         }
 
-    fun execute(file: File): Map<IProcedure, List<Feedback>> {
-        val subject: IModule = loader.load(file)
-        val results = mutableMapOf<IProcedure, MutableList<Feedback>>()
-
+    fun execute(file: String): List<TestResult> {
+        val subject: IModule = loader.load(File(file))
+        val results = mutableListOf<TestResult>()
+        
         ref.definedTests.forEach { specification ->
-            val referenceProcedure = specification.procedure
+            val referenceProcedure = specification.procedure // TODO: find a way to include alternative solutions
             val subjectProcedure = subject.getProcedure(referenceProcedure.id!!)
-            val method = subjectProcedure.id!!
-
-            if (!results.containsKey(subjectProcedure)) results[subjectProcedure] = mutableListOf()
 
             specification.cases.forEach { arguments ->
                 val vm = IVirtualMachine.create()
@@ -52,90 +59,141 @@ class Tester(reference: File) {
                 // ---------------------
 
                 // Check result equality
-                // TODO: find a way to include alternative solutions
-                if (actual != expected)
-                    results[subjectProcedure]!!.add(IncorrectInvocationResult(method, unmodified, expected, actual))
+                if (subjectProcedure.returnType != VOID || referenceProcedure.returnType != VOID)
+                    results.add(TestResult(
+                        actual == expected,
+                        subjectProcedure,
+                        unmodified,
+                        "result",
+                        expected,
+                        null,
+                        actual
+                    ))
 
                 // ---------------------
                 //       WHITE-BOX
                 // ---------------------
 
+                // TODO ugly duplicate code
+
                 // Check loop iterations
                 specification.get<CountLoopIterations>()?.let { parameter ->
-                    val expectedLoopIterations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val actualLoopIterations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                    if (actualLoopIterations.notInRange(expectedLoopIterations, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "loop iterations",
-                            method, unmodified, expectedLoopIterations, parameter.margin, actualLoopIterations))
+                    val passed = act.inRange(exp, parameter.margin)
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        parameter.margin,
+                        act
+                    ))
                 }
 
                 // Check record allocations
-                specification.get<CountRecordAllocations>()?.let { parameter ->
-                    val expectedRecordAllocations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val actualRecordAllocations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                specification.get<CheckObjectAllocations>()?.let { parameter ->
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                    if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "record allocations",
-                            method, unmodified, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                    val passed = act == exp
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        null,
+                        act
+                    ))
                 }
 
                 // Check array allocations
-                specification.get<CountArrayAllocations>()?.let { parameter ->
-                    val expectedRecordAllocations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val actualRecordAllocations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                specification.get<CheckArrayAllocations>()?.let { parameter ->
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                    if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "array allocations",
-                            method, unmodified, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                    val passed = act == exp
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        null,
+                        act
+                    ))
                 }
 
                 // Check array read accesses
                 specification.get<CountArrayReadAccesses>()?.let { parameter ->
-                    val expectedArrayReads = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val actualArrayReads = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                    if (actualArrayReads.notInRange(expectedArrayReads, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "array read accesses",
-                            method, unmodified, expectedArrayReads, parameter.margin, actualArrayReads))
+                    val passed = act.inRange(exp, parameter.margin)
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        parameter.margin,
+                        act
+                    ))
                 }
 
                 // Check array write accesses
                 specification.get<CountArrayWriteAccesses>()?.let { parameter ->
-                    val expectedRecordAllocations = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val actualRecordAllocations = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                    if (actualRecordAllocations.notInRange(expectedRecordAllocations, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "array write accesses",
-                            method, unmodified, expectedRecordAllocations, parameter.margin, actualRecordAllocations))
+                    val passed = act.inRange(exp, parameter.margin)
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        parameter.margin,
+                        act
+                    ))
                 }
 
                 // Check memory usage
                 specification.get<CountMemoryUsage>()?.let { parameter ->
-                    val expectedMemoryUsage = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val actualMemoryUsage = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
-                    if (actualMemoryUsage.notInRange(expectedMemoryUsage, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "allocated memory bytes",
-                            method, unmodified, expectedMemoryUsage, parameter.margin, actualMemoryUsage))
+                    val passed = act.inRange(exp, parameter.margin)
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        parameter.margin,
+                        act
+                    ))
                 }
 
                 // Check recursive calls
                 // TODO getAll could be used for more stuff when recursion is at play
                 specification.get<CountRecursiveCalls>()?.let { parameter ->
-                    val expectedRecursiveCalls = listener.getAll<Int>(referenceProcedure, parameter::class).sum()
-                    val actualRecursiveCalls = listener.getAll<Int>(subjectProcedure, parameter::class).sum()
+                    val exp = listener.getAll<Int>(referenceProcedure, parameter::class).sum()
+                    val act = listener.getAll<Int>(subjectProcedure, parameter::class).sum()
 
-                    if (actualRecursiveCalls.notInRange(expectedRecursiveCalls, parameter.margin))
-                        results[subjectProcedure]!!.add(MeasuredValueNotInRange(
-                            "recursive calls",
-                            method, unmodified, expectedRecursiveCalls, parameter.margin, actualRecursiveCalls))
+                    val passed = act.inRange(exp, parameter.margin)
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        parameter.margin,
+                        act
+                    ))
                 }
 
                 // Check variable states for procedure arguments
@@ -144,32 +202,40 @@ class Tester(reference: File) {
                     val actualParamStates = listener.getOrDefault(subjectProcedure, parameter::class, mapOf<IParameter, List<IValue>>())
 
                     referenceProcedure.parameters.forEachIndexed { i, param ->
-                        val e = expectedParamStates[param] ?: listOf()
-                        val a = actualParamStates[subjectProcedure.parameters[i]] ?: listOf()
+                        val exp = expectedParamStates[param] ?: listOf()
+                        val act = actualParamStates[subjectProcedure.parameters[i]] ?: listOf()
 
-                        if (a != e)
-                            results[subjectProcedure]!!.add(InconsistentArgumentStates(
-                                method,
-                                unmodified,
-                                param,
-                                e,
-                                a
-                            ))
+                        val passed = act.sameAs(exp)
+                        results.add(TestResult(
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description() + " of ${param.id}",
+                            exp,
+                            null,
+                            act
+                        ))
                     }
                 }
 
                 // Check parameter immutability
-                specification.get<CheckParameterMutability>()?.let { parameter ->
-                    val expectedChangesParameters = listener.getOrDefault(referenceProcedure, parameter::class, false)
-                    val actualChangesParameters = listener.getOrDefault(subjectProcedure, parameter::class, false)
+                specification.get<CheckSideEffects>()?.let { parameter ->
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, false)
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, false)
 
-                    if (actualChangesParameters != expectedChangesParameters)
-                        results[subjectProcedure]!!.add(InconsistentParameterMutability(
-                            method,
-                            unmodified,
-                            expectedChangesParameters,
-                            actualChangesParameters
-                        ))
+                    // TODO paper says expected side effects: {an array}
+                    //  is this the return value? I was doing it like true/false whether or not params were modified
+
+                    val passed = exp == act
+                    results.add(TestResult(
+                        passed,
+                        subjectProcedure,
+                        unmodified,
+                        parameter.description(),
+                        exp,
+                        null,
+                        act
+                    ))
                 }
             }
         }
