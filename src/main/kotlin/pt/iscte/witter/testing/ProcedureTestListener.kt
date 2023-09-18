@@ -1,8 +1,8 @@
-package testing
+package pt.iscte.witter.testing
 
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.vm.*
-import tsl.*
+import pt.iscte.witter.tsl.*
 import kotlin.reflect.KClass
 
 typealias Invocation = Pair<IProcedure, List<IValue>>

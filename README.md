@@ -2,16 +2,36 @@
 
 # Witter
 
+**A Library for White-Box Testing of
+Introductory Programming Algorithms**
+
 **Witter** is a software testing library that allows programming educators to define white-box
 tests for Java source code. Witter analyzes the execution of a method against a reference
 solution, to verify that the code not only produces correct results but is also in
 accordance with a desired algorithm behaviour.
 
+[Installation](#installation) •
 [Specifying reference solutions](#specifying-reference-solutions) •
 [Testing arbitrary solutions](#testing-arbitrary-solutions) •
 [Examples](#examples)
 
 </div>
+
+<br>
+
+## Installation
+**Witter** is an experimental library, and as such is not yet available in build automation tools (Gradle, etc.)
+
+To use Witter in your project, first build its .jar file using Gradle's build task. The .jar file is generated under
+the project root in `/build/libs`. This file should be copied to your own project's `libs` folder,
+and then added as a dependency in your build automation tools. For example, in Gradle:
+```kotlin
+dependencies {
+    implementation(files("libs/witter-0.2.2.jar"))
+}
+```
+Note, of course, that the file name can change when updates for Witter are released, and should be changed
+in your dependency specification accordingly.
 
 <br>
 
@@ -72,7 +92,9 @@ holding the following information:
 <br>
 
 ## Examples
-### Factorial (recursive)
+<details>
+<summary><b>Factorial (recursive)</b></summary>
+
 Reference solution with recursion:
 ```java
 /*
@@ -105,10 +127,13 @@ Witter test results (black-box and white-box fail):
     Expected recursive calls: 4 (± 1)
     Found: 0
 ```
+</details>
 
 <br>
 
-### Binary search (iterative)
+<details>
+<summary><b>Binary search (iterative)</b></summary>
+
 Reference solution using binary search:
 ```java
 /*
@@ -161,10 +186,13 @@ Witter test results (black-box pass, white-box fail):
 [pass] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
 	Expected side effects: false 
 ```
+</details>
 
 <br>
 
-### Insertion sort (procedure)
+<details>
+<summary><b>Insertion sort (procedure)</b></summary>
+
 Reference solution performing insertion sort:
 ```java
 /*
@@ -212,3 +240,4 @@ Witter test results (black-box pass, white-box fail):
 [pass] sort([5, 4, 3, 2, 1])
 	Expected side effects: false 
 ```
+</details>

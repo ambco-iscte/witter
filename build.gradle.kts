@@ -4,8 +4,8 @@ plugins {
     id("application")
 }
 
-group = "iscte.ambco"
-version = "1.0-SNAPSHOT"
+group = "pt.iscte.ambco"
+version = "0.2.2"
 
 repositories {
     mavenCentral()
@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.antlr:antlr4:4.12.0")
+    implementation("org.antlr:antlr4:4.13.1")
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation(project(":strudel"))

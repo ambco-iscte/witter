@@ -1,4 +1,4 @@
-package tsl
+package pt.iscte.witter.tsl
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.expr.*

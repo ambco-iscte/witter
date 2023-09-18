@@ -5,8 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Fixed README nitpicks.">
+      <change beforePath="$PROJECT_DIR$/../strudel/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/../strudel/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TSL.g4" beforeDir="false" afterPath="$PROJECT_DIR$/src/TSL.g4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/TestResult.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/testing/Tester.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Tester.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/tsl/JavaArgument2Strudel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/JavaArgument2Strudel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,16 +40,16 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="whitebox-proof-of-concept" type="f1a62948:ProjectNode" />
+                <item name="witter" type="f1a62948:ProjectNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="whitebox-proof-of-concept" type="f1a62948:ProjectNode" />
+                <item name="witter" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="whitebox-proof-of-concept" type="f1a62948:ProjectNode" />
+                <item name="witter" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
@@ -52,13 +63,13 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Kotlin File" />
         <option value="Kotlin Enum" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Interface" />
         <option value="Kotlin Object" />
-        <option value="Kotlin Class" />
         <option value="Class" />
+        <option value="Kotlin File" />
+        <option value="Kotlin Class" />
       </list>
     </option>
   </component>
@@ -105,6 +116,10 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\kotlin\pt\iscte\witter\tsl" />
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\kotlin\pt\iscte\witter\testing" />
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\kotlin\pt\iscte\witter" />
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\kotlin\testing" />
       <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\kotlin\tsl" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
@@ -112,19 +127,55 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Kotlin.MainKt">
-    <configuration name="InsertionSort" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="examples.paper.sorting.InsertionSort" />
-      <module name="whitebox-proof-of-concept.main" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="examples.paper.sorting.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="gradle build" />
+    </option>
+  </component>
+  <component name="RunManager" selected="Gradle.whitebox-proof-of-concept [jar]">
+    <configuration name="whitebox-proof-of-concept [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <ForceTestExec>false</ForceTestExec>
+      <method v="2" />
+    </configuration>
+    <configuration name="whitebox-proof-of-concept [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <ForceTestExec>false</ForceTestExec>
+      <method v="2" />
     </configuration>
     <configuration name="whitebox-proof-of-concept [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -149,33 +200,25 @@
       <method v="2" />
     </configuration>
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="MainKt" />
+      <option name="MAIN_CLASS_NAME" value="pt.iscte.witter.MainKt" />
       <module name="whitebox-proof-of-concept.main" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestSpecifierKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="tsl.TestSpecifierKt" />
-      <module name="whitebox-proof-of-concept.main" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="TesterKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="testing.TesterKt" />
-      <module name="whitebox-proof-of-concept.main" />
+    <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="pt.iscte.witter.MainKt" />
+      <module name="witter.main" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Kotlin.MainKt" />
-        <item itemvalue="Kotlin.TesterKt" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [jar]" />
-        <item itemvalue="Application.InsertionSort" />
-        <item itemvalue="Kotlin.TestSpecifierKt" />
+        <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
+        <item itemvalue="Gradle.whitebox-proof-of-concept [clean]" />
       </list>
     </recent_temporary>
   </component>
@@ -234,7 +277,22 @@
       <workItem from="1691937941815" duration="196000" />
       <workItem from="1693924425870" duration="596000" />
       <workItem from="1694115250334" duration="3454000" />
-      <workItem from="1694118782379" duration="6329000" />
+      <workItem from="1694118782379" duration="6486000" />
+      <workItem from="1694181623433" duration="3076000" />
+      <workItem from="1694351153714" duration="111000" />
+      <workItem from="1694352077478" duration="432000" />
+      <workItem from="1694531889553" duration="3000000" />
+      <workItem from="1694535474369" duration="61000" />
+      <workItem from="1694535544517" duration="875000" />
+      <workItem from="1694606081268" duration="203000" />
+      <workItem from="1694606874731" duration="2140000" />
+      <workItem from="1694609040309" duration="5122000" />
+      <workItem from="1694788035192" duration="1760000" />
+      <workItem from="1694789907048" duration="80000" />
+      <workItem from="1694790006348" duration="1471000" />
+      <workItem from="1695027815122" duration="41000" />
+      <workItem from="1695027970992" duration="6125000" />
+      <workItem from="1695039838537" duration="312000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -273,7 +331,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694125157217</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fixed README nitpicks.">
+      <option name="closed" value="true" />
+      <created>1694125199138</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1694125199138</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -1,9 +1,9 @@
 grammar TSL; // Test Specification Language
 
-specification: NEWLINE* (annotation (NEWLINE* annotation)*)? NEWLINE* EOF;
+specification: (annotation (annotation)*)? EOF;
 
 annotation:
-    '@Test' TEST_ARGUMENTS #testCaseAnnotation
+    '@Test' '(' args=(TEST_ARGUMENTS | INTEGER) ')' #testCaseAnnotation
     | '@CountLoopIterations' ('(' margin=INTEGER ')')? #countLoopIterations
     | '@CheckObjectAllocations' #countObjectAllocations
     | '@CheckArrayAllocations' #countArrayAllocations
@@ -15,14 +15,15 @@ annotation:
     | '@CountRecursiveCalls' ('(' margin=INTEGER ')')? #countRecursiveCalls
     ;
 
-TEST_ARGUMENTS: '(' ( ~('(' | ')') | TEST_ARGUMENTS )* ')';
+INTEGER: [0-9]+;
 
-INTEGER: ('-')?[0-9]+;
+TEST_ARGUMENTS: TEST_ARGUMENT (TEST_ARGUMENT)*; // Modified to remove left-recursion
+TEST_ARGUMENT: ~('(' | ')' | '\n' | '\r'); // Excluded newlines because they were breaking everything
 
-NEWLINE: '\n' | '\r' | '\r\n';
+IGNORE: (WHITESPACE | COMMENT | NEWLINE) -> skip;
 
-IGNORE: (WHITESPACE | COMMENT) -> skip;
+fragment NEWLINE: '\n' | '\r' | '\r\n';
 
 fragment WHITESPACE: (' ' | '\t')+;
 
-fragment COMMENT: NEWLINE* '#*' .+? '*#' NEWLINE*;
+fragment COMMENT: '#*' .+? '*#';

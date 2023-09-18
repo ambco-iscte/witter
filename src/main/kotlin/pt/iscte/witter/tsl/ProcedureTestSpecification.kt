@@ -1,4 +1,4 @@
-package tsl
+package pt.iscte.witter.tsl
 
 import pt.iscte.strudel.model.IProcedure
 

@@ -1,11 +1,11 @@
-package testing
+package pt.iscte.witter.testing
 
 import pt.iscte.strudel.javaparser.Java2Strudel
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.vm.IArray
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
-import tsl.*
+import pt.iscte.witter.tsl.*
 import java.io.File
 
 @Suppress("UNCHECKED_CAST")
@@ -17,20 +17,20 @@ private fun Array<IValue>.sameAs(other: Array<IValue>): Boolean = zip(other).all
 
 private fun Iterable<IValue>.sameAs(other: Iterable<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
 
+val IModule.definedTests: List<ProcedureTestSpecification>
+    get() {
+        val tests = mutableListOf<ProcedureTestSpecification>()
+        procedures.forEach { procedure ->
+            TestSpecifier.translate(procedure)?.let { tests.add(it) }
+        }
+        return tests.toList()
+    }
+
 class Tester(referenceFile: String) {
     private val loader = Java2Strudel()
     private val ref: IModule = loader.load(File(referenceFile))
 
     private fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
-
-    private val IModule.definedTests: List<ProcedureTestSpecification>
-        get() {
-            val tests = mutableListOf<ProcedureTestSpecification>()
-            procedures.forEach { procedure ->
-                TestSpecifier.translate(procedure)?.let { tests.add(it) }
-            }
-            return tests.toList()
-        }
 
     fun execute(file: String): List<TestResult> {
         val subject: IModule = loader.load(File(file))
@@ -60,7 +60,8 @@ class Tester(referenceFile: String) {
 
                 // Check result equality
                 if (subjectProcedure.returnType != VOID || referenceProcedure.returnType != VOID)
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         actual == expected,
                         subjectProcedure,
                         unmodified,
@@ -68,7 +69,8 @@ class Tester(referenceFile: String) {
                         expected,
                         null,
                         actual
-                    ))
+                    )
+                    )
 
                 // ---------------------
                 //       WHITE-BOX
@@ -82,7 +84,8 @@ class Tester(referenceFile: String) {
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
                     val passed = act.inRange(exp, parameter.margin)
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
@@ -90,7 +93,8 @@ class Tester(referenceFile: String) {
                         exp,
                         parameter.margin,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check record allocations
@@ -99,15 +103,17 @@ class Tester(referenceFile: String) {
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
                     val passed = act == exp
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
-                        parameter.description(),
+                        CheckObjectAllocations.description(),
                         exp,
                         null,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check array allocations
@@ -116,15 +122,17 @@ class Tester(referenceFile: String) {
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
                     val passed = act == exp
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
-                        parameter.description(),
+                        CheckArrayAllocations.description(),
                         exp,
                         null,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check array read accesses
@@ -133,7 +141,8 @@ class Tester(referenceFile: String) {
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
                     val passed = act.inRange(exp, parameter.margin)
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
@@ -141,7 +150,8 @@ class Tester(referenceFile: String) {
                         exp,
                         parameter.margin,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check array write accesses
@@ -150,7 +160,8 @@ class Tester(referenceFile: String) {
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
                     val passed = act.inRange(exp, parameter.margin)
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
@@ -158,7 +169,8 @@ class Tester(referenceFile: String) {
                         exp,
                         parameter.margin,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check memory usage
@@ -167,7 +179,8 @@ class Tester(referenceFile: String) {
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
                     val passed = act.inRange(exp, parameter.margin)
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
@@ -175,7 +188,8 @@ class Tester(referenceFile: String) {
                         exp,
                         parameter.margin,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check recursive calls
@@ -185,7 +199,8 @@ class Tester(referenceFile: String) {
                     val act = listener.getAll<Int>(subjectProcedure, parameter::class).sum()
 
                     val passed = act.inRange(exp, parameter.margin)
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
@@ -193,7 +208,8 @@ class Tester(referenceFile: String) {
                         exp,
                         parameter.margin,
                         act
-                    ))
+                    )
+                    )
                 }
 
                 // Check variable states for procedure arguments
@@ -206,15 +222,17 @@ class Tester(referenceFile: String) {
                         val act = actualParamStates[subjectProcedure.parameters[i]] ?: listOf()
 
                         val passed = act.sameAs(exp)
-                        results.add(TestResult(
+                        results.add(
+                            TestResult(
                             passed,
                             subjectProcedure,
                             unmodified,
-                            parameter.description() + " of ${param.id}",
+                            TrackParameterStates.description() + " of ${param.id}",
                             exp,
                             null,
                             act
-                        ))
+                        )
+                        )
                     }
                 }
 
@@ -223,19 +241,20 @@ class Tester(referenceFile: String) {
                     val exp = listener.getOrDefault(referenceProcedure, parameter::class, false)
                     val act = listener.getOrDefault(subjectProcedure, parameter::class, false)
 
-                    // TODO paper says expected side effects: {an array}
-                    //  is this the return value? I was doing it like true/false whether or not params were modified
+                    // TODO side effect compares final value of params
 
                     val passed = exp == act
-                    results.add(TestResult(
+                    results.add(
+                        TestResult(
                         passed,
                         subjectProcedure,
                         unmodified,
-                        parameter.description(),
+                        CheckSideEffects.description(),
                         exp,
                         null,
                         act
-                    ))
+                    )
+                    )
                 }
             }
         }

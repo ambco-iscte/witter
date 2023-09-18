@@ -1,4 +1,4 @@
-package testing
+package pt.iscte.witter.testing
 
 import pt.iscte.strudel.model.IProcedure
 

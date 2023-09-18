@@ -1,4 +1,4 @@
-package tsl
+package pt.iscte.witter.tsl
 
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
@@ -14,8 +14,9 @@ object TestSpecifier {
     private val ARGUMENT_SPLIT_REGEX: Regex = ",(?![^(\\[{]*[)\\]}])".toRegex()
 
     fun translate(procedure: IProcedure): ProcedureTestSpecification? =
-        procedure.documentation?.let {
-            TSLParser(CommonTokenStream(TSLLexer(CharStreams.fromString(it)))).specification().translate(procedure)
+        procedure.documentation?.let { comment ->
+            val annotation = comment.lineSequence().map { it.trim() }.joinToString(System.lineSeparator())
+            TSLParser(CommonTokenStream(TSLLexer(CharStreams.fromString(annotation)))).specification().translate(procedure)
         }
 
     fun parseArgumentsString(vm: IVirtualMachine, str: String): List<IValue> =
@@ -27,10 +28,7 @@ object TestSpecifier {
 
         annotation().forEach { annotation ->
             when (annotation) {
-                is TSLParser.TestCaseAnnotationContext -> {
-                    val text = annotation.TEST_ARGUMENTS().text
-                    cases.add(text.substring(1, text.length - 1))
-                }
+                is TSLParser.TestCaseAnnotationContext -> cases.add(annotation.args.text)
                 else -> parameters.add(annotation.translate())
             }
         }
