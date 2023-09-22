@@ -62,10 +62,6 @@ public static int sum(int[] a) {
 
 Witter currently supports the following runtime metrics.
 
-| Hello | World |
-|-------|-------|
-| Hello |There  |
-
 | **Metric**         | **Annotation**                      | **Verification**                                                                                  |
 |--------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
 | Return values      | @Test(_[...args]_)                  | Return value is equal to reference solution. Multiple annotations can be used.                    |

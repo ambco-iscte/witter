@@ -4,22 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Fixed TSL. Organised packages.">
-      <change afterPath="$PROJECT_DIR$/libs/strudel-0.8.1.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/witter-paddle-demo.gif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count.">
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/IterativeFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/IterativeFactorial.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Tester.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,6 +70,7 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="SYNC" />
+    <option name="SIGN_OFF_COMMIT" value="true" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -317,7 +304,7 @@
       <workItem from="1695216568296" duration="1264000" />
       <workItem from="1695224352586" duration="43000" />
       <workItem from="1695226595914" duration="639000" />
-      <workItem from="1695386133191" duration="2376000" />
+      <workItem from="1695386133191" duration="2706000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -372,7 +359,15 @@
       <option name="project" value="LOCAL" />
       <updated>1695040206227</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count.">
+      <option name="closed" value="true" />
+      <created>1695393647487</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1695393647487</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -390,13 +385,16 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="Proof of concept." />
     <MESSAGE value="Finished white-box measurements. (Needs testing!)" />
     <MESSAGE value="Added paper test examples. Added README." />
     <MESSAGE value="Updated README. Updated library to match paper:&#10;&#10;- Made metric threshold optional&#10;- Modified names of some TSL annotations&#10;- Changed test result/feedback format" />
     <MESSAGE value="Fixed README nitpicks." />
     <MESSAGE value="Fixed TSL. Organised packages." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed TSL. Organised packages." />
+    <MESSAGE value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
