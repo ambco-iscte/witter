@@ -8,7 +8,6 @@
         <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/../strudel" />
             <option value="$PROJECT_DIR$" />
           </set>
         </option>

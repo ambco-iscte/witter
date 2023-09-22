@@ -24,7 +24,7 @@ object TestSpecifier {
 
     private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): ProcedureTestSpecification {
         val cases: MutableList<String> = mutableListOf()
-        val parameters: MutableList<ITestParameter> = mutableListOf()
+        val parameters: MutableList<ITestMetric> = mutableListOf()
 
         annotation().forEach { annotation ->
             when (annotation) {
@@ -36,7 +36,7 @@ object TestSpecifier {
         return ProcedureTestSpecification(procedure, cases.toList(), parameters.toSet())
     }
 
-    private fun TSLParser.AnnotationContext.translate(): ITestParameter = when (this) {
+    private fun TSLParser.AnnotationContext.translate(): ITestMetric = when (this) {
         is TSLParser.CountLoopIterationsContext -> CountLoopIterations(margin?.text?.toInt() ?: 0)
         is TSLParser.CountObjectAllocationsContext -> CheckObjectAllocations
         is TSLParser.CountArrayAllocationsContext -> CheckArrayAllocations

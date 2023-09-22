@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 typealias Invocation = Pair<IProcedure, List<IValue>>
 
 class ProcedureTestListener(private val vm: IVirtualMachine, private val specification: ProcedureTestSpecification): IVirtualMachine.IListener {
-    private val values: MutableMap<Invocation, MutableMap<KClass<out ITestParameter>, Any>> = mutableMapOf()
+    private val values: MutableMap<Invocation, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
 
     private val previousArgumentsForProcedure: MutableMap<IProcedure, List<IValue>> = mutableMapOf()
 
@@ -63,7 +63,7 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     private fun invocation(procedure: IProcedure): Invocation = Pair(procedure, previousArgumentsForProcedure[procedure]!!)
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getOrDefault(procedure: IProcedure, parameter: KClass<out ITestParameter>, default: T): T {
+    fun <T> getOrDefault(procedure: IProcedure, parameter: KClass<out ITestMetric>, default: T): T {
         val invocation = invocation(procedure)
         return if (values.containsKey(invocation) && values[invocation]!!.containsKey(parameter))
             values[invocation]!![parameter] as T
@@ -71,7 +71,7 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getAll(procedure: IProcedure, parameter: KClass<out ITestParameter>): List<T> {
+    fun <T> getAll(procedure: IProcedure, parameter: KClass<out ITestMetric>): List<T> {
         val all = mutableListOf<T>()
         values.forEach { (invocation, metric) ->
             if (invocation.first == procedure) metric.forEach { (type, value) ->
@@ -82,7 +82,7 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
         return all
     }
 
-    private inline fun <reified T : ITestParameter> setMetric(procedure: IProcedure, value: Any) {
+    private inline fun <reified T : ITestMetric> setMetric(procedure: IProcedure, value: Any) {
         val invocation = invocation(procedure)
         if (!values.containsKey(invocation))
             values[invocation] = mutableMapOf()
@@ -99,17 +99,16 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     }
 
     // Count record allocations
-    // TODO track types along with count
     override fun recordAllocated(ref: IReference<IRecord>) {
         if (!specification.contains<CheckObjectAllocations>()) return
 
         val procedure = vm.callStack.topFrame.procedure
-        val current = getOrDefault(procedure, CheckObjectAllocations::class, 0)
-        setMetric<CheckObjectAllocations>(procedure, current + 1)
+        val current = getOrDefault(procedure, CheckObjectAllocations::class, mutableMapOf<IType, Int>())
+        current[ref.target.type] = (current[ref.target.type] ?: 0) + 1
+        setMetric<CheckObjectAllocations>(procedure, current)
     }
 
     // Count array allocations
-    // TODO track types along with count
     override fun arrayAllocated(ref: IReference<IArray>) {
         if (!specification.contains<CheckArrayAllocations>()) return
 
@@ -118,8 +117,9 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
         // Count array read accesses
         ref.target.addListener(ArrayReadAccessListener(procedure))
 
-        val current = getOrDefault(procedure, CheckArrayAllocations::class, 0)
-        setMetric<CheckArrayAllocations>(procedure, current + 1)
+        val current = getOrDefault(procedure, CheckArrayAllocations::class, mutableMapOf<IType, Int>())
+        current[ref.target.type] = (current[ref.target.type] ?: 0) + 1
+        setMetric<CheckArrayAllocations>(procedure, current)
     }
 
     // Count array write (assignment) accesses
@@ -144,11 +144,15 @@ class ProcedureTestListener(private val vm: IVirtualMachine, private val specifi
     override fun variableAssignment(a: IVariableAssignment, value: IValue) {
         val procedure = a.ownerProcedure
 
-        // Check parameter mutability
-        // TODO - more in-depth, say which parameter was modified when it shouldn't have been?
+        // Check parameter side effects
         if (specification.contains<CheckSideEffects>()) {
-            if (a.target in procedure.parameters)
-                setMetric<CheckSideEffects>(procedure, true)
+            if (a.target in procedure.parameters) {
+                procedure.parameters.find { it.id == a.target.id }?.let { param ->
+                    val allSideEffects = getOrDefault(procedure, CheckSideEffects::class, mutableMapOf<IParameter, IValue>())
+                    allSideEffects[param] = value
+                    setMetric<CheckSideEffects>(procedure, allSideEffects)
+                }
+            }
         }
 
         // Store argument states

@@ -2,49 +2,49 @@ package pt.iscte.witter.tsl
 
 import pt.iscte.strudel.model.IProcedure
 
-sealed interface ITestParameter {
+sealed interface ITestMetric {
     fun description(): String
 }
 
-data class CountLoopIterations(val margin: Int): ITestParameter {
+data class CountLoopIterations(val margin: Int): ITestMetric {
     override fun description(): String  = "loop iterations"
 }
 
-object CheckObjectAllocations : ITestParameter {
+object CheckObjectAllocations : ITestMetric {
     override fun description(): String = "object allocations"
 }
 
-object CheckArrayAllocations : ITestParameter {
+object CheckArrayAllocations : ITestMetric {
     override fun description(): String = "array allocations"
 }
 
-data class CountArrayReadAccesses(val margin: Int): ITestParameter {
+data class CountArrayReadAccesses(val margin: Int): ITestMetric {
     override fun description(): String  = "array reads"
 }
 
-data class CountArrayWriteAccesses(val margin: Int): ITestParameter {
+data class CountArrayWriteAccesses(val margin: Int): ITestMetric {
     override fun description(): String  = "array writes"
 }
 
-data class CountMemoryUsage(val margin: Int): ITestParameter {
+data class CountMemoryUsage(val margin: Int): ITestMetric {
     override fun description(): String  = "used memory bytes"
 }
 
-object TrackParameterStates : ITestParameter {
+object TrackParameterStates : ITestMetric {
     override fun description(): String  = "parameter states"
 }
 
-object CheckSideEffects: ITestParameter {
+object CheckSideEffects: ITestMetric {
     override fun description(): String  = "side effects"
 }
 
-data class CountRecursiveCalls(val margin: Int): ITestParameter {
+data class CountRecursiveCalls(val margin: Int): ITestMetric {
     override fun description(): String  = "recursive calls"
 }
 
-class ProcedureTestSpecification(val procedure: IProcedure, val cases: List<String>, val parameters: Set<ITestParameter>) {
+class ProcedureTestSpecification(val procedure: IProcedure, val cases: List<String>, val metrics: Set<ITestMetric>) {
 
-    inline fun <reified T : ITestParameter> contains(): Boolean = parameters.find { it is T } != null
+    inline fun <reified T : ITestMetric> contains(): Boolean = metrics.find { it is T } != null
 
-    inline fun <reified T : ITestParameter> get(): T? = parameters.find { it is T } as? T
+    inline fun <reified T : ITestMetric> get(): T? = metrics.find { it is T } as? T
 }

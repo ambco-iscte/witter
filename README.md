@@ -33,6 +33,10 @@ dependencies {
 Note, of course, that the file name can change when updates for Witter are released, and should be changed
 in your dependency specification accordingly.
 
+You may additionally need to specify dependencies for the 
+[Strudel](https://github.com/andre-santos-pt/strudel) and 
+[ANTLR](https://www.antlr.org/) libraries.
+
 <br>
 
 ## Specifying reference solutions
@@ -58,6 +62,10 @@ public static int sum(int[] a) {
 
 Witter currently supports the following runtime metrics.
 
+| Hello | World |
+|-------|-------|
+| Hello |There  |
+
 | **Metric**         | **Annotation**                      | **Verification**                                                                                  |
 |--------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
 | Return values      | @Test(_[...args]_)                  | Return value is equal to reference solution. Multiple annotations can be used.                    |
@@ -76,9 +84,9 @@ As Witter is designed for third-party integration, it provides
 a form of executing the tests programmatically. Tests are executed providing an annotated reference
 solution as described, and a solution that one wishes to assess:
 ```java
-Test test = new Test("ReferenceSolution.java")
+Test test = new Test("ReferenceSolution.java");
         
-List<TestResult> results = test.execute("Solution.java")
+List<TestResult> results = test.execute("Solution.java");
 ```
 
 The test results consist of a list of feedback
@@ -174,7 +182,10 @@ Witter test results (black-box pass, white-box fail):
 	Found: 1
 
 [pass] search([1, 2, 3, 4, 5, 6, 7], 1)
-	Expected side effects: false 
+	Expected side effects of a: [1, 2, 3, 4, 5, 6, 7] 
+	
+[pass] search([1, 2, 3, 4, 5, 6, 7], 1)
+	Expected side effects of e: 1
 
 [pass] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
 	Expected result: -1 
@@ -184,7 +195,10 @@ Witter test results (black-box pass, white-box fail):
 	Found: 8
 
 [pass] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
-	Expected side effects: false 
+	Expected side effects of a: [1, 3, 7, 9, 11, 13, 17, 19]
+	
+[pass] search([1, 3, 7, 9, 11, 13, 17, 19], 18)
+	Expected side effects of e: 18
 ```
 </details>
 
@@ -238,6 +252,14 @@ Witter test results (black-box pass, white-box fail):
 	Found: 8
 
 [pass] sort([5, 4, 3, 2, 1])
-	Expected side effects: false 
+	Expected side effects of a: [5, 4, 3, 2, 1] 
 ```
 </details>
+
+<br>
+
+## See it in action 😎
+The following is an example of how Witter could be integrated into an existing
+development system, using a simple GUI custom-made for example purposes.
+
+![](witter-paddle-demo.gif)

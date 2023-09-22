@@ -2,41 +2,29 @@ package pt.iscte.witter.testing
 
 import pt.iscte.strudel.javaparser.Java2Strudel
 import pt.iscte.strudel.model.*
-import pt.iscte.strudel.vm.IArray
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
 import pt.iscte.witter.tsl.*
 import java.io.File
 
-@Suppress("UNCHECKED_CAST")
-private fun IValue.sameAs(other: IValue): Boolean =
-    if (this is IArray && other is IArray) (value as Array<IValue>).sameAs(other.value as Array<IValue>)
-    else value == other.value
+class Test(referenceFilePath: String) {
+    constructor(referenceFile: File) : this(referenceFile.path)
 
-private fun Array<IValue>.sameAs(other: Array<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
-
-private fun Iterable<IValue>.sameAs(other: Iterable<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
-
-val IModule.definedTests: List<ProcedureTestSpecification>
-    get() {
-        val tests = mutableListOf<ProcedureTestSpecification>()
-        procedures.forEach { procedure ->
-            TestSpecifier.translate(procedure)?.let { tests.add(it) }
-        }
-        return tests.toList()
-    }
-
-class Tester(referenceFile: String) {
     private val loader = Java2Strudel()
-    private val ref: IModule = loader.load(File(referenceFile))
+    private val ref: IModule = loader.load(File(referenceFilePath))
 
     private fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
 
-    fun execute(file: String): List<TestResult> {
-        val subject: IModule = loader.load(File(file))
+    fun execute(file: File): List<TestResult> = execute(loader.load(file))
+
+    fun execute(filePath: String): List<TestResult> = execute(loader.load(File(filePath)))
+
+    fun executeSource(source: String): List<TestResult> = execute(loader.load(source))
+
+    private fun execute(subject: IModule): List<TestResult> {
         val results = mutableListOf<TestResult>()
-        
-        ref.definedTests.forEach { specification ->
+
+        ref.definedWitterTests.forEach { specification ->
             val referenceProcedure = specification.procedure // TODO: find a way to include alternative solutions
             val subjectProcedure = subject.getProcedure(referenceProcedure.id!!)
 
@@ -62,14 +50,14 @@ class Tester(referenceFile: String) {
                 if (subjectProcedure.returnType != VOID || referenceProcedure.returnType != VOID)
                     results.add(
                         TestResult(
-                        actual == expected,
-                        subjectProcedure,
-                        unmodified,
-                        "result",
-                        expected,
-                        null,
-                        actual
-                    )
+                            actual == expected,
+                            subjectProcedure,
+                            unmodified,
+                            "result",
+                            expected,
+                            null,
+                            actual
+                        )
                     )
 
                 // ---------------------
@@ -86,52 +74,52 @@ class Tester(referenceFile: String) {
                     val passed = act.inRange(exp, parameter.margin)
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        parameter.description(),
-                        exp,
-                        parameter.margin,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp,
+                            parameter.margin,
+                            act
+                        )
                     )
                 }
 
                 // Check record allocations
                 specification.get<CheckObjectAllocations>()?.let { parameter ->
-                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, mutableMapOf<IType, Int>())
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, mutableMapOf<IType, Int>())
 
-                    val passed = act == exp
+                    val passed = act.keys.all { it in exp.keys && act[it] == exp[it] }
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        CheckObjectAllocations.description(),
-                        exp,
-                        null,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp.describe { "${it.value} allocation(s) of ${it.key}" },
+                            null,
+                            act.describe { "${it.value} allocation(s) of ${it.key}" }
+                        )
                     )
                 }
 
                 // Check array allocations
                 specification.get<CheckArrayAllocations>()?.let { parameter ->
-                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
-                    val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
+                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, mutableMapOf<IType, Int>())
+                    val act = listener.getOrDefault(subjectProcedure, parameter::class, mutableMapOf<IType, Int>())
 
-                    val passed = act == exp
+                    val passed = act.keys.all { it in exp.keys && act[it] == exp[it] }
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        CheckArrayAllocations.description(),
-                        exp,
-                        null,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp.describe { "${it.value} allocation(s) of ${it.key}" },
+                            null,
+                            act.describe { "${it.value} allocation(s) of ${it.key}" }
+                        )
                     )
                 }
 
@@ -143,14 +131,14 @@ class Tester(referenceFile: String) {
                     val passed = act.inRange(exp, parameter.margin)
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        parameter.description(),
-                        exp,
-                        parameter.margin,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp,
+                            parameter.margin,
+                            act
+                        )
                     )
                 }
 
@@ -162,14 +150,14 @@ class Tester(referenceFile: String) {
                     val passed = act.inRange(exp, parameter.margin)
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        parameter.description(),
-                        exp,
-                        parameter.margin,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp,
+                            parameter.margin,
+                            act
+                        )
                     )
                 }
 
@@ -181,14 +169,14 @@ class Tester(referenceFile: String) {
                     val passed = act.inRange(exp, parameter.margin)
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        parameter.description(),
-                        exp,
-                        parameter.margin,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp,
+                            parameter.margin,
+                            act
+                        )
                     )
                 }
 
@@ -201,14 +189,14 @@ class Tester(referenceFile: String) {
                     val passed = act.inRange(exp, parameter.margin)
                     results.add(
                         TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        parameter.description(),
-                        exp,
-                        parameter.margin,
-                        act
-                    )
+                            passed,
+                            subjectProcedure,
+                            unmodified,
+                            parameter.description(),
+                            exp,
+                            parameter.margin,
+                            act
+                        )
                     )
                 }
 
@@ -224,37 +212,40 @@ class Tester(referenceFile: String) {
                         val passed = act.sameAs(exp)
                         results.add(
                             TestResult(
-                            passed,
-                            subjectProcedure,
-                            unmodified,
-                            TrackParameterStates.description() + " of ${param.id}",
-                            exp,
-                            null,
-                            act
-                        )
+                                passed,
+                                subjectProcedure,
+                                unmodified,
+                                parameter.description() + " of ${param.id}",
+                                exp,
+                                null,
+                                act
+                            )
                         )
                     }
                 }
 
-                // Check parameter immutability
+                // Check parameter side effects
                 specification.get<CheckSideEffects>()?.let { parameter ->
-                    val exp = listener.getOrDefault(referenceProcedure, parameter::class, false)
-                    val act = listener.getOrDefault(subjectProcedure, parameter::class, false)
+                    val expectedSideEffects = listener.getOrDefault(referenceProcedure, parameter::class, mapOf<IParameter, IValue>())
+                    val actualSideEffects = listener.getOrDefault(subjectProcedure, parameter::class, mapOf<IParameter, IValue>())
 
-                    // TODO side effect compares final value of params
+                    referenceProcedure.parameters.forEachIndexed { i, param ->
+                        val exp = expectedSideEffects[param] ?: unmodified[i]
+                        val act = actualSideEffects[subjectProcedure.parameters[i]] ?: unmodified[i]
 
-                    val passed = exp == act
-                    results.add(
-                        TestResult(
-                        passed,
-                        subjectProcedure,
-                        unmodified,
-                        CheckSideEffects.description(),
-                        exp,
-                        null,
-                        act
-                    )
-                    )
+                        val passed = act.sameAs(exp)
+                        results.add(
+                            TestResult(
+                                passed,
+                                subjectProcedure,
+                                unmodified,
+                                parameter.description() + " of ${param.id}",
+                                exp,
+                                null,
+                                act
+                            )
+                        )
+                    }
                 }
             }
         }

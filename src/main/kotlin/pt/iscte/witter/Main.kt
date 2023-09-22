@@ -1,6 +1,6 @@
 package pt.iscte.witter
 
-import pt.iscte.witter.testing.Tester
+import pt.iscte.witter.testing.Test
 
 private const val SORTING_INSERTION = "src/main/java/examples/paper/sorting/InsertionSort.java"
 private const val SORTING_SELECTION = "src/main/java/examples/paper/sorting/SelectionSort.java"
@@ -13,10 +13,10 @@ private const val FACTORIAL_ITERATIVE = "src/main/java/examples/paper/factorial/
 
 fun main() {
     // Initialise tester
-    val tester = Tester(SEARCH_BINARY)
+    val test = Test(FACTORIAL_RECURSIVE)
 
     // Run tests
-    val results = tester.execute(SEARCH_LINEAR)
+    val results = test.execute(FACTORIAL_ITERATIVE)
 
     // Print test results for each tested procedure
     results.forEach { println(it.toString() + "\n") }

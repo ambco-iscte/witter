@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "pt.iscte.ambco"
-version = "0.2.2"
+version = "0.2.5"
 
 repositories {
     mavenCentral()
@@ -16,7 +16,7 @@ dependencies {
     implementation("org.antlr:antlr4:4.13.1")
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation(project(":strudel"))
+    implementation(files("libs/strudel-0.8.1.jar"))
 }
 
 tasks.test {
