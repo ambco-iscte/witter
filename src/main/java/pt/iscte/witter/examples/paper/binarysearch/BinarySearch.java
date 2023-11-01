@@ -1,4 +1,4 @@
-package examples.paper.binarysearch;
+package pt.iscte.witter.examples.paper.binarysearch;
 
 public class BinarySearch {
 

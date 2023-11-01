@@ -1,4 +1,4 @@
-package examples.paper.sorting;
+package pt.iscte.witter.examples.paper.sorting;
 
 public class SelectionSort {
 

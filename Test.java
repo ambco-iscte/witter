@@ -1,5 +1,3 @@
-package examples.paper.binarysearch;
-
 public class LinearSearch {
 
     public static int search(int[] a, int e) {
@@ -10,3 +8,5 @@ public class LinearSearch {
         return -1;
     }
 }
+
+

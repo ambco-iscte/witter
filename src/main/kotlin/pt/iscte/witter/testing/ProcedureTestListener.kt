@@ -7,6 +7,8 @@ import kotlin.reflect.KClass
 
 typealias Invocation = Pair<IProcedure, List<IValue>>
 
+// TODO count array swaps
+
 class ProcedureTestListener(private val vm: IVirtualMachine, private val specification: ProcedureTestSpecification): IVirtualMachine.IListener {
     private val values: MutableMap<Invocation, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
 

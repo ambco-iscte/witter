@@ -1,4 +1,4 @@
-package examples.paper.sorting;
+package pt.iscte.witter.demo.assignments;
 
 public class InsertionSort {
 

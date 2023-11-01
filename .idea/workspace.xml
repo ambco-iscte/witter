@@ -4,8 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count.">
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Fixed README.">
+      <change afterPath="$PROJECT_DIR$/Test.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/demo/JavaLineStyler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/demo/assignments/BinarySearch.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/demo/assignments/InsertionSort.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/demo/assignments/RecursiveFactorial.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/CodeEditor.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/CompilationResult.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/ICodeEditor.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/IToolTip.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/ObservableList.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/Paddle4Witter.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/TestArea.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/TestCheckboxGroup.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/demo/paddle/ToolbarArea.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/examples/paper/binarysearch/BinarySearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/LinearSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/examples/paper/binarysearch/LinearSearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/IterativeFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/examples/paper/factorial/IterativeFactorial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/examples/paper/factorial/RecursiveFactorial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/examples/paper/sorting/InsertionSort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/SelectionSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/iscte/witter/examples/paper/sorting/SelectionSort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +92,11 @@
       </list>
     </option>
     <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="SYNC" />
     <option name="SIGN_OFF_COMMIT" value="true" />
@@ -89,8 +118,8 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/afons/IdeaProjects/whitebox-proof-of-concept/libs",
+    "git-widget-placeholder": "demo",
+    "last_opened_file_path": "C:/Users/afons/IdeaProjects/whitebox-proof-of-concept/src/main/java/pt/iscte/witter/demo/assignments",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -105,6 +134,10 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\java\pt\iscte\witter\demo\assignments" />
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept" />
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\main\kotlin\pt\iscte\witter\demo\paddle" />
+      <recent name="CodeEditor CompilationResult.kt ICodeEditor IToolTip ObservableList Paddle4Witter.kt TestArea TestCheckboxGroup ToolbarArea ToolTip.kt" />
       <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\libs" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -124,7 +157,7 @@
       <command value="gradle build" />
     </option>
   </component>
-  <component name="RunManager" selected="Kotlin.MainKt (1)">
+  <component name="RunManager" selected="Kotlin.Paddle4WitterKt">
     <configuration name="whitebox-proof-of-concept [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -137,28 +170,6 @@
         <option name="taskNames">
           <list>
             <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <ForceTestExec>false</ForceTestExec>
-      <method v="2" />
-    </configuration>
-    <configuration name="whitebox-proof-of-concept [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -212,17 +223,31 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Paddle4WitterKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="pt.iscte.witter.demo.paddle.Paddle4WitterKt" />
+      <module name="witter.main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Kotlin.Paddle4WitterKt" />
         <item itemvalue="Kotlin.MainKt (1)" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [jar]" />
         <item itemvalue="Kotlin.MainKt" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
-        <item itemvalue="Gradle.whitebox-proof-of-concept [clean]" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="StandaloneScriptsStorage">
+    <option name="files">
+      <set>
+        <option value="$PROJECT_DIR$/build.gradle.kts" />
+      </set>
+    </option>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="" />
@@ -304,7 +329,23 @@
       <workItem from="1695216568296" duration="1264000" />
       <workItem from="1695224352586" duration="43000" />
       <workItem from="1695226595914" duration="639000" />
-      <workItem from="1695386133191" duration="2706000" />
+      <workItem from="1695386133191" duration="6419000" />
+      <workItem from="1695980627475" duration="232000" />
+      <workItem from="1696235038461" duration="774000" />
+      <workItem from="1696597309914" duration="37000" />
+      <workItem from="1696597363038" duration="264000" />
+      <workItem from="1696933570011" duration="785000" />
+      <workItem from="1697009309240" duration="597000" />
+      <workItem from="1697032662331" duration="597000" />
+      <workItem from="1697440962548" duration="638000" />
+      <workItem from="1697478633511" duration="596000" />
+      <workItem from="1697534347169" duration="596000" />
+      <workItem from="1697565693296" duration="595000" />
+      <workItem from="1697736804828" duration="17000" />
+      <workItem from="1698066934629" duration="597000" />
+      <workItem from="1698671266297" duration="10000" />
+      <workItem from="1698844167334" duration="1384000" />
+      <workItem from="1698845920081" duration="1202000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -367,7 +408,15 @@
       <option name="project" value="LOCAL" />
       <updated>1695393647487</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Fixed README.">
+      <option name="closed" value="true" />
+      <created>1695393888956</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1695393888956</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -394,7 +443,8 @@
     <MESSAGE value="Fixed README nitpicks." />
     <MESSAGE value="Fixed TSL. Organised packages." />
     <MESSAGE value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
+    <MESSAGE value="Fixed README." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed README." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
