@@ -7,7 +7,7 @@ Introductory Programming Algorithms**
 
 [![ACM SPLASH'23 - Check out Witter's paper](https://img.shields.io/badge/ACM_SPLASH'23-Check_out_Witter's_paper-ebc034?logo=acm)](https://doi.org/10.1145/3622780.3623650)
 
-**Witter** is a software testing library that allows programming educators to define white-box
+**Witter** is a software testing library that allows programming instructors to define white-box
 tests for Java source code. Witter analyzes the execution of a method against a reference
 solution, to verify that the code not only produces correct results but is also in
 accordance with a desired algorithm behaviour.
@@ -29,7 +29,7 @@ the project root in `/build/libs`. This file should be copied to your own projec
 and then added as a dependency in your build automation tools. For example, in Gradle:
 ```kotlin
 dependencies {
-    implementation(files("libs/witter-0.2.2.jar"))
+    implementation(files("libs/witter-0.3.0.jar"))
 }
 ```
 Note, of course, that the file name can change when updates for Witter are released, and should be changed

@@ -2,6 +2,8 @@ package pt.iscte.witter.testing
 
 import pt.iscte.strudel.model.IProcedure
 
+sealed interface ITestResult
+
 data class TestResult(
     val passed: Boolean,
     val procedure: IProcedure,
@@ -10,7 +12,7 @@ data class TestResult(
     val expected: Any?,
     val margin: Any?,
     val actual: Any?
-) {
+): ITestResult {
 
     override fun toString(): String =
         "[${if (passed) "pass" else "fail"}] ${procedure.id}(${args.joinToString(", ")})\n" +

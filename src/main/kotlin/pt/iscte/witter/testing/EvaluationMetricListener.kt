@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 typealias Invocation = Pair<IProcedure, List<IValue>>
 
-class ProcedureTestListener(private val vm: IVirtualMachine, private val specification: ProcedureTestSpecification): IVirtualMachine.IListener {
+class EvaluationMetricListener(private val vm: IVirtualMachine, val specification: TestModule): IVirtualMachine.IListener {
     private val values: MutableMap<Invocation, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
 
     private val previousArgumentsForProcedure: MutableMap<IProcedure, List<IValue>> = mutableMapOf()

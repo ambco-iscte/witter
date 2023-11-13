@@ -4,9 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count.">
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Added publication badge to README.">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ResultBuilder.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ITestMetric.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/EvaluationMetricListener.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,10 +64,10 @@
         <option value="Kotlin Enum" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Interface" />
-        <option value="Kotlin Object" />
         <option value="Class" />
         <option value="Kotlin Class" />
         <option value="Kotlin File" />
+        <option value="Kotlin Object" />
       </list>
     </option>
   </component>
@@ -125,7 +134,7 @@
       <command value="gradle build" />
     </option>
   </component>
-  <component name="RunManager" selected="Kotlin.MainKt (1)">
+  <component name="RunManager" selected="Gradle.whitebox-proof-of-concept [build]">
     <configuration name="whitebox-proof-of-concept [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -215,10 +224,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
         <item itemvalue="Kotlin.MainKt (1)" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [jar]" />
         <item itemvalue="Kotlin.MainKt" />
-        <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [clean]" />
       </list>
     </recent_temporary>
@@ -306,6 +315,15 @@
       <workItem from="1695224352586" duration="43000" />
       <workItem from="1695226595914" duration="639000" />
       <workItem from="1695386133191" duration="2706000" />
+      <workItem from="1698956138849" duration="591000" />
+      <workItem from="1699008108381" duration="596000" />
+      <workItem from="1699294236923" duration="522000" />
+      <workItem from="1699356414254" duration="5737000" />
+      <workItem from="1699379244567" duration="1241000" />
+      <workItem from="1699442200880" duration="595000" />
+      <workItem from="1699444433208" duration="597000" />
+      <workItem from="1699531160593" duration="597000" />
+      <workItem from="1699879805737" duration="4448000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -368,7 +386,14 @@
       <option name="project" value="LOCAL" />
       <updated>1695393647487</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added publication badge to README.">
+      <created>1698847256436</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1698847256437</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -395,7 +420,8 @@
     <MESSAGE value="Fixed README nitpicks." />
     <MESSAGE value="Fixed TSL. Organised packages." />
     <MESSAGE value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
+    <MESSAGE value="Added publication badge to README." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added publication badge to README." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

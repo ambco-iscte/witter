@@ -13,7 +13,7 @@ object TestSpecifier {
     // Splits strings into tokens separated by commas, but only considering commas NOT enclosed in (), [], or {}.
     private val ARGUMENT_SPLIT_REGEX: Regex = ",(?![^(\\[{]*[)\\]}])".toRegex()
 
-    fun translate(procedure: IProcedure): ProcedureTestSpecification? =
+    fun translate(procedure: IProcedure): StaticProcedureTest? =
         procedure.documentation?.let { comment ->
             val annotation = comment.lineSequence().map { it.trim() }.joinToString(System.lineSeparator())
             TSLParser(CommonTokenStream(TSLLexer(CharStreams.fromString(annotation)))).specification().translate(procedure)
@@ -22,7 +22,7 @@ object TestSpecifier {
     fun parseArgumentsString(vm: IVirtualMachine, str: String): List<IValue> =
         str.split(ARGUMENT_SPLIT_REGEX).map { JavaArgument2Strudel(vm).translate(it.trim()) }
 
-    private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): ProcedureTestSpecification {
+    private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): StaticProcedureTest {
         val cases: MutableList<String> = mutableListOf()
         val parameters: MutableList<ITestMetric> = mutableListOf()
 
@@ -33,7 +33,7 @@ object TestSpecifier {
             }
         }
 
-        return ProcedureTestSpecification(procedure, cases.toList(), parameters.toSet())
+        return StaticProcedureTest(procedure, cases.toList(), parameters.toSet())
     }
 
     private fun TSLParser.AnnotationContext.translate(): ITestMetric = when (this) {
