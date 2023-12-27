@@ -4,16 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Added publication badge to README.">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ResultBuilder.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ITestMetric.kt" afterDir="false" />
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing.">
+      <change afterPath="$PROJECT_DIR$/CITATION.cff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/dsl/Witter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ProcedureTestListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/EvaluationMetricListener.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/EvaluationMetricListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/EvaluationMetricListener.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ITestMetric.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ITestMetric.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
@@ -66,8 +66,8 @@
         <option value="Kotlin Interface" />
         <option value="Class" />
         <option value="Kotlin Class" />
-        <option value="Kotlin File" />
         <option value="Kotlin Object" />
+        <option value="Kotlin File" />
       </list>
     </option>
   </component>
@@ -323,7 +323,25 @@
       <workItem from="1699442200880" duration="595000" />
       <workItem from="1699444433208" duration="597000" />
       <workItem from="1699531160593" duration="597000" />
-      <workItem from="1699879805737" duration="4448000" />
+      <workItem from="1699879805737" duration="5998000" />
+      <workItem from="1699894623716" duration="3631000" />
+      <workItem from="1699973881402" duration="3769000" />
+      <workItem from="1699978743296" duration="682000" />
+      <workItem from="1699985091078" duration="1942000" />
+      <workItem from="1700048083397" duration="1786000" />
+      <workItem from="1700064922479" duration="400000" />
+      <workItem from="1700065812931" duration="2916000" />
+      <workItem from="1700494712169" duration="1997000" />
+      <workItem from="1700580386667" duration="13000" />
+      <workItem from="1700848668186" duration="523000" />
+      <workItem from="1701803571475" duration="653000" />
+      <workItem from="1701869706012" duration="9000" />
+      <workItem from="1701987700644" duration="4000" />
+      <workItem from="1702478014500" duration="305000" />
+      <workItem from="1702495773347" duration="4000" />
+      <workItem from="1702566926254" duration="2000" />
+      <workItem from="1703072515671" duration="598000" />
+      <workItem from="1703678634834" duration="6772000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -393,7 +411,14 @@
       <option name="project" value="LOCAL" />
       <updated>1698847256437</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing.">
+      <created>1699885652101</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1699885652101</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -421,7 +446,8 @@
     <MESSAGE value="Fixed TSL. Organised packages." />
     <MESSAGE value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
     <MESSAGE value="Added publication badge to README." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added publication badge to README." />
+    <MESSAGE value="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing." />
+    <option name="LAST_COMMIT_MESSAGE" value="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

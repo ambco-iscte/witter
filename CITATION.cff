@@ -1,0 +1,65 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Witter: A Library for White-Box Testing of Introductory
+  Programming Algorithms
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Afonso
+    family-names: B. Caniço
+    email: ambco@iscte-iul.pt
+    affiliation: Instituto Universitário de Lisboa (ISCTE-IUL)
+    orcid: 'https://orcid.org/0009-0009-9334-717X'
+  - given-names: André
+    family-names: L. Santos
+    email: andre.santos@iscte-iul.pt
+    orcid: 'https://orcid.org/0000-0002-8247-7413'
+    affiliation: Instituto Universitário de Lisboa (ISCTE-IUL)
+repository-code: 'https://github.com/ambco-iscte/witter'
+abstract: >-
+  Software testing is mostly performed in a black-box
+  manner, that is, without incorporating any knowledge of
+  the internal workings of programs into the tests. This
+  practice usually suffices for enterprises and general
+  practitioners, where the focus lies on producing reliable
+  results while most algorithmic tasks are provided by
+  third-party libraries. However, for computer science
+  students and the like, it might not be straightforward to
+  discern the underlying causes of an incorrect test result
+  or to understand why certain algorithmic goals are not
+  met. We present Witter, a software testing library that
+  allows programming educators to define white-box tests for
+  Java source code. Our tests analyze the execution of a
+  method against a reference solution, to verify that the
+  code not only produces correct results but is also in
+  accordance with a desired algorithm behavior.
+keywords:
+  - programming education
+  - white-box testing
+  - assessment
+  - feedback
+preferred-citation:
+  type: conference-paper
+  authors:
+  - family-names: "Caniço"
+    given-names: "Afonso"
+    orcid: "https://orcid.org/0009-0009-9334-717X"
+  - family-names: "Santos"
+    given-names: "André"
+    orcid: "https://orcid.org/0000-0002-8247-7413"
+  doi: "10.1145/3622780.3623650"
+  conference:
+    name: "ACM SIGPLAN International Symposium on SPLASH-E"
+  title: "Witter: A Library for White-Box Testing of Introductory Programming Algorithms"
+  publisher: 
+    name: "Association for Computing Machinery"
+  collection-title: "Proceedings of the 2023 ACM SIGPLAN International Symposium on SPLASH-E"
+  start: 69
+  end: 74
+  month: 10
+  year: 2023

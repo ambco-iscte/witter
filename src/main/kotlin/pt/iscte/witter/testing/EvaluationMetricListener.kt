@@ -14,6 +14,14 @@ class EvaluationMetricListener(private val vm: IVirtualMachine, val specificatio
 
     private val vmMemoryBefore: MutableMap<IProcedure, Int> = mutableMapOf()
 
+    // TODO: array swaps
+
+    fun reset() {
+        values.clear()
+        previousArgumentsForProcedure.clear()
+        vmMemoryBefore.clear()
+    }
+
     private inner class ArrayReadAccessListener(private val procedure: IProcedure) : IArray.IListener {
         override fun elementRead(index: Int, value: IValue) {
             val current = getOrDefault(procedure, CountArrayReadAccesses::class, 0)

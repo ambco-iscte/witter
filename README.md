@@ -261,3 +261,44 @@ The following is an example of how Witter could be integrated into an existing
 development system, using a simple GUI custom-made for example purposes.
 
 ![](witter-paddle-demo.gif)
+
+<br>
+
+## Citation
+If you use or reference Witter in your academic work, you should cite the following paper.
+
+**ACM Reference Format**
+> Afonso B. Caniço and André L. Santos. 2023. Witter: A Library for
+White-Box Testing of Introductory Programming Algorithms. In
+_Proceedings of the 2023 ACM SIGPLAN International Symposium
+on SPLASH-E (SPLASH-E ’23), October 25, 2023, Cascais, Portugal._
+ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
+
+**BibTeX**
+```
+@inproceedings{canicosantos2023,
+    author = {Cani\c{c}o, Afonso and Santos, Andr\'{e}},
+    title = {Witter: A Library for White-Box Testing of Introductory Programming Algorithms},
+    year = {2023},
+    isbn = {9798400703904},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3622780.3623650},
+    doi = {10.1145/3622780.3623650},
+    abstract = {Software testing is mostly performed in a black-box manner, that is, without incorporating any knowledge of the internal workings of programs into the tests. This practice usually suffices for enterprises and general practitioners, where the focus lies on producing reliable results while most algorithmic tasks are provided by third-party libraries. However, for computer science students and the like, it might not be straightforward to discern the underlying causes of an incorrect test result or to understand why certain algorithmic goals are not met. We present Witter, a software testing library that allows programming educators to define white-box tests for Java source code. Our tests analyze the execution of a method against a reference solution, to verify that the code not only produces correct results but is also in accordance with a desired algorithm behavior.},
+    booktitle = {Proceedings of the 2023 ACM SIGPLAN International Symposium on SPLASH-E},
+    pages = {69–74},
+    numpages = {6},
+    keywords = {programming education, white-box testing, feedback, assessment},
+    location = {Cascais, Portugal},
+    series = {SPLASH-E 2023}
+}
+```
+
+<br>
+
+## Contacts
+If you have any questions regarding Witter, its development process, or the related academic
+publication, feel free to contact the authors:
+- Afonso B. Caniço - [ambco@iscte-iul.pt](mailto:ambco@iscte-iul.pt)
+- André L. Santos - [andre.santos@iscte-iul.pt](mailto:andre.santos@iscte-iul.pt)

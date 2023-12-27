@@ -4,19 +4,21 @@ sealed interface ITestMetric {
     fun description(): String
 }
 
-data class CountLoopIterations(val margin: Int): ITestMetric {
+operator fun ITestMetric.plus(other: ITestMetric): Set<ITestMetric> = setOf(this, other)
+
+data class CountLoopIterations(val margin: Int = 0): ITestMetric {
     override fun description(): String  = "loop iterations"
 }
 
-data class CountArrayReadAccesses(val margin: Int): ITestMetric {
+data class CountArrayReadAccesses(val margin: Int = 0): ITestMetric {
     override fun description(): String  = "array reads"
 }
 
-data class CountArrayWriteAccesses(val margin: Int): ITestMetric {
+data class CountArrayWriteAccesses(val margin: Int = 0): ITestMetric {
     override fun description(): String  = "array writes"
 }
 
-data class CountMemoryUsage(val margin: Int): ITestMetric {
+data class CountMemoryUsage(val margin: Int = 0): ITestMetric {
     override fun description(): String  = "used memory bytes"
 }
 
@@ -36,6 +38,6 @@ object CheckSideEffects: ITestMetric {
     override fun description(): String  = "side effects"
 }
 
-data class CountRecursiveCalls(val margin: Int): ITestMetric {
+data class CountRecursiveCalls(val margin: Int = 0): ITestMetric {
     override fun description(): String  = "recursive calls"
 }

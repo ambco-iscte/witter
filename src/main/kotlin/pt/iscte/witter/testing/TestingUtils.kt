@@ -4,7 +4,7 @@ import pt.iscte.strudel.model.IModule
 import pt.iscte.strudel.vm.IArray
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
-import pt.iscte.witter.tsl.StaticProcedureTest
+import pt.iscte.witter.tsl.TestModule
 import pt.iscte.witter.tsl.TestSpecifier
 
 internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
@@ -22,18 +22,26 @@ internal fun <K, V> Map<K, V>.describe(descriptor: (Map.Entry<K, V>) -> String):
     if (isEmpty()) "None"
     else map { descriptor(it) }.joinToString(", ")
 
-val IModule.staticProcedureTests: List<StaticProcedureTest>
+val IModule.tests: List<TestModule>
     get() {
-        val tests = mutableListOf<StaticProcedureTest>()
+        val tests = mutableListOf<TestModule>()
         procedures.forEach { procedure ->
             TestSpecifier.translate(procedure)?.let { tests.add(it) }
         }
         return tests.toList()
     }
 
-internal fun getArguments(vm: IVirtualMachine, arguments: String): Triple<List<IValue>, List<IValue>, List<IValue>> =
+
+internal fun getArgumentsFromString(vm: IVirtualMachine, arguments: String): Triple<List<IValue>, List<IValue>, List<IValue>> =
     Triple(
         TestSpecifier.parseArgumentsString(vm, arguments),
         TestSpecifier.parseArgumentsString(vm, arguments),
         TestSpecifier.parseArgumentsString(vm, arguments)
+    )
+
+internal fun getArgumentsFromValues(vm: IVirtualMachine, arguments: List<Any?>): Triple<List<IValue>, List<IValue>, List<IValue>> =
+    Triple(
+        arguments.map { vm.getValue(it) },
+        arguments.map { vm.getValue(it) },
+        arguments.map { vm.getValue(it) }
     )
