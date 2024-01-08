@@ -4,16 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing.">
-      <change afterPath="$PROJECT_DIR$/CITATION.cff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/dsl/Witter.kt" afterDir="false" />
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Added stateful test skeleton; Started DSL implementation.">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/dsl/DSL.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestSuite.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/EvaluationMetricListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/EvaluationMetricListener.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/dsl/Witter.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ITestMetric.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ITestMetric.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/JavaArgument2Strudel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/JavaArgument2Strudel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
@@ -65,9 +67,9 @@
         <option value="Kotlin Data Class" />
         <option value="Kotlin Interface" />
         <option value="Class" />
-        <option value="Kotlin Class" />
         <option value="Kotlin Object" />
         <option value="Kotlin File" />
+        <option value="Kotlin Class" />
       </list>
     </option>
   </component>
@@ -134,7 +136,7 @@
       <command value="gradle build" />
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.whitebox-proof-of-concept [build]">
+  <component name="RunManager" selected="Kotlin.MainKt (1)">
     <configuration name="whitebox-proof-of-concept [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -224,8 +226,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
         <item itemvalue="Kotlin.MainKt (1)" />
+        <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [jar]" />
         <item itemvalue="Kotlin.MainKt" />
         <item itemvalue="Gradle.whitebox-proof-of-concept [clean]" />
@@ -341,7 +343,10 @@
       <workItem from="1702495773347" duration="4000" />
       <workItem from="1702566926254" duration="2000" />
       <workItem from="1703072515671" duration="598000" />
-      <workItem from="1703678634834" duration="6772000" />
+      <workItem from="1703678634834" duration="7561000" />
+      <workItem from="1703941701876" duration="23000" />
+      <workItem from="1704455443646" duration="17184000" />
+      <workItem from="1704712720426" duration="2440000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -418,7 +423,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699885652101</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Added stateful test skeleton; Started DSL implementation.">
+      <created>1703692303225</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1703692303225</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -447,7 +459,8 @@
     <MESSAGE value="Updated runtime metrics:&#10;&#10;- CheckObjectAllocations now tracks object types along with count;&#10;- CheckArrayAllocations now tracks array types along with count." />
     <MESSAGE value="Added publication badge to README." />
     <MESSAGE value="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing." />
-    <option name="LAST_COMMIT_MESSAGE" value="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing." />
+    <MESSAGE value="Added stateful test skeleton; Started DSL implementation." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added stateful test skeleton; Started DSL implementation." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -2,6 +2,7 @@ package pt.iscte.witter.tsl
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.expr.*
+import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.type.PrimitiveType
 import com.github.javaparser.ast.type.Type
 import pt.iscte.strudel.model.*

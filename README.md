@@ -13,8 +13,8 @@ solution, to verify that the code not only produces correct results but is also 
 accordance with a desired algorithm behaviour.
 
 [Installation](#installation) •
-[Specifying reference solutions](#specifying-reference-solutions) •
-[Testing arbitrary solutions](#testing-arbitrary-solutions) •
+[Specifying Reference Solutions](#specifying-reference-solutions) •
+[Testing Arbitrary Solutions](#testing-arbitrary-solutions) •
 [Examples](#examples)
 
 </div>
@@ -26,10 +26,10 @@ accordance with a desired algorithm behaviour.
 
 To use Witter in your project, first build its .jar file using Gradle's build task. The .jar file is generated under
 the project root in `/build/libs`. This file should be copied to your own project's `libs` folder,
-and then added as a dependency in your build automation tools. For example, in Gradle:
+and then added as a dependency in your build automation tool of choice. For example, in Gradle:
 ```kotlin
 dependencies {
-    implementation(files("libs/witter-0.3.0.jar"))
+    implementation(files("libs/witter-0.4.1.jar"))
 }
 ```
 Note, of course, that the file name can change when updates for Witter are released, and should be changed
@@ -41,7 +41,8 @@ You may additionally need to specify dependencies for the
 
 <br>
 
-## Specifying reference solutions
+## Specifying Reference Solutions
+### Annotating Reference Solutions
 One can define the test cases for a given exercise by writing
 a reference solution in a Java method, annotated with a
 header comment that defines the different test inputs and
@@ -62,22 +63,12 @@ public static int sum(int[] a) {
 }
 ```
 
-Witter currently supports the following runtime metrics.
-
-| **Metric**         | **Annotation**                      | **Verification**                                                                                  |
-|--------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
-| Return values      | @Test(_[...args]_)                  | Return value is equal to reference solution. Multiple annotations can be used.                    |
-| Side effects       | @CheckSideEffects                   | Side effects on arguments (presence and absence) are the same to those of the reference solution. |
-| Loop iterations    | @CountLoopIterations(_[threshold]_) | Total number of loop iterations matches the one of the reference solution.                        |
-| Array allocations  | @CheckArrayAllocations              | The array allocations match those of the reference solution (component types and lengths).        |
-| Array reads        | @CountArrayReads(_[threshold]_)     | The number of array read accesses is the same as in the reference solution.                       |
-| Array writes       | @CountArrayWrites(_[threshold]_)    | The number of array write accesses is the same as in the reference solution.                      |
-| Object allocations | @CheckObjectAllocations             | The number of object allocations and their types match those of the reference solution.           |
-| Recursive calls    | @CountRecursiveCalls(_[threshold]_) | The number of recursive calls matches the one of the reference solution.                          |
+### Instantiating Test Specifications Using Witter’s DSL
+Coming soon™!
 
 <br>
 
-## Testing arbitrary solutions
+## Testing Arbitrary Solutions
 As Witter is designed for third-party integration, it provides
 a form of executing the tests programmatically. Tests are executed providing an annotated reference
 solution as described, and a solution that one wishes to assess:
@@ -95,9 +86,24 @@ holding the following information:
 - the location of code elements involved in the failed tests (e.g., procedure, parameters, loop structures);
 - a human-readable descriptive feedback message.
 
+Witter currently supports the following runtime metrics.
+
+| **Metric**         | **TSL Annotation**                  | **Verification**                                                                                  |
+|--------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
+| Return values      | @Test(_[...args]_)                  | Return value is equal to reference solution. Multiple annotations can be used.                    |
+| Side effects       | @CheckSideEffects                   | Side effects on arguments (presence and absence) are the same to those of the reference solution. |
+| Loop iterations    | @CountLoopIterations(_[threshold]_) | Total number of loop iterations matches the one of the reference solution.                        |
+| Array allocations  | @CheckArrayAllocations              | The array allocations match those of the reference solution (component types and lengths).        |
+| Array reads        | @CountArrayReads(_[threshold]_)     | The number of array read accesses is the same as in the reference solution.                       |
+| Array writes       | @CountArrayWrites(_[threshold]_)    | The number of array write accesses is the same as in the reference solution.                      |
+| Object allocations | @CheckObjectAllocations             | The number of object allocations and their types match those of the reference solution.           |
+| Recursive calls    | @CountRecursiveCalls(_[threshold]_) | The number of recursive calls matches the one of the reference solution.                          |
+
+
 <br>
 
 ## Examples
+### Annotated Reference Solutions
 <details>
 <summary><b>Factorial (recursive)</b></summary>
 
@@ -254,9 +260,12 @@ Witter test results (black-box pass, white-box fail):
 ```
 </details>
 
+### Tests Specified Using the DSL
+Coming soon™!
+
 <br>
 
-## See it in action 😎
+## See It in Action 😎
 The following is an example of how Witter could be integrated into an existing
 development system, using a simple GUI custom-made for example purposes.
 

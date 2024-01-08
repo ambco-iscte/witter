@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "pt.iscte.ambco"
-version = "0.3.0"
+version = "0.4.1"
 
 repositories {
     mavenCentral()

@@ -3,25 +3,30 @@ package pt.iscte.witter.tsl
 import pt.iscte.strudel.model.IModule
 import pt.iscte.strudel.model.IProcedure
 
-class TestSuite(val referencePath: String, val subjectPath: String, val description: String, modules: List<TestModule> = listOf()) {
-    private val modules = mutableListOf<TestModule>()
+/**
+ * Procedure test contemplating set of evaluation [metrics].
+ * @param module Reference module.
+ * @param calls A pair of (Procedure, Argument(s)) calls to be executed for this test sequence.
+ * @param description Description of the test module.
+ * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
+ * @param stateful If true, VM state is preserved between calls. Otherwise, each call is executed in a separate VM state.
+ */
+class TestModule(
+    val module: IModule,
+    statements: List<IStatement>,
+    val description: String,
+    val metrics: Set<ITestMetric>,
+    val stateful: Boolean
+) {
+    private val statements: MutableList<IStatement> = mutableListOf()
 
     init {
-        this.modules.addAll(modules)
+        this.statements.addAll(statements)
     }
 
-    fun add(module: TestModule) = modules.add(module)
+    fun add(statement: IStatement) = statements.add(statement)
 
-    fun remove(module: TestModule) = modules.remove(module)
-
-    fun modules(): List<TestModule> = modules.toList()
-}
-
-/**
- * Abstract procedure test contemplating set of evaluation [metrics].
- * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
- */
-abstract class TestModule(open val module: IModule, open val description: String, open val metrics: Set<ITestMetric>) {
+    fun statements(): List<IStatement> = statements.toList()
 
     /**
      * Does this test module contain a given [ITestMetric]?
@@ -35,49 +40,33 @@ abstract class TestModule(open val module: IModule, open val description: String
     inline fun <reified T : ITestMetric> get(): T? = metrics.find { it is T } as? T
 }
 
-/**
- * Represents a suite comprised of several test [cases] that should be executed on a single [procedure].
- * @param procedure The static procedure that should be tested.
- * @param cases A list of TSL-read strings representing the arguments to pass to the procedure in each test case.
- * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
- */
-class SingleProcedureTestSuite(
-    override val module: IModule,
-    val procedure: IProcedure,
-    cases: List<Any?>, // if (parsed) List<List<Any?>> else List<String>, where String encodes the entire List<Any?>
-    val parsed: Boolean,
-    override val metrics: Set<ITestMetric>,
-    override val description: String = ""
-): TestModule(module, description, metrics) {
-    private val cases: MutableList<Any?> = mutableListOf()
+sealed interface IStatement
+
+sealed interface Instruction: IStatement
+
+sealed interface IExpression: IStatement
+
+data class VariableAssignment(val id: String, val initializer: IExpression): Instruction
+
+data class ProcedureCall(val procedure: IProcedure, val arguments: Any?, val parsed: Boolean): IExpression
+
+class ObjectCreation(
+    val module: TestModule,
+    val className: String,
+    val constructorArguments: List<Any?>,
+    configure: List<IStatement> = listOf()
+): IExpression {
+    private val configure: MutableList<IStatement> = mutableListOf()
 
     init {
-        this.cases.addAll(cases)
+        this.configure.addAll(configure)
     }
 
-    fun addCase(arguments: Any?) = cases.add(arguments)
+    fun add(call: IStatement) = configure.add(call)
 
-    fun cases(): List<Any?> = cases.toList()
+    fun configure(): List<IStatement> = configure.toList()
 }
 
-/**
- * Represents a suite of tests that includes a sequence of procedure [calls].
- * @param calls A list of (Procedure, Arguments) pairs.
- * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
- */
-class StatefulTestSequence(
-    override val module: IModule,
-    calls: List<Pair<IProcedure, List<Any?>>>, // List<(Procedure, ListOfArguments)>
-    override val metrics: Set<ITestMetric>,
-    override val description: String = ""
-): TestModule(module, description, metrics) {
-    private val calls: MutableList<Pair<IProcedure, List<Any?>>> = mutableListOf()
+data class VariableReference(val id: String): IExpression
 
-    init {
-        this.calls.addAll(calls)
-    }
-    
-    fun addCall(procedure: IProcedure, arguments: List<Any?>) = calls.add(Pair(procedure, arguments))
-
-    fun calls(): List<Pair<IProcedure, List<Any?>>> = calls.toList()
-}
+data class Literal(val value: Any?): IExpression

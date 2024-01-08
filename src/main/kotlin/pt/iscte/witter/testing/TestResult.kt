@@ -4,6 +4,12 @@ import pt.iscte.strudel.model.IProcedure
 
 sealed interface ITestResult
 
+data class ProcedureNotImplemented(val procedure: IProcedure): ITestResult {
+    override fun toString(): String = "[fail] Procedure ${procedure.id}(${procedure.parameters.joinToString { 
+        "${it.type}" 
+    }}) not implemented."
+}
+
 data class TestResult(
     val passed: Boolean,
     val procedure: IProcedure,

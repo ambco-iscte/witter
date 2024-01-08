@@ -23,17 +23,19 @@ object TestSpecifier {
         str.split(ARGUMENT_SPLIT_REGEX).map { JavaArgument2Strudel(vm).translate(it.trim()) }
 
     private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): TestModule {
-        val cases: MutableList<String> = mutableListOf()
-        val parameters: MutableList<ITestMetric> = mutableListOf()
+        val instructions: MutableList<IStatement> = mutableListOf()
+        val metrics: MutableList<ITestMetric> = mutableListOf()
 
         annotation().forEach { annotation ->
             when (annotation) {
-                is TSLParser.TestCaseAnnotationContext -> cases.add(annotation.args.text)
-                else -> parameters.add(annotation.translate())
+                is TSLParser.TestCaseAnnotationContext -> instructions.add(
+                    ProcedureCall(procedure, annotation.args.text, parsed = false)
+                )
+                else -> metrics.add(annotation.translate())
             }
         }
 
-        return SingleProcedureTestSuite(procedure.module!!, procedure, cases.toList(), false, parameters.toSet())
+        return TestModule(procedure.module!!, instructions, "", metrics.toSet(), stateful = false)
     }
 
     private fun TSLParser.AnnotationContext.translate(): ITestMetric = when (this) {
