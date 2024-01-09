@@ -11,7 +11,7 @@ fun Suite(referencePath: String, description: String = "", configure: TestSuite.
     return suite
 }
 
-fun TestModule.Object(className: String, vararg constructorArguments: Any?, configure: ObjectCreation.() -> Unit): ObjectCreation {
+fun TestModule.Object(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit): ObjectCreation {
     val obj = ObjectCreation(this, className, constructorArguments.toList())
     configure(obj)
     add(obj)
@@ -77,8 +77,18 @@ fun TestSuite.Stateless(
     configure: TestModule.() -> Unit = {}
 ): TestModule = Stateless(setOf(metric), description, configure)
 
+fun TestSuite.Stateless(
+    description: String = "",
+    configure: TestModule.() -> Unit = {}
+): TestModule = Stateless(setOf(), description, configure)
+
 fun TestSuite.Stateful(
     metric: ITestMetric,
     description: String = "",
     configure: TestModule.() -> Unit = {}
 ): TestModule = Stateful(setOf(metric), description, configure)
+
+fun TestSuite.Stateful(
+    description: String = "",
+    configure: TestModule.() -> Unit = {}
+): TestModule = Stateful(setOf(), description, configure)

@@ -48,25 +48,35 @@ sealed interface IExpression: IStatement
 
 data class VariableAssignment(val id: String, val initializer: IExpression): Instruction
 
-data class ProcedureCall(val procedure: IProcedure, val arguments: Any?, val parsed: Boolean): IExpression
+data class ProcedureCall(val procedure: IProcedure, val arguments: Any?, val parsed: Boolean): IExpression {
+    override fun toString(): String =
+        if (arguments is List<*>) "${procedure.id}(${arguments.joinToString()})"
+        else "${procedure.id}(${arguments.toString()})"
+}
 
 class ObjectCreation(
     val module: TestModule,
     val className: String,
-    val constructorArguments: List<Any?>,
-    configure: List<IStatement> = listOf()
+    val constructorArguments: List<Any>,
+    configure: List<ProcedureCall> = listOf()
 ): IExpression {
-    private val configure: MutableList<IStatement> = mutableListOf()
+    private val configure: MutableList<ProcedureCall> = mutableListOf()
 
     init {
         this.configure.addAll(configure)
     }
 
-    fun add(call: IStatement) = configure.add(call)
+    fun add(call: ProcedureCall) = configure.add(call)
 
-    fun configure(): List<IStatement> = configure.toList()
+    fun configure(): List<ProcedureCall> = configure.toList()
+
+    override fun toString(): String = "new $className(${constructorArguments.joinToString()})"
 }
 
-data class VariableReference(val id: String): IExpression
+data class VariableReference(val id: String): IExpression {
+    override fun toString(): String = "Var($id)"
+}
 
-data class Literal(val value: Any?): IExpression
+data class Literal(val value: Any?): IExpression {
+    override fun toString(): String = value?.toString() ?: "null"
+}

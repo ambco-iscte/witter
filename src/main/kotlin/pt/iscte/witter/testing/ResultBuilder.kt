@@ -21,10 +21,10 @@ class ResultBuilder(
         }?.getter?.call(this) as? Int
             ?: throw Exception("Cannot generate numeric result for non-numerical metric ${this::class.simpleName}")
 
-    fun black(expected: Any?, actual: Any?, arguments: List<IValue>): ITestResult? {
+    fun black(expected: IValue, actual: IValue, arguments: List<Any?>): ITestResult? {
         return if (subjectProcedure.returnType != VOID || referenceProcedure.returnType != VOID)
             return TestResult(
-                actual == expected,
+                actual.sameAs(expected),
                 subjectProcedure,
                 arguments,
                 "result",
