@@ -38,6 +38,12 @@ class TestModule(
      * for the module.
      */
     inline fun <reified T : ITestMetric> get(): T? = metrics.find { it is T } as? T
+
+    override fun equals(other: Any?): Boolean = when (other) {
+        is TestModule -> module == other.module && description == other.description && metrics == other.metrics &&
+                stateful == other.stateful && statements() == other.statements()
+        else -> false
+    }
 }
 
 sealed interface IStatement
@@ -46,7 +52,9 @@ sealed interface Instruction: IStatement
 
 sealed interface IExpression: IStatement
 
-data class VariableAssignment(val id: String, val initializer: IExpression): Instruction
+data class VariableAssignment(val id: String, val initializer: () -> IExpression): Instruction {
+    override fun toString(): String = "$id=${initializer()}"
+}
 
 data class ProcedureCall(val procedure: IProcedure, val arguments: Any?, val parsed: Boolean): IExpression {
     override fun toString(): String =

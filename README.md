@@ -43,10 +43,10 @@ You may additionally need to specify dependencies for the
 
 ## Specifying Reference Solutions
 ### Annotating Reference Solutions
-One can define the test cases for a given exercise by writing
+One can define the tester cases for a given exercise by writing
 a reference solution in a Java method, annotated with a
-header comment that defines the different test inputs and
-the metrics that should be measured during test execution.
+header comment that defines the different tester inputs and
+the metrics that should be measured during tester execution.
 The content of the comments has to obey Witter’s Test Specification
 Language (TSL), whose syntax is similar to Java’s
 annotation syntax:
@@ -73,13 +73,13 @@ As Witter is designed for third-party integration, it provides
 a form of executing the tests programmatically. Tests are executed providing an annotated reference
 solution as described, and a solution that one wishes to assess:
 ```java
-Test test = new Test("ReferenceSolution.java");
+Test tester = new Test("ReferenceSolution.java");
         
-List<TestResult> results = test.execute("Solution.java");
+List<TestResult> results = tester.execute("Solution.java");
 ```
 
-The test results consist of a list of feedback
-items for each aspect defined in the test specification,
+The tester results consist of a list of feedback
+items for each aspect defined in the tester specification,
 holding the following information:
 - a flag indicating success or failure;
 - which kind of metric has failed (recall Table 1);
@@ -129,7 +129,7 @@ static int factorial(int n) {
 }
 ```
 
-Witter test results (black-box and white-box fail):
+Witter tester results (black-box and white-box fail):
 ```
 [fail] factorial(5)
     Expected result: 120
@@ -176,7 +176,7 @@ static int binarySearch (int[] a, int e) {
 }
 ```
 
-Witter test results (black-box pass, white-box fail):
+Witter tester results (black-box pass, white-box fail):
 ```
 [pass] search([1, 2, 3, 4, 5, 6, 7], 1)
 	Expected result: 0 
@@ -245,7 +245,7 @@ static void sort(int[] a) {
 }
 ```
 
-Witter test results (black-box pass, white-box fail):
+Witter tester results (black-box pass, white-box fail):
 ```
 [fail] sort([5, 4, 3, 2, 1])
 	Expected array reads: 40 
@@ -294,7 +294,7 @@ ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
     address = {New York, NY, USA},
     url = {https://doi.org/10.1145/3622780.3623650},
     doi = {10.1145/3622780.3623650},
-    abstract = {Software testing is mostly performed in a black-box manner, that is, without incorporating any knowledge of the internal workings of programs into the tests. This practice usually suffices for enterprises and general practitioners, where the focus lies on producing reliable results while most algorithmic tasks are provided by third-party libraries. However, for computer science students and the like, it might not be straightforward to discern the underlying causes of an incorrect test result or to understand why certain algorithmic goals are not met. We present Witter, a software testing library that allows programming educators to define white-box tests for Java source code. Our tests analyze the execution of a method against a reference solution, to verify that the code not only produces correct results but is also in accordance with a desired algorithm behavior.},
+    abstract = {Software testing is mostly performed in a black-box manner, that is, without incorporating any knowledge of the internal workings of programs into the tests. This practice usually suffices for enterprises and general practitioners, where the focus lies on producing reliable results while most algorithmic tasks are provided by third-party libraries. However, for computer science students and the like, it might not be straightforward to discern the underlying causes of an incorrect tester result or to understand why certain algorithmic goals are not met. We present Witter, a software testing library that allows programming educators to define white-box tests for Java source code. Our tests analyze the execution of a method against a reference solution, to verify that the code not only produces correct results but is also in accordance with a desired algorithm behavior.},
     booktitle = {Proceedings of the 2023 ACM SIGPLAN International Symposium on SPLASH-E},
     pages = {69–74},
     numpages = {6},

@@ -1,4 +1,4 @@
-package examples.submission;
+package submission;
 
 public class Stack {
 

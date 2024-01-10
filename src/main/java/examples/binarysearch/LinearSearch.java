@@ -1,4 +1,4 @@
-package examples.paper.binarysearch;
+package examples.binarysearch;
 
 public class LinearSearch {
 

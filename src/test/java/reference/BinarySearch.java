@@ -1,4 +1,4 @@
-package examples.paper.binarysearch;
+package reference;
 
 public class BinarySearch {
 

@@ -1,4 +1,4 @@
-package examples.reference;
+package reference;
 
 public class Stack {
 

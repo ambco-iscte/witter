@@ -1,4 +1,4 @@
-package examples.paper.factorial;
+package examples.factorial;
 
 public class IterativeFactorial {
 

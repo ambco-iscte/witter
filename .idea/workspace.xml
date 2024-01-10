@@ -4,19 +4,47 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Re-wrote test specification:&#10;&#10;- TSL now properly abstractly defined;&#10;- Tester serves as a TSL interpreter.&#10;- Started implementing DSL - more testing needed!">
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/TestStack.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/reference/Stack.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/examples/submission/Stack.java" afterDir="false" />
+    <list default="true" id="742007b4-88d8-4831-98a3-56cb5c655625" name="Changes" comment="Added TSL object-oriented testing.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/examples/binarysearch/TestBinarySearch.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/examples/factorial/TestFactorial.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/examples/sorting/TestInsertionSort.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/reference/BinarySearch.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/reference/InsertionSort.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/reference/RecursiveFactorial.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/submission/IterativeFactorial.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/submission/LinearSearch.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/submission/SelectionSort.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/Assertions.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/RunAllTests.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tester/BaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tester/TestBinarySearch.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tester/TestInsertionSort.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tester/TestRecursiveFactorial.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tester/TestStack.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tsl/TestDSL.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tsl/TestJavaParser.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/tsl/TestTSLParser.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CITATION.cff" beforeDir="false" afterPath="$PROJECT_DIR$/CITATION.cff" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/TestStack.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/BinarySearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/binarysearch/BinarySearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/binarysearch/LinearSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/binarysearch/LinearSearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/IterativeFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/factorial/IterativeFactorial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/factorial/RecursiveFactorial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/factorial/RecursiveFactorial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/InsertionSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/sorting/InsertionSort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/paper/sorting/SelectionSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/examples/sorting/SelectionSort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/reference/Stack.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/reference/Stack.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/examples/submission/Stack.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/submission/Stack.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/Main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/dsl/DSL.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/dsl/DSL.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ResultBuilder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/ResultBuilder.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/Test.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestSuite.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestSuite.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestResult.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/testing/TestingUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/JavaArgument2Strudel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/JavaArgument2Strudel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/ProcedureTestSpecification.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/pt/iscte/witter/tsl/TestSpecifier.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,9 +94,9 @@
         <option value="Kotlin Data Class" />
         <option value="Kotlin Interface" />
         <option value="Kotlin Object" />
+        <option value="Class" />
         <option value="Kotlin Class" />
         <option value="Kotlin File" />
-        <option value="Class" />
       </list>
     </option>
   </component>
@@ -101,7 +129,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/afons/IdeaProjects/whitebox-proof-of-concept/libs&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/afons/IdeaProjects/whitebox-proof-of-concept/src/test/java/submission&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -116,6 +144,8 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\test\java\submission" />
+      <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\src\test\java\reference" />
       <recent name="C:\Users\afons\IdeaProjects\whitebox-proof-of-concept\libs" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -129,14 +159,17 @@
       <recent name="testing" />
       <recent name="" />
     </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="examples.stack" />
+    </key>
   </component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="gradle build" />
     </option>
   </component>
-  <component name="RunManager" selected="Kotlin.TestStackKt">
-    <configuration name="whitebox-proof-of-concept [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+  <component name="RunManager" selected="Gradle.RunAllTests">
+    <configuration name="RunAllTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -147,49 +180,22 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;RunAllTests&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
-      <ForceTestExec>false</ForceTestExec>
+      <ForceTestExec>true</ForceTestExec>
       <method v="2" />
-    </configuration>
-    <configuration name="whitebox-proof-of-concept [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="jar" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <ForceTestExec>false</ForceTestExec>
-      <method v="2" />
-    </configuration>
-    <configuration name="MainKt (1)" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="pt.iscte.witter.MainKt" />
-      <module name="witter.main" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="pt.iscte.witter.MainKt" />
-      <module name="whitebox-proof-of-concept.main" />
+      <module name="witter.main" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -201,8 +207,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestStackKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="examples.TestStackKt" />
+    <configuration name="TestBinarySearchKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="examples.binarysearch.TestBinarySearchKt" />
+      <module name="witter.main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestFactorialKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="examples.factorial.TestFactorialKt" />
+      <module name="witter.main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestInsertionSortKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="examples.sorting.TestInsertionSortKt" />
       <module name="witter.main" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -210,11 +230,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Kotlin.TestStackKt" />
-        <item itemvalue="Kotlin.MainKt (1)" />
-        <item itemvalue="Gradle.whitebox-proof-of-concept [build]" />
-        <item itemvalue="Gradle.whitebox-proof-of-concept [jar]" />
+        <item itemvalue="Gradle.RunAllTests" />
         <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="Kotlin.TestFactorialKt" />
+        <item itemvalue="Kotlin.TestInsertionSortKt" />
+        <item itemvalue="Kotlin.TestBinarySearchKt" />
       </list>
     </recent_temporary>
   </component>
@@ -333,7 +353,8 @@
       <workItem from="1704712720426" duration="5183000" />
       <workItem from="1704726316850" duration="10619000" />
       <workItem from="1704795025932" duration="865000" />
-      <workItem from="1704796048555" duration="2378000" />
+      <workItem from="1704796048555" duration="15483000" />
+      <workItem from="1704887326576" duration="9666000" />
     </task>
     <task id="LOCAL-00001" summary="Proof of concept.">
       <created>1686392287142</created>
@@ -424,7 +445,14 @@
       <option name="project" value="LOCAL" />
       <updated>1704715380655</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Added TSL object-oriented testing.">
+      <created>1704799048600</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1704799048600</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -455,7 +483,8 @@
     <MESSAGE value="General cleanup:&#10;&#10;- Organized code in the Test class;&#10;- Restructured test specification structures;&#10;- Base groundwork to allow for stateful testing." />
     <MESSAGE value="Added stateful test skeleton; Started DSL implementation." />
     <MESSAGE value="Re-wrote test specification:&#10;&#10;- TSL now properly abstractly defined;&#10;- Tester serves as a TSL interpreter.&#10;- Started implementing DSL - more testing needed!" />
-    <option name="LAST_COMMIT_MESSAGE" value="Re-wrote test specification:&#10;&#10;- TSL now properly abstractly defined;&#10;- Tester serves as a TSL interpreter.&#10;- Started implementing DSL - more testing needed!" />
+    <MESSAGE value="Added TSL object-oriented testing." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added TSL object-oriented testing." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

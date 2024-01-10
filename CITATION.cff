@@ -30,7 +30,7 @@ abstract: >-
   results while most algorithmic tasks are provided by
   third-party libraries. However, for computer science
   students and the like, it might not be straightforward to
-  discern the underlying causes of an incorrect test result
+  discern the underlying causes of an incorrect tester result
   or to understand why certain algorithmic goals are not
   met. We present Witter, a software testing library that
   allows programming educators to define white-box tests for

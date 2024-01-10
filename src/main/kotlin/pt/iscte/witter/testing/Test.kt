@@ -13,6 +13,8 @@ class Test(private val referenceFile: File) {
 
     private val loader = Java2Strudel()
 
+    private val memory = mutableMapOf<IModule, MutableMap<String, IValue>>()
+
     fun apply(subjectFile: File): List<ITestResult> = apply(loader.load(subjectFile))
 
     fun apply(subjectPath: String): List<ITestResult> = apply(loader.load(File(subjectPath)))
@@ -22,6 +24,63 @@ class Test(private val referenceFile: File) {
 
     fun apply(subjectFile: File, suite: TestSuite): List<ITestResult> = apply(loader.load(subjectFile), suite.modules())
 
+    fun dereference(collection: Collection<Any>, vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): List<IValue> =
+        collection.map { when(it) {
+            is IExpression -> it.evaluate(vm, module, listener)
+            else -> getValue(vm, it)
+        } }
+
+    // Allocates a record
+    @Suppress("UNCHECKED_CAST")
+    private fun IModule.allocate(
+        vm: IVirtualMachine,
+        listener: EvaluationMetricListener,
+        expr: ObjectCreation
+    ): IReference<IRecord> {
+        val type: IRecordType = getRecordType(expr.className)
+        val ref: IReference<IRecord> = vm.allocateRecord(type)
+
+        val constructor: IProcedure = getProcedure("\$init")
+        val args = dereference(listOf(ref) + expr.constructorArguments, vm, this, listener)
+        vm.execute(constructor, *args.toTypedArray())
+
+        // Add $this argument to member function calls
+        val configure = expr.configure().map {
+            ProcedureCall(
+                findMatchingProcedure(it.procedure)!!,
+                dereference(listOf(ref) + it.arguments as List<Any>, vm, this, listener),
+                true
+            )
+        }
+        configure.forEach { call ->
+            val arguments = dereference(call.arguments as List<Any>, vm, this, listener)
+            vm.execute(findMatchingProcedure(call.procedure)!!, *arguments.toTypedArray())
+        }
+
+        return ref
+    }
+
+    // Evaluates a TSL expression.
+    @Suppress("UNCHECKED_CAST")
+    private fun IExpression.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): IValue {
+        fun ProcedureCall.arguments(): List<IValue> =
+            if (parsed) // Arguments are passed as Any
+                dereference(arguments as List<Any>, vm, module, listener)
+            else // Arguments are passed as a single Java source code string
+                TestSpecifier.parseArgumentsString(this@Test, vm, module, listener, arguments.toString())
+
+        return when (this) {
+            is VariableReference -> memory[module]!![id] ?: NULL
+            is Literal -> vm.getValue(this.value)
+            is ProcedureCall -> {
+                val args = arguments().toTypedArray()
+                val procedure = module.findMatchingProcedure(procedure) ?: return NULL
+                vm.execute(procedure, *args) ?: NULL
+            }
+            is ObjectCreation -> module.allocate(vm, listener, this)
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun apply(subject: IModule, tests: List<TestModule> = listOf()): List<ITestResult> {
         val reference: IModule = loader.load(referenceFile)
@@ -29,91 +88,16 @@ class Test(private val referenceFile: File) {
         val results = mutableListOf<ITestResult>()
 
         // Initialise empty memory
-        val memory = mutableMapOf<IModule, MutableMap<String, IValue>>()
+        memory.clear()
         memory[reference] = mutableMapOf()
         memory[subject] = mutableMapOf()
 
-        // Evaluates a TSL expression.
-        fun evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener, expr: IExpression): IValue {
-
-            fun Collection<Any>.dereference(): List<IValue> =
-                map { when(it) {
-                    is IExpression -> evaluate(vm, module, listener, it)
-                    else -> getValue(vm, it)
-                } }
-
-            // Allocates a record
-            fun allocate(expr: ObjectCreation): IReference<IRecord> {
-                val type: IRecordType = module.getRecordType(expr.className)
-                val ref: IReference<IRecord> = vm.allocateRecord(type)
-
-                val constructor: IProcedure = module.getProcedure("\$init")
-                val args = (listOf(ref) + expr.constructorArguments).dereference()
-                vm.execute(constructor, *args.toTypedArray())
-
-                // Add $this argument to member function calls
-                val configure = expr.configure().map {
-                    ProcedureCall(
-                        module.findMatchingProcedure(it.procedure)!!,
-                        (listOf(ref) + it.arguments as List<Any>).dereference(),
-                        true
-                    )
-                }
-                configure.forEach { call ->
-                    val arguments = (call.arguments as List<Any>).dereference()
-                    vm.execute(module.findMatchingProcedure(call.procedure)!!, *arguments.toTypedArray())
-                }
-
-                return ref
-            }
-
-            fun ProcedureCall.arguments(): List<IValue> =
-                if (parsed) // Arguments are passed as Any
-                    (arguments as List<Any>).dereference()
-                else // Arguments are passed as a single Java source code string
-                    TestSpecifier.parseArgumentsString(vm, arguments.toString())
-
-            return when (expr) {
-                is VariableReference -> memory[module]!![expr.id] ?: NULL
-                is Literal -> vm.getValue(expr.value)
-                is ProcedureCall -> {
-                    vm.execute(module.findMatchingProcedure(expr.procedure)!!, *expr.arguments().toTypedArray()) ?: NULL
-                    /*
-                    val (originalArguments, referenceArguments, subjectArguments) = expr.arguments()
-
-                    // Try to find the subject procedure, or log a ProcedureNotImplemented result if not found
-                    val subjectProcedure = runCatching { subject.getProcedure(expr.procedure.id!!) }.onFailure {
-                        if (results.none { it is ProcedureNotImplemented && it.procedure == expr.procedure })
-                            results.add(ProcedureNotImplemented(expr.procedure))
-                    }.getOrNull()
-
-                    if (subjectProcedure == null) NULL // Target procedure not implemented
-                    else {
-                        val builder = ResultBuilder(expr.procedure, subjectProcedure)
-
-                        // BLACK-BOX
-                        val expectedValue = vm.execute(expr.procedure, *referenceArguments.toTypedArray())
-                        val actual = vm.execute(subjectProcedure, *subjectArguments.toTypedArray())?.value
-                        builder.black(expectedValue?.value, actual, originalArguments)?.let { results.add(it) }
-
-                        // WHITE-BOX
-                        results.addAll(builder.white(listener, originalArguments))
-
-                        expectedValue ?: NULL
-                    }
-                     */
-                }
-                is ObjectCreation -> allocate(expr)
-            }
-        }
-
-        // Processes a TSL instruction (e.g. variable assignments).
         fun process(vm: IVirtualMachine, listener: EvaluationMetricListener, instruction: Instruction): IValue =
             when (instruction) {
                 is VariableAssignment -> {
-                    val value = evaluate(vm, reference, listener, instruction.initializer)
+                    val value = instruction.initializer().evaluate(vm, reference, listener)
                     memory[reference]!![instruction.id] = value
-                    memory[subject]!![instruction.id] = evaluate(vm, subject, listener, instruction.initializer)
+                    memory[subject]!![instruction.id] = instruction.initializer().evaluate(vm, subject, listener)
                     value
                 }
             }
@@ -137,22 +121,24 @@ class Test(private val referenceFile: File) {
 
                         val args =
                             if (stmt.parsed) (stmt.arguments as List<Any>).map { when(it) {
-                                is IExpression -> evaluate(vm, reference, listener, it)
+                                is IExpression -> it.evaluate(vm, reference, listener)
                                 else -> getValue(vm, it)
                             } }
-                            else TestSpecifier.parseArgumentsString(vm, stmt.arguments.toString())
+                            else TestSpecifier.parseArgumentsString(
+                                this, vm, reference, listener, stmt.arguments.toString()
+                            )
 
                         // BLACK-BOX
-                        val expected = evaluate(vm, reference, listener, stmt)
-                        val actual = evaluate(vm, subject, listener, stmt)
+                        val expected = stmt.evaluate(vm, reference, listener)
+                        val actual = stmt.evaluate(vm, subject, listener)
                         builder.black(expected, actual, args)?.let { results.add(it) }
 
                         // WHITE-BOX
-                        results.addAll(builder.white(listener, args)) // TODO no previousArgumentsForProcedure??
+                        results.addAll(builder.white(listener, args))
                     }
                     else -> {
-                        evaluate(vm, reference, listener, stmt)
-                        evaluate(vm, subject, listener, stmt)
+                        stmt.evaluate(vm, reference, listener)
+                        stmt.evaluate(vm, subject, listener)
                     }
                 }
             }

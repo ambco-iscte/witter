@@ -25,7 +25,7 @@ fun ObjectCreation.Call(procedureID: String, vararg arguments: Any?): ProcedureC
 }
 
 fun TestModule.Var(id: String, configure: () -> IExpression): VariableReference {
-    add(VariableAssignment(id, configure()))
+    add(VariableAssignment(id, configure))
     return VariableReference(id)
 }
 

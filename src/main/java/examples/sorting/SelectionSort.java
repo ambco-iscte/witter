@@ -1,4 +1,4 @@
-package examples.paper.sorting;
+package examples.sorting;
 
 public class SelectionSort {
 

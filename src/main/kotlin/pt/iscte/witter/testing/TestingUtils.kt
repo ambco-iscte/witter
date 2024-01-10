@@ -3,6 +3,7 @@ package pt.iscte.witter.testing
 import pt.iscte.strudel.model.IModule
 import pt.iscte.strudel.model.IProcedure
 import pt.iscte.strudel.model.IRecordType
+import pt.iscte.strudel.model.IVariableDeclaration
 import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.ObjectCreation
 import pt.iscte.witter.tsl.ProcedureCall
@@ -15,6 +16,8 @@ internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - mar
 @Suppress("UNCHECKED_CAST")
 internal fun IValue.sameAs(other: IValue): Boolean =
     if (this is IArray && other is IArray) (value as Array<IValue>).sameAs(other.value as Array<IValue>)
+    else if (this is IRecord && other is IRecord) properties().values.sameAs(other.properties().values)
+    else if (this is IReference<*> && other is IReference<*>) target.sameAs(other.target)
     else value == other.value
 
 internal fun Array<IValue>.sameAs(other: Array<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
@@ -23,7 +26,7 @@ internal fun Iterable<IValue>.sameAs(other: Iterable<IValue>): Boolean = zip(oth
 
 internal fun <K, V> Map<K, V>.describe(descriptor: (Map.Entry<K, V>) -> String): String =
     if (isEmpty()) "None"
-    else map { descriptor(it) }.joinToString(", ")
+    else map { descriptor(it) }.joinToString()
 
 val IModule.tests: List<TestModule>
     get() {
@@ -34,19 +37,10 @@ val IModule.tests: List<TestModule>
         return tests.toList()
     }
 
-val IRecordType.declaredProcedures: List<IProcedure>
-    get() = module?.procedures?.filter { it.thisParameter.type.asRecordType == this } ?: listOf()
-
 fun IModule.findMatchingProcedure(procedure: IProcedure): IProcedure? =
     if (procedure.module == this) procedure
     else runCatching { procedure.id?.let { getProcedure(it) } }.getOrNull()
 
-internal fun getArgumentsFromString(vm: IVirtualMachine, arguments: String): Triple<List<IValue>, List<IValue>, List<IValue>> =
-    Triple(
-        TestSpecifier.parseArgumentsString(vm, arguments),
-        TestSpecifier.parseArgumentsString(vm, arguments),
-        TestSpecifier.parseArgumentsString(vm, arguments)
-    )
 
 internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
     is Collection<*> -> {
@@ -62,10 +56,10 @@ internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
     else -> vm.getValue(value)
 }
 
-internal fun getArgumentsFromValues(vm: IVirtualMachine, arguments: List<Any>): Triple<List<IValue>, List<IValue>, List<IValue>> {
-    return Triple(
-        arguments.map { getValue(vm, it) },
-        arguments.map { getValue(vm, it) },
-        arguments.map { getValue(vm, it) }
-    )
+internal fun IRecord.properties(): Map<IVariableDeclaration<IRecordType>, IValue> {
+    val type: IRecordType = when (val t = this.type) {
+        is IRecordType -> t
+        else -> t.asRecordType
+    }
+    return type.fields.associateWith { getField(it) }
 }

@@ -1,4 +1,4 @@
-package examples.paper.sorting;
+package reference;
 
 public class InsertionSort {
 

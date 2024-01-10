@@ -7,6 +7,9 @@ import pt.iscte.strudel.vm.IValue
 import pt.iscte.strudel.vm.IVirtualMachine
 import TSLParser
 import TSLLexer
+import pt.iscte.strudel.model.IModule
+import pt.iscte.witter.testing.EvaluationMetricListener
+import pt.iscte.witter.testing.Test
 
 object TestSpecifier {
 
@@ -19,8 +22,15 @@ object TestSpecifier {
             TSLParser(CommonTokenStream(TSLLexer(CharStreams.fromString(annotation)))).specification().translate(procedure)
         }
 
-    fun parseArgumentsString(vm: IVirtualMachine, str: String): List<IValue> =
-        str.split(ARGUMENT_SPLIT_REGEX).map { JavaArgument2Strudel(vm).translate(it.trim()) }
+    fun parseArgumentsString(
+        tester: Test,
+        vm: IVirtualMachine,
+        module: IModule,
+        listener: EvaluationMetricListener,
+        str: String
+    ): List<IValue> = str.split(ARGUMENT_SPLIT_REGEX).map {
+        JavaArgument2Strudel(tester, vm, module, listener).translate(it.trim())
+    }
 
     private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): TestModule {
         val instructions: MutableList<IStatement> = mutableListOf()

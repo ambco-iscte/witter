@@ -7,8 +7,15 @@ import com.github.javaparser.ast.type.PrimitiveType
 import com.github.javaparser.ast.type.Type
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.vm.*
+import pt.iscte.witter.testing.EvaluationMetricListener
+import pt.iscte.witter.testing.Test
 
-class JavaArgument2Strudel(private val vm: IVirtualMachine) {
+class JavaArgument2Strudel(
+    private val tester: Test,
+    private val vm: IVirtualMachine,
+    private val module: IModule,
+    private val listener: EvaluationMetricListener
+) {
 
     fun translate(expression: String): IValue =
         StaticJavaParser.parseExpression<Expression>(expression).translateExpression()
@@ -21,9 +28,26 @@ class JavaArgument2Strudel(private val vm: IVirtualMachine) {
         is StringLiteralExpr -> vm.getValue(asString())
         is BooleanLiteralExpr -> vm.getValue(value)
         is NullLiteralExpr -> NULL
+        is UnaryExpr -> translateUnaryExpression()
         is ArrayCreationExpr -> translateArrayCreationExpression()
         is ObjectCreationExpr -> translateObjectCreationExpression()
         else -> throw Exception("Unsupported argument expression: $this")
+    }
+
+    private fun UnaryExpr.translateUnaryExpression(): IValue {
+        if (!isPrefix) throw Exception("Postfix unary expressions not supported: $this")
+
+        val multiplier: Int = when (operator) {
+            UnaryExpr.Operator.PLUS -> 1
+            UnaryExpr.Operator.MINUS -> -1
+            else -> throw Exception("Unsupported unary expression operator: $operator")
+        }
+
+        return when (val expr = expression) {
+            is IntegerLiteralExpr -> vm.getValue(multiplier * expr.asNumber().toInt())
+            is DoubleLiteralExpr -> vm.getValue(multiplier * expr.asDouble())
+            else -> throw Exception("Unsupported non-integer and non-literal unary expression operand: $expr")
+        }
     }
 
     // TODO: look into what breaks for multidimensional arrays and whatnot
@@ -39,7 +63,8 @@ class JavaArgument2Strudel(private val vm: IVirtualMachine) {
         else if (initializer.isPresent) {
             vm.allocateArrayOf(type, *initializer.get().toArray())
         }
-        else throw Exception("Array initialisation must contain array dimension expression as an integer literal") // TODO is this what actually happens here
+        else // TODO is this what actually happens here
+            throw Exception("Array initialisation must contain array dimension expression as an integer literal")
     }
 
     // TODO: try to reduce the number of situations that throw unsupported exception?
@@ -56,7 +81,15 @@ class JavaArgument2Strudel(private val vm: IVirtualMachine) {
     private fun ArrayInitializerExpr.toArray(): Array<Any> =
         values.map { it.translateExpression().value!! }.toTypedArray()
 
-    private fun ObjectCreationExpr.translateObjectCreationExpression(): IRecord {
-        TODO("Record argument translation not yet implemented")
+    private fun ObjectCreationExpr.translateObjectCreationExpression(): IReference<IRecord> {
+        val type = module.getRecordType(this.type.nameAsString)
+        val ref: IReference<IRecord> = vm.allocateRecord(type)
+
+        val constructor = module.getProcedure("\$init")
+        val constructorArguments = this.arguments.map { it.translateExpression() }
+        val args = tester.dereference(listOf(ref) + constructorArguments, vm, module, listener)
+        vm.execute(constructor, *args.toTypedArray())
+
+        return ref
     }
 }
