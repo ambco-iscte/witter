@@ -11,7 +11,7 @@ fun Suite(referencePath: String, description: String = "", configure: TestSuite.
     return suite
 }
 
-fun TestModule.Object(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit): ObjectCreation {
+fun TestCase.Object(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit): ObjectCreation {
     val obj = ObjectCreation(this, className, constructorArguments.toList())
     configure(obj)
     add(obj)
@@ -19,29 +19,57 @@ fun TestModule.Object(className: String, vararg constructorArguments: Any, confi
 }
 
 fun ObjectCreation.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
-    val call = ProcedureCall(module.module.getProcedure(procedureID), arguments.toList(), true)
+    val call = ProcedureCall(case.module.getProcedure(procedureID), arguments.toList(), case.metrics)
     add(call)
     return call
 }
 
-fun TestModule.Var(id: String, configure: () -> IExpression): VariableReference {
+fun TestCase.Var(id: String, configure: () -> IExpressionStatement): VariableReference {
     add(VariableAssignment(id, configure))
-    return VariableReference(id)
+    return VariableReference(this, id)
 }
 
-fun TestModule.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
-    val call = ProcedureCall(module.getProcedure(procedureID), arguments.toList(), true)
+fun TestCase.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
+    val call = ProcedureCall(module.getProcedure(procedureID), arguments.toList(), metrics)
     add(call)
     return call
 }
 
+fun VariableReference.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
+    val call = ProcedureCall(
+        case.module.getProcedure(procedureID),
+        listOf(this) + arguments.toList(),
+        case.metrics
+    )
+    case.add(call)
+    return call
+}
+
+fun TestSuite.Case(
+    metrics: Set<ITestMetric>,
+    description: String = "",
+    configure: TestCase.() -> Unit = {}
+): TestCase {
+    val module = Java2Strudel().load(File(referencePath))
+    val s = TestCase(
+        module,
+        listOf(),
+        description,
+        metrics
+    )
+    configure(s)
+    add(s)
+    return s
+}
+
+/*
 fun TestSuite.Stateless(
     metrics: Set<ITestMetric>,
     description: String = "",
-    configure: TestModule.() -> Unit = {}
-): TestModule {
+    configure: TestCase.() -> Unit = {}
+): TestCase {
     val module = Java2Strudel().load(File(referencePath))
-    val s = TestModule(
+    val s = TestCase(
         module,
         listOf(),
         description,
@@ -53,42 +81,25 @@ fun TestSuite.Stateless(
     return s
 }
 
-fun TestSuite.Stateful(
-    metrics: Set<ITestMetric>,
-    description: String = "",
-    configure: TestModule.() -> Unit = {}
-): TestModule {
-    val module = Java2Strudel().load(File(referencePath))
-    val s = TestModule(
-        module,
-        listOf(),
-        description,
-        metrics,
-        stateful = true
-    )
-    configure(s)
-    add(s)
-    return s
-}
-
 fun TestSuite.Stateless(
     metric: ITestMetric,
     description: String = "",
-    configure: TestModule.() -> Unit = {}
-): TestModule = Stateless(setOf(metric), description, configure)
+    configure: TestCase.() -> Unit = {}
+): TestCase = Stateless(setOf(metric), description, configure)
 
 fun TestSuite.Stateless(
     description: String = "",
-    configure: TestModule.() -> Unit = {}
-): TestModule = Stateless(setOf(), description, configure)
+    configure: TestCase.() -> Unit = {}
+): TestCase = Stateless(setOf(), description, configure)
+ */
 
-fun TestSuite.Stateful(
+fun TestSuite.Case(
     metric: ITestMetric,
     description: String = "",
-    configure: TestModule.() -> Unit = {}
-): TestModule = Stateful(setOf(metric), description, configure)
+    configure: TestCase.() -> Unit = {}
+): TestCase = Case(setOf(metric), description, configure)
 
-fun TestSuite.Stateful(
+fun TestSuite.Case(
     description: String = "",
-    configure: TestModule.() -> Unit = {}
-): TestModule = Stateful(setOf(), description, configure)
+    configure: TestCase.() -> Unit = {}
+): TestCase = Case(setOf(), description, configure)

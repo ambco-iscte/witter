@@ -1,15 +1,10 @@
 package pt.iscte.witter.testing
 
-import pt.iscte.strudel.model.IModule
-import pt.iscte.strudel.model.IProcedure
-import pt.iscte.strudel.model.IRecordType
-import pt.iscte.strudel.model.IVariableDeclaration
+import pt.iscte.strudel.model.*
+import pt.iscte.strudel.model.VOID
 import pt.iscte.strudel.vm.*
-import pt.iscte.witter.tsl.ObjectCreation
-import pt.iscte.witter.tsl.ProcedureCall
-import pt.iscte.witter.tsl.TestModule
+import pt.iscte.witter.tsl.TestCase
 import pt.iscte.witter.tsl.TestSpecifier
-import kotlin.reflect.KClass
 
 internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
 
@@ -24,13 +19,29 @@ internal fun Array<IValue>.sameAs(other: Array<IValue>): Boolean = zip(other).al
 
 internal fun Iterable<IValue>.sameAs(other: Iterable<IValue>): Boolean = zip(other).all { it.first.sameAs(it.second) }
 
+@Suppress("UNCHECKED_CAST")
+fun equivalent(a: Any?, b: Any?): Boolean =
+    if (a is IValue && b is IValue)
+        a.sameAs(b)
+    else if (a is IValue) when (a) {
+        is IArray -> a == (a.value as Array<IValue>).map { it.value }
+        is IReference<*> -> equivalent(a.target, b)
+        else -> a.value == b
+    }
+    else if (b is IValue) when (b) {
+        is IArray -> a == (b.value as Array<IValue>).map { it.value }
+        is IReference<*> -> equivalent(a, b.target)
+        else -> a == b.value
+    }
+    else a == b
+
 internal fun <K, V> Map<K, V>.describe(descriptor: (Map.Entry<K, V>) -> String): String =
     if (isEmpty()) "None"
     else map { descriptor(it) }.joinToString()
 
-val IModule.tests: List<TestModule>
+val IModule.tests: List<TestCase>
     get() {
-        val tests = mutableListOf<TestModule>()
+        val tests = mutableListOf<TestCase>()
         procedures.forEach { procedure ->
             TestSpecifier.translate(procedure)?.let { tests.add(it) }
         }
@@ -40,6 +51,7 @@ val IModule.tests: List<TestModule>
 fun IModule.findMatchingProcedure(procedure: IProcedure): IProcedure? =
     if (procedure.module == this) procedure
     else runCatching { procedure.id?.let { getProcedure(it) } }.getOrNull()
+// TODO find procedure with closest (levenshtein, etc?) descriptor string
 
 
 internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
@@ -63,3 +75,20 @@ internal fun IRecord.properties(): Map<IVariableDeclaration<IRecordType>, IValue
     }
     return type.fields.associateWith { getField(it) }
 }
+
+internal fun IType.descriptor(): String = when (this) {
+        VOID -> "V"
+        INT -> "I"
+        DOUBLE -> "D"
+        BOOLEAN -> "Z"
+        CHAR -> "C"
+        is IRecordType -> "L${this.id};"
+        is IArrayType -> "[${this.componentType.descriptor()}"
+        is IReferenceType -> target.descriptor()
+        is UnboundType -> this.id!!
+        else -> throw UnsupportedOperationException("Unsupported descriptor for type: ${this.id}")
+    }
+
+// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+internal val IProcedure.descriptor: String
+    get() = "(" + parameters.joinToString("") { it.type.descriptor() } + ")" + returnType.descriptor()

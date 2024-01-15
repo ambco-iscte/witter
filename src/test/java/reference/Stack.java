@@ -17,7 +17,9 @@ public class Stack {
 
     public int pop() {
         size -= 1;
-        return stack[size];
+        int elem = stack[size];
+        stack[size] = 0;
+        return elem;
     }
 
     public int size() {

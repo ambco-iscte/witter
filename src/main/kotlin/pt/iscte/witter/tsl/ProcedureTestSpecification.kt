@@ -9,14 +9,12 @@ import pt.iscte.strudel.model.IProcedure
  * @param calls A pair of (Procedure, Argument(s)) calls to be executed for this test sequence.
  * @param description Description of the test module.
  * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
- * @param stateful If true, VM state is preserved between calls. Otherwise, each call is executed in a separate VM state.
  */
-class TestModule(
+class TestCase(
     val module: IModule,
     statements: List<IStatement>,
     val description: String,
-    val metrics: Set<ITestMetric>,
-    val stateful: Boolean
+    val metrics: Set<ITestMetric>
 ) {
     private val statements: MutableList<IStatement> = mutableListOf()
 
@@ -38,36 +36,26 @@ class TestModule(
      * for the module.
      */
     inline fun <reified T : ITestMetric> get(): T? = metrics.find { it is T } as? T
-
-    override fun equals(other: Any?): Boolean = when (other) {
-        is TestModule -> module == other.module && description == other.description && metrics == other.metrics &&
-                stateful == other.stateful && statements() == other.statements()
-        else -> false
-    }
 }
 
 sealed interface IStatement
 
-sealed interface Instruction: IStatement
+sealed interface IExpressionStatement: IStatement
 
-sealed interface IExpression: IStatement
-
-data class VariableAssignment(val id: String, val initializer: () -> IExpression): Instruction {
+data class VariableAssignment(val id: String, val initializer: () -> IExpressionStatement): IStatement {
     override fun toString(): String = "$id=${initializer()}"
 }
 
-data class ProcedureCall(val procedure: IProcedure, val arguments: Any?, val parsed: Boolean): IExpression {
-    override fun toString(): String =
-        if (arguments is List<*>) "${procedure.id}(${arguments.joinToString()})"
-        else "${procedure.id}(${arguments.toString()})"
+data class ProcedureCall(val procedure: IProcedure, val arguments: List<Any?>, val metrics: Set<ITestMetric>): IExpressionStatement {
+    override fun toString(): String = "${procedure.id}(${arguments.joinToString()})"
 }
 
 class ObjectCreation(
-    val module: TestModule,
+    val case: TestCase,
     val className: String,
     val constructorArguments: List<Any>,
     configure: List<ProcedureCall> = listOf()
-): IExpression {
+): IExpressionStatement {
     private val configure: MutableList<ProcedureCall> = mutableListOf()
 
     init {
@@ -81,10 +69,10 @@ class ObjectCreation(
     override fun toString(): String = "new $className(${constructorArguments.joinToString()})"
 }
 
-data class VariableReference(val id: String): IExpression {
+data class VariableReference(val case: TestCase, val id: String): IExpressionStatement {
     override fun toString(): String = "Var($id)"
 }
 
-data class Literal(val value: Any?): IExpression {
+data class Literal(val value: Any?): IExpressionStatement {
     override fun toString(): String = value?.toString() ?: "null"
 }

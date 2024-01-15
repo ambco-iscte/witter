@@ -1,19 +1,19 @@
 package pt.iscte.witter.testing
 
-import pt.iscte.witter.tsl.TestModule
+import pt.iscte.witter.tsl.TestCase
 
-class TestSuite(val referencePath: String, val description: String, modules: List<TestModule> = listOf()) {
-    private val modules = mutableListOf<TestModule>()
+class TestSuite(val referencePath: String, val description: String, cases: List<TestCase> = listOf()) {
+    private val modules = mutableListOf<TestCase>()
 
     init {
-        this.modules.addAll(modules)
+        this.modules.addAll(cases)
     }
 
-    fun add(module: TestModule) = modules.add(module)
+    fun add(case: TestCase) = modules.add(case)
 
-    fun remove(module: TestModule) = modules.remove(module)
+    fun remove(case: TestCase) = modules.remove(case)
 
-    fun modules(): List<TestModule> = modules.toList()
+    fun cases(): List<TestCase> = modules.toList()
 
     fun apply(subjectPath: String): List<ITestResult> = Test(referencePath).apply(subjectPath, this)
 }

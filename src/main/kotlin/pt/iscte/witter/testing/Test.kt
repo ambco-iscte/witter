@@ -4,7 +4,7 @@ import pt.iscte.strudel.javaparser.Java2Strudel
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.*
-import pt.iscte.witter.tsl.IExpression
+import pt.iscte.witter.tsl.IExpressionStatement
 import pt.iscte.witter.tsl.IStatement
 import java.io.File
 
@@ -20,13 +20,13 @@ class Test(private val referenceFile: File) {
     fun apply(subjectPath: String): List<ITestResult> = apply(loader.load(File(subjectPath)))
 
     fun apply(subjectPath: String, suite: TestSuite): List<ITestResult> =
-        apply(loader.load(File(subjectPath)), suite.modules())
+        apply(loader.load(File(subjectPath)), suite.cases())
 
-    fun apply(subjectFile: File, suite: TestSuite): List<ITestResult> = apply(loader.load(subjectFile), suite.modules())
+    fun apply(subjectFile: File, suite: TestSuite): List<ITestResult> = apply(loader.load(subjectFile), suite.cases())
 
     fun dereference(collection: Collection<Any>, vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): List<IValue> =
         collection.map { when(it) {
-            is IExpression -> it.evaluate(vm, module, listener)
+            is IExpressionStatement -> it.evaluate(vm, module, listener)
             else -> getValue(vm, it)
         } }
 
@@ -49,7 +49,7 @@ class Test(private val referenceFile: File) {
             ProcedureCall(
                 findMatchingProcedure(it.procedure)!!,
                 dereference(listOf(ref) + it.arguments as List<Any>, vm, this, listener),
-                true
+                it.metrics
             )
         }
         configure.forEach { call ->
@@ -62,12 +62,9 @@ class Test(private val referenceFile: File) {
 
     // Evaluates a TSL expression.
     @Suppress("UNCHECKED_CAST")
-    private fun IExpression.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): IValue {
-        fun ProcedureCall.arguments(): List<IValue> =
-            if (parsed) // Arguments are passed as Any
-                dereference(arguments as List<Any>, vm, module, listener)
-            else // Arguments are passed as a single Java source code string
-                TestSpecifier.parseArgumentsString(this@Test, vm, module, listener, arguments.toString())
+    private fun IExpressionStatement.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): IValue {
+
+        fun ProcedureCall.arguments(): List<IValue> = dereference(arguments as List<Any>, vm, module, listener)
 
         return when (this) {
             is VariableReference -> memory[module]!![id] ?: NULL
@@ -82,7 +79,7 @@ class Test(private val referenceFile: File) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun apply(subject: IModule, tests: List<TestModule> = listOf()): List<ITestResult> {
+    private fun apply(subject: IModule, tests: List<TestCase> = listOf()): List<ITestResult> {
         val reference: IModule = loader.load(referenceFile)
 
         val results = mutableListOf<ITestResult>()
@@ -92,21 +89,15 @@ class Test(private val referenceFile: File) {
         memory[reference] = mutableMapOf()
         memory[subject] = mutableMapOf()
 
-        fun process(vm: IVirtualMachine, listener: EvaluationMetricListener, instruction: Instruction): IValue =
-            when (instruction) {
-                is VariableAssignment -> {
-                    val value = instruction.initializer().evaluate(vm, reference, listener)
-                    memory[reference]!![instruction.id] = value
-                    memory[subject]!![instruction.id] = instruction.initializer().evaluate(vm, subject, listener)
-                    value
-                }
-            }
-
         // Executes instruction and expression evaluation statements.
         fun execute(vm: IVirtualMachine, listener: EvaluationMetricListener, stmt: IStatement) {
             when (stmt) {
-                is Instruction -> process(vm, listener, stmt)
-                is IExpression -> when(stmt) {
+                is VariableAssignment -> {
+                    val value = stmt.initializer().evaluate(vm, reference, listener)
+                    memory[reference]!![stmt.id] = value
+                    memory[subject]!![stmt.id] = stmt.initializer().evaluate(vm, subject, listener)
+                }
+                is IExpressionStatement -> when(stmt) {
                     is ProcedureCall -> {
                         val referenceProcedure = reference.findMatchingProcedure(stmt.procedure)!!
                         val subjectProcedure = subject.findMatchingProcedure(stmt.procedure)
@@ -119,14 +110,14 @@ class Test(private val referenceFile: File) {
 
                         val builder = ResultBuilder(referenceProcedure, subjectProcedure)
 
-                        val args =
-                            if (stmt.parsed) (stmt.arguments as List<Any>).map { when(it) {
-                                is IExpression -> it.evaluate(vm, reference, listener)
-                                else -> getValue(vm, it)
-                            } }
-                            else TestSpecifier.parseArgumentsString(
-                                this, vm, reference, listener, stmt.arguments.toString()
-                            )
+                        // TODO: Bug
+                        //  Reference to record in arguments is always the same, so every call will show the
+                        //  final, modified record, even for calls that were made before the object reached
+                        //  its final state. :/
+                        val args = (stmt.arguments as List<Any>).map { when(it) {
+                            is IExpressionStatement -> it.evaluate(vm, reference, listener)
+                            else -> getValue(vm, it)
+                        } }
 
                         // BLACK-BOX
                         val expected = stmt.evaluate(vm, reference, listener)
@@ -135,6 +126,9 @@ class Test(private val referenceFile: File) {
 
                         // WHITE-BOX
                         results.addAll(builder.white(listener, args))
+
+                        // Reset listener so metrics aren't cumulative between procedure calls
+                        listener.reset()
                     }
                     else -> {
                         stmt.evaluate(vm, reference, listener)
@@ -146,19 +140,10 @@ class Test(private val referenceFile: File) {
 
         // Run all tests
         (tests.ifEmpty { reference.tests }).forEach { test ->
-            if (test.stateful) {
-                val vm = IVirtualMachine.create() // Stateful tests - one VM for all calls in sequence
-                val listener = EvaluationMetricListener(vm, test)
-                vm.addListener(listener)
-                test.statements().forEach { execute(vm, listener, it) }
-            } else {
-                test.statements().forEach {
-                    val vm = IVirtualMachine.create() // Stateless tests - one VM for each call in sequence
-                    val listener = EvaluationMetricListener(vm, test)
-                    vm.addListener(listener)
-                    execute(vm, listener, it)
-                }
-            }
+            val vm = IVirtualMachine.create() // Stateful tests - one VM for all calls in sequence
+            val listener = EvaluationMetricListener(vm, test)
+            vm.addListener(listener)
+            test.statements().forEach { execute(vm, listener, it) }
         }
 
         return results

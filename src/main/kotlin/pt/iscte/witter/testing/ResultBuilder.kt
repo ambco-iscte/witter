@@ -13,36 +13,33 @@ class ResultBuilder(
     private val subjectProcedure: IProcedure
 ) {
 
-    // TODO: putting code in this class cleaned up Test a lot, but now the mess is here instead :)
-
     private fun ITestMetric.margin(): Int =
         this::class.declaredMemberProperties.firstOrNull {
             it.name == "margin"
         }?.getter?.call(this) as? Int
             ?: throw Exception("Cannot generate numeric result for non-numerical metric ${this::class.simpleName}")
 
-    fun black(expected: IValue, actual: IValue, arguments: List<Any?>): ITestResult? {
+    fun black(expected: IValue, actual: IValue, arguments: List<IValue>): ITestResult? {
         return if (subjectProcedure.returnType != VOID || referenceProcedure.returnType != VOID)
             return TestResult(
                 actual.sameAs(expected),
                 subjectProcedure,
                 arguments,
-                "result",
                 expected,
-                null,
+                0, // TODO black-box result margin
                 actual
             )
         else null
     }
 
-    fun white(listener: EvaluationMetricListener, arguments: List<IValue>): List<TestResult> {
-        val results = mutableListOf<TestResult>()
+    fun white(listener: EvaluationMetricListener, arguments: List<IValue>): List<ITestResult> {
+        val results = mutableListOf<ITestResult>()
         listener.specification.metrics.forEach { parameter -> when (parameter) {
             is CountLoopIterations, is CountArrayReadAccesses, is CountArrayWriteAccesses, is CountMemoryUsage -> {
                 results.add(numeric(listener, parameter, arguments))
             }
             is CheckObjectAllocations, is CheckArrayAllocations -> {
-                results.add(allocations(listener, parameter, arguments))
+                results.addAll(allocations(listener, parameter, arguments))
             }
             is TrackParameterStates, is CheckSideEffects -> {
                 results.addAll(parameters(listener, parameter, arguments))
@@ -54,57 +51,64 @@ class ResultBuilder(
         return results
     }
 
-    private fun numeric(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): TestResult {
+    private fun numeric(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): WhiteBoxTestResult {
         val exp = listener.getOrDefault(referenceProcedure, parameter::class, 0)
         val act = listener.getOrDefault(subjectProcedure, parameter::class, 0)
 
         val margin = parameter.margin()
         val passed = act.inRange(exp, margin)
-        return TestResult(
+        return WhiteBoxTestResult(
             passed,
             subjectProcedure,
             arguments,
-            parameter.description(),
-            exp,
+            parameter,
+            listener.vm.getValue(exp),
             margin,
-            act
+            listener.vm.getValue(act)
         )
     }
 
-    private fun allocations(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): TestResult {
+    private fun allocations(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): List<ITestResult> {
+        val res = mutableListOf<ITestResult>()
+
         val exp = listener.getOrDefault(referenceProcedure, parameter::class, mutableMapOf<IType, Int>())
         val act = listener.getOrDefault(subjectProcedure, parameter::class, mutableMapOf<IType, Int>())
 
-        val passed = act.keys.all { it in exp.keys && act[it] == exp[it] }
-        return TestResult(
-            passed,
-            subjectProcedure,
-            arguments,
-            parameter.description(),
-            exp.describe { "${it.value} allocation(s) of ${it.key}" },
-            null,
-            act.describe { "${it.value} allocation(s) of ${it.key}" }
-        )
+        exp.keys.forEachIndexed { index, type ->
+            val passed = exp[type] == act[type]
+            res.add(AllocationsTestResult(
+                passed,
+                subjectProcedure,
+                arguments,
+                type,
+                listener.vm.getValue(exp),
+                0,
+                listener.vm.getValue(act),
+                parameter
+            ))
+        }
+
+        return res
     }
 
-    private fun parameters(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): List<TestResult> {
+    private fun parameters(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): List<ITestResult> {
         val expectedSideEffects = listener.getOrDefault(referenceProcedure, parameter::class, mapOf<IParameter, IValue>())
         val actualSideEffects = listener.getOrDefault(subjectProcedure, parameter::class, mapOf<IParameter, IValue>())
 
-        val results = mutableListOf<TestResult>()
+        val results = mutableListOf<WhiteBoxTestResult>()
 
         referenceProcedure.parameters.forEachIndexed { i, param ->
             val exp = expectedSideEffects[param] ?: arguments[i]
             val act = actualSideEffects[subjectProcedure.parameters[i]] ?: arguments[i]
 
             val passed = act.sameAs(exp)
-            results.add(TestResult(
+            results.add(WhiteBoxTestResult(
                 passed,
                 subjectProcedure,
                 arguments,
-                parameter.description() + " of ${param.id}",
+                parameter,
                 exp,
-                null,
+                0,
                 act
             ))
         }
@@ -112,20 +116,20 @@ class ResultBuilder(
         return results.toList()
     }
 
-    private fun recursive(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): TestResult {
+    private fun recursive(listener: EvaluationMetricListener, parameter: ITestMetric, arguments: List<IValue>): ITestResult {
         val exp = listener.getAll<Int>(referenceProcedure, parameter::class).sum()
         val act = listener.getAll<Int>(subjectProcedure, parameter::class).sum()
 
         val margin = parameter.margin()
         val passed = act.inRange(exp, margin)
-        return TestResult(
+        return WhiteBoxTestResult(
             passed,
             subjectProcedure,
             arguments,
-            parameter.description(),
-            exp,
+            parameter,
+            listener.vm.getValue(exp),
             margin,
-            act
+            listener.vm.getValue(act)
         )
     }
 }

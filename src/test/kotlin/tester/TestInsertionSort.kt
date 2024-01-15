@@ -1,47 +1,58 @@
 package tester
 
+import assertEquivalent
 import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.Call
-import pt.iscte.witter.dsl.Stateless
+import pt.iscte.witter.dsl.Case
 import pt.iscte.witter.dsl.Suite
-import pt.iscte.witter.tsl.CheckSideEffects
-import pt.iscte.witter.tsl.CountArrayReadAccesses
-import pt.iscte.witter.tsl.CountArrayWriteAccesses
-import pt.iscte.witter.tsl.plus
+import pt.iscte.witter.testing.ITestResult
+import pt.iscte.witter.testing.TestResult
+import pt.iscte.witter.testing.WhiteBoxTestResult
+import pt.iscte.witter.tsl.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TestInsertionSort: BaseTest(
     "src/test/java/reference/InsertionSort.java",
     "src/test/java/submission/SelectionSort.java"
 ) {
 
-    private val expected = """
-[fail] sort([5, 4, 3, 2, 1])
-	Expected array reads: 40
-	Found: 28
+    private fun assert(results: List<ITestResult>) {
+        assertEquals(3, results.size)
 
-[fail] sort([5, 4, 3, 2, 1])
-	Expected array writes: 20
-	Found: 8
+        assertTrue(results[0] is WhiteBoxTestResult)
+        assertTrue(results[1] is WhiteBoxTestResult)
+        assertTrue(results[2] is WhiteBoxTestResult)
 
-[pass] sort([5, 4, 3, 2, 1])
-	Expected side effects of a: [5, 4, 3, 2, 1]""".trimIndent()
+        assertFalse((results[0] as WhiteBoxTestResult).passed)
+        assertFalse((results[1] as WhiteBoxTestResult).passed)
+        assertTrue((results[2] as WhiteBoxTestResult).passed)
+
+        assertTrue((results[0] as WhiteBoxTestResult).metric is CountArrayReadAccesses)
+        assertTrue((results[1] as WhiteBoxTestResult).metric is CountArrayWriteAccesses)
+        assertTrue((results[2] as WhiteBoxTestResult).metric is CheckSideEffects)
+
+        assertEquivalent(40, (results[0] as WhiteBoxTestResult).expected)
+        assertEquivalent(20, (results[1] as WhiteBoxTestResult).expected)
+        assertEquivalent(listOf(5, 4, 3, 2, 1), (results[2] as WhiteBoxTestResult).expected)
+
+        assertEquivalent(28, (results[0] as WhiteBoxTestResult).actual)
+        assertEquivalent(8, (results[1] as WhiteBoxTestResult).actual)
+    }
 
     @Test
     fun testTSL() {
-        val results = tester.apply(subject)
-        assertEquals(expected, results.joinToString("\n\n"))
+        assert(tester.apply(subject))
     }
 
     @Test
     fun testDSL() {
         val dsl = Suite(reference) {
-            Stateless(CountArrayReadAccesses() + CountArrayWriteAccesses() + CheckSideEffects) {
+            Case(CountArrayReadAccesses() + CountArrayWriteAccesses() + CheckSideEffects) {
                 Call("sort", listOf(5, 4, 3, 2, 1))
             }
         }
-
-        val results = dsl.apply(subject)
-        assertEquals(expected, results.joinToString("\n\n"))
+        assert(dsl.apply(subject))
     }
 }

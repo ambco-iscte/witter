@@ -1,43 +1,45 @@
 package pt.iscte.witter.tsl
 
 sealed interface ITestMetric {
-    fun description(): String
+    val description: String
 }
 
 operator fun ITestMetric.plus(other: ITestMetric): Set<ITestMetric> = setOf(this, other)
 
+val AssertConstantComplexity = CountLoopIterations() + CountRecursiveCalls()
+
 data class CountLoopIterations(val margin: Int = 0): ITestMetric {
-    override fun description(): String  = "loop iterations"
+    override val description: String = "loop iterations"
 }
 
 data class CountArrayReadAccesses(val margin: Int = 0): ITestMetric {
-    override fun description(): String  = "array reads"
+    override val description: String  = "array reads"
 }
 
 data class CountArrayWriteAccesses(val margin: Int = 0): ITestMetric {
-    override fun description(): String  = "array writes"
+    override val description: String  = "array writes"
 }
 
 data class CountMemoryUsage(val margin: Int = 0): ITestMetric {
-    override fun description(): String  = "used memory bytes"
+    override val description: String  = "used memory bytes"
 }
 
-object CheckObjectAllocations : ITestMetric {
-    override fun description(): String = "object allocations"
-}
-
-object CheckArrayAllocations : ITestMetric {
-    override fun description(): String = "array allocations"
-}
-
-object TrackParameterStates : ITestMetric {
-    override fun description(): String  = "parameter states"
-}
-
-object CheckSideEffects: ITestMetric {
-    override fun description(): String  = "side effects"
+data class TrackParameterStates(val parameterID: String) : ITestMetric {
+    override val description: String  = "parameter states of $parameterID"
 }
 
 data class CountRecursiveCalls(val margin: Int = 0): ITestMetric {
-    override fun description(): String  = "recursive calls"
+    override val description: String  = "recursive calls"
+}
+
+object CheckObjectAllocations : ITestMetric {
+    override val description: String = "object allocations"
+}
+
+object CheckArrayAllocations : ITestMetric {
+    override val description: String = "array allocations"
+}
+
+object CheckSideEffects: ITestMetric {
+    override val description: String  = "side effects"
 }

@@ -1,24 +1,34 @@
 package tester
 
+import assertEquivalent
 import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.*
+import pt.iscte.witter.testing.ITestResult
+import pt.iscte.witter.testing.TestResult
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TestStack {
 
     private val reference = "src/test/java/reference/Stack.java"
     private val subject = "src/test/java/submission/Stack.java"
 
-    private val expected = """
-[fail] size(Stack(stack=[1, 2, 3, 0, 0], size=3))
-	Expected result: 3
-	Found: 0
-        """.trimIndent()
+    private fun assert(results: List<ITestResult>) {
+        assertEquals(1, results.size)
+
+        assertTrue(results[0] is TestResult)
+
+        assertFalse((results[0] as TestResult).passed)
+
+        assertEquivalent(3, (results[0] as TestResult).expected)
+        assertEquivalent(0, (results[0] as TestResult).actual)
+    }
 
     @Test
     fun testDSL() {
         val dsl = Suite(reference) {
-            Stateful {
+            Case {
                 val x = Var("x") {
                     Object("Stack", 5) {
                         Call("push", 1)
@@ -29,8 +39,6 @@ class TestStack {
                 Call("size", x)
             }
         }
-
-        val results = dsl.apply(subject)
-        assertEquals(expected, results.joinToString("\n\n"))
+        assert(dsl.apply(subject))
     }
 }

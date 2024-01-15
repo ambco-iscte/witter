@@ -5,12 +5,14 @@ import tester.TestInsertionSort
 import tester.TestRecursiveFactorial
 import tester.TestStack
 import tsl.TestDSL
-import tsl.TestJavaParser
+import tsl.TestJava2Kotlin
+import tsl.TestJava2Strudel
 import tsl.TestTSLParser
 
 @Suite
 @SelectClasses(
-    TestJavaParser::class,
+    TestJava2Strudel::class,
+    TestJava2Kotlin::class,
     TestTSLParser::class,
     TestDSL::class,
     TestBinarySearch::class,

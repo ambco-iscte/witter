@@ -10,12 +10,14 @@ annotation:
     | '@CountArrayReads' ('(' margin=INTEGER ')')? #countArrayReadAccesses
     | '@CountArrayWrites' ('(' margin=INTEGER ')')? #countArrayWriteAccesses
     | '@CountMemoryUsage' ('(' margin=INTEGER ')')? #countMemoryUsage
-    | '@TrackArgumentStates' #trackVariableStates
+    | '@TrackArgumentStates(' parameterID=IDENTIFIER ')' #trackArgumentStates
     | '@CheckSideEffects' #checkParameterImmutability
     | '@CountRecursiveCalls' ('(' margin=INTEGER ')')? #countRecursiveCalls
     ;
 
 INTEGER: [0-9]+;
+
+IDENTIFIER: [a-zA-Z_$][a-zA-Z0-9_$]*; // Variable identifier
 
 TEST_ARGUMENTS: TEST_ARGUMENT (TEST_ARGUMENT)*; // Modified to remove left-recursion
 TEST_ARGUMENT: ~('(' | ')' | '\n' | '\r'); // Excluded newlines because they were breaking everything

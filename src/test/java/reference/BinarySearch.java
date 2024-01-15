@@ -6,7 +6,6 @@ public class BinarySearch {
     @Test(new int[] { 1, 2, 3, 4, 5, 6, 7 }, 1)
     @Test(new int[] { 1, 3, 7, 9, 11, 13, 17, 19 }, 18)
     @CountLoopIterations
-    @CheckSideEffects
      */
     public static int search(int[] a, int e) {
         int l = 0;

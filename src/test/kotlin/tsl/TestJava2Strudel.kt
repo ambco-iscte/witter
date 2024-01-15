@@ -9,11 +9,11 @@ import pt.iscte.strudel.vm.IVirtualMachine
 import pt.iscte.strudel.vm.NULL
 import pt.iscte.witter.testing.EvaluationMetricListener
 import pt.iscte.witter.tsl.JavaArgument2Strudel
-import pt.iscte.witter.tsl.TestModule
+import pt.iscte.witter.tsl.TestCase
 import java.io.File
 import kotlin.test.Test
 
-class TestJavaParser {
+class TestJava2Strudel {
 
     private val ref: String = "src/test/java/reference/Stack.java"
 
@@ -22,7 +22,7 @@ class TestJavaParser {
     private val module: IModule = Java2Strudel().load(File(ref))
     private val listener = EvaluationMetricListener(
         vm,
-        TestModule(module, listOf(), "", setOf(), false)
+        TestCase(module, listOf(), "", setOf())
     )
 
     private val parser = JavaArgument2Strudel(test, vm, module, listener)
