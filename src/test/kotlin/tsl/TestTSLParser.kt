@@ -23,7 +23,7 @@ class TestTSLParser {
         val module: IModule = Java2Strudel().load(File(ref))
         val listener = EvaluationMetricListener(
             vm,
-            TestCase(module, listOf(), "", setOf())
+            TestCaseStatement(module, listOf(), "", setOf())
         )
 
         val obj = vm.allocateRecord(module.getRecordType("Stack"))
@@ -52,7 +52,7 @@ class TestTSLParser {
         val ref = "src/test/java/reference/BinarySearch.java"
         val procedure = Java2Strudel().load(File(ref)).getProcedure("search")
 
-        val case = TestCase(
+        val case = TestCaseStatement(
             procedure.module!!,
             listOf(
                 ProcedureCall(procedure, listOf(listOf(1, 2, 3, 4, 5, 6, 7), 1)),
@@ -62,7 +62,7 @@ class TestTSLParser {
             setOf(CountLoopIterations())
         )
 
-        val translated: TestCase? = TestSpecifier.translate(procedure)
+        val translated: TestCaseStatement? = TestSpecifier.translate(procedure)
 
         assertNotNull(translated)
         assertEquals(translated.module, case.module)

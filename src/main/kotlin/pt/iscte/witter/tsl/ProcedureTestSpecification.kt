@@ -6,16 +6,16 @@ import pt.iscte.strudel.model.IProcedure
 /**
  * Procedure test contemplating set of evaluation [metrics].
  * @param module Reference module.
- * @param calls A pair of (Procedure, Argument(s)) calls to be executed for this test sequence.
+ * @param statements A pair of test specification statements.
  * @param description Description of the test module.
  * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
  */
-class TestCase(
+class TestCaseStatement(
     val module: IModule,
     statements: List<IStatement>,
     val description: String,
     val metrics: Set<ITestMetric>
-) {
+): IStatement {
     private val statements: MutableList<IStatement> = mutableListOf()
 
     init {
@@ -23,6 +23,8 @@ class TestCase(
     }
 
     fun add(statement: IStatement) = statements.add(statement)
+
+    fun remove(statement: IStatement) = statements.remove(statement)
 
     fun statements(): List<IStatement> = statements.toList()
 
@@ -43,15 +45,16 @@ sealed interface IStatement
 sealed interface IExpressionStatement: IStatement
 
 data class VariableAssignment(val id: String, val initializer: () -> IExpressionStatement): IStatement {
-    override fun toString(): String = "$id=${initializer()}"
+    override fun toString(): String = "$id = ${initializer()}"
 }
 
-data class ProcedureCall(val procedure: IProcedure, val arguments: List<Any?>, val metrics: Set<ITestMetric>): IExpressionStatement {
+data class ProcedureCall(val procedure: IProcedure, val arguments: List<Any?>, val metrics: Set<ITestMetric> = setOf()): IExpressionStatement {
+
     override fun toString(): String = "${procedure.id}(${arguments.joinToString()})"
 }
 
 class ObjectCreation(
-    val case: TestCase,
+    val case: TestCaseStatement,
     val className: String,
     val constructorArguments: List<Any>,
     configure: List<ProcedureCall> = listOf()
@@ -66,13 +69,13 @@ class ObjectCreation(
 
     fun configure(): List<ProcedureCall> = configure.toList()
 
-    override fun toString(): String = "new $className(${constructorArguments.joinToString()})"
+    override fun toString(): String =
+        if (configure.isEmpty())
+            "$className(${constructorArguments.joinToString()})"
+        else
+            "$className(${constructorArguments.joinToString()}).apply {\n\t${configure.joinToString("\n\t")}\n}"
 }
 
-data class VariableReference(val case: TestCase, val id: String): IExpressionStatement {
+data class VariableReference(val case: TestCaseStatement, val id: String): IExpressionStatement {
     override fun toString(): String = "Var($id)"
-}
-
-data class Literal(val value: Any?): IExpressionStatement {
-    override fun toString(): String = value?.toString() ?: "null"
 }

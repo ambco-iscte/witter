@@ -3,7 +3,7 @@ package pt.iscte.witter.testing
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.model.VOID
 import pt.iscte.strudel.vm.*
-import pt.iscte.witter.tsl.TestCase
+import pt.iscte.witter.tsl.TestCaseStatement
 import pt.iscte.witter.tsl.TestSpecifier
 
 internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
@@ -39,9 +39,9 @@ internal fun <K, V> Map<K, V>.describe(descriptor: (Map.Entry<K, V>) -> String):
     if (isEmpty()) "None"
     else map { descriptor(it) }.joinToString()
 
-val IModule.tests: List<TestCase>
+val IModule.tests: List<TestCaseStatement>
     get() {
-        val tests = mutableListOf<TestCase>()
+        val tests = mutableListOf<TestCaseStatement>()
         procedures.forEach { procedure ->
             TestSpecifier.translate(procedure)?.let { tests.add(it) }
         }

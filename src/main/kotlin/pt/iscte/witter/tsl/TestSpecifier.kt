@@ -16,7 +16,7 @@ object TestSpecifier {
     // Splits strings into tokens separated by commas, but only considering commas NOT enclosed in (), [], or {}.
     private val ARGUMENT_SPLIT_REGEX: Regex = ",(?![^(\\[{]*[)\\]}])".toRegex()
 
-    fun translate(procedure: IProcedure): TestCase? =
+    fun translate(procedure: IProcedure): TestCaseStatement? =
         procedure.documentation?.let { comment ->
             val annotation = comment.lineSequence().map { it.trim() }.joinToString(System.lineSeparator())
             TSLParser(CommonTokenStream(TSLLexer(CharStreams.fromString(annotation)))).specification().translate(procedure)
@@ -35,20 +35,20 @@ object TestSpecifier {
     fun javaToKotlin(str: String): List<Any?> =
         str.split(ARGUMENT_SPLIT_REGEX).map { Java2Kotlin().translate(it.trim()) }
 
-    private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): TestCase {
+    private fun TSLParser.SpecificationContext.translate(procedure: IProcedure): TestCaseStatement {
         val instructions: MutableList<IStatement> = mutableListOf()
         val metrics: MutableList<ITestMetric> = mutableListOf()
 
         annotation().forEach { annotation ->
             when (annotation) {
                 is TSLParser.TestCaseAnnotationContext -> instructions.add(
-                    ProcedureCall(procedure, javaToKotlin(annotation.args.text))
+                    ProcedureCall(procedure, javaToKotlin(annotation.args.text), setOf())
                 )
                 else -> metrics.add(annotation.translate())
             }
         }
 
-        return TestCase(procedure.module!!, instructions, "", metrics.toSet())
+        return TestCaseStatement(procedure.module!!, instructions, "", metrics.toSet())
     }
 
     private fun TSLParser.AnnotationContext.translate(): ITestMetric = when (this) {

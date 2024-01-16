@@ -68,7 +68,6 @@ class Test(private val referenceFile: File) {
 
         return when (this) {
             is VariableReference -> memory[module]!![id] ?: NULL
-            is Literal -> vm.getValue(this.value)
             is ProcedureCall -> {
                 val args = arguments().toTypedArray()
                 val procedure = module.findMatchingProcedure(procedure) ?: return NULL
@@ -79,7 +78,7 @@ class Test(private val referenceFile: File) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun apply(subject: IModule, tests: List<TestCase> = listOf()): List<ITestResult> {
+    private fun apply(subject: IModule, tests: List<TestCaseStatement> = listOf()): List<ITestResult> {
         val reference: IModule = loader.load(referenceFile)
 
         val results = mutableListOf<ITestResult>()
@@ -89,62 +88,67 @@ class Test(private val referenceFile: File) {
         memory[reference] = mutableMapOf()
         memory[subject] = mutableMapOf()
 
-        // Executes instruction and expression evaluation statements.
-        fun execute(vm: IVirtualMachine, listener: EvaluationMetricListener, stmt: IStatement) {
-            when (stmt) {
-                is VariableAssignment -> {
-                    val value = stmt.initializer().evaluate(vm, reference, listener)
-                    memory[reference]!![stmt.id] = value
-                    memory[subject]!![stmt.id] = stmt.initializer().evaluate(vm, subject, listener)
-                }
-                is IExpressionStatement -> when(stmt) {
-                    is ProcedureCall -> {
-                        val referenceProcedure = reference.findMatchingProcedure(stmt.procedure)!!
-                        val subjectProcedure = subject.findMatchingProcedure(stmt.procedure)
-
-                        if (subjectProcedure == null) {
-                            if (results.none { it is ProcedureNotImplemented && it.procedure == stmt.procedure })
-                                results.add(ProcedureNotImplemented(stmt.procedure))
-                            return
-                        }
-
-                        val builder = ResultBuilder(referenceProcedure, subjectProcedure)
-
-                        // TODO: Bug
-                        //  Reference to record in arguments is always the same, so every call will show the
-                        //  final, modified record, even for calls that were made before the object reached
-                        //  its final state. :/
-                        val args = (stmt.arguments as List<Any>).map { when(it) {
-                            is IExpressionStatement -> it.evaluate(vm, reference, listener)
-                            else -> getValue(vm, it)
-                        } }
-
-                        // BLACK-BOX
-                        val expected = stmt.evaluate(vm, reference, listener)
-                        val actual = stmt.evaluate(vm, subject, listener)
-                        builder.black(expected, actual, args)?.let { results.add(it) }
-
-                        // WHITE-BOX
-                        results.addAll(builder.white(listener, args))
-
-                        // Reset listener so metrics aren't cumulative between procedure calls
-                        listener.reset()
+        fun run(case: TestCaseStatement) {
+            fun execute(vm: IVirtualMachine, listener: EvaluationMetricListener, stmt: IStatement) {
+                when (stmt) {
+                    is TestCaseStatement -> run(stmt)
+                    is VariableAssignment -> {
+                        val value = stmt.initializer().evaluate(vm, reference, listener)
+                        memory[reference]!![stmt.id] = value
+                        memory[subject]!![stmt.id] = stmt.initializer().evaluate(vm, subject, listener)
                     }
-                    else -> {
-                        stmt.evaluate(vm, reference, listener)
-                        stmt.evaluate(vm, subject, listener)
+                    is IExpressionStatement -> when(stmt) {
+                        is ProcedureCall -> {
+                            listener.extend(case.metrics + stmt.metrics)
+
+                            val referenceProcedure = reference.findMatchingProcedure(stmt.procedure)!!
+                            val subjectProcedure = subject.findMatchingProcedure(stmt.procedure)
+
+                            if (subjectProcedure == null) {
+                                if (results.none { it is ProcedureNotImplemented && it.procedure == stmt.procedure })
+                                    results.add(ProcedureNotImplemented(stmt.procedure))
+                                return
+                            }
+
+                            val builder = ResultBuilder(referenceProcedure, subjectProcedure)
+
+                            // TODO: Bug
+                            //  Reference to record in arguments is always the same, so every call will show the
+                            //  final, modified record, even for calls that were made before the object reached
+                            //  its final state. :/
+                            val args = (stmt.arguments as List<Any>).map { when(it) {
+                                is IExpressionStatement -> it.evaluate(vm, reference, listener)
+                                else -> getValue(vm, it)
+                            } }
+
+                            // BLACK-BOX
+                            val expected = stmt.evaluate(vm, reference, listener)
+                            val actual = stmt.evaluate(vm, subject, listener)
+                            builder.black(expected, actual, args)?.let { results.add(it) }
+
+                            // WHITE-BOX
+                            results.addAll(builder.white(listener, args))
+
+                            // Reset listener so metrics aren't cumulative between procedure calls
+                            listener.reset()
+                            listener.rebase()
+                        }
+                        else -> {
+                            stmt.evaluate(vm, reference, listener)
+                            stmt.evaluate(vm, subject, listener)
+                        }
                     }
                 }
             }
+
+            val vm = IVirtualMachine.create() // Stateful tests - one VM for all calls in sequence
+            val listener = EvaluationMetricListener(vm, case)
+            vm.addListener(listener)
+            case.statements().forEach { execute(vm, listener, it) }
         }
 
         // Run all tests
-        (tests.ifEmpty { reference.tests }).forEach { test ->
-            val vm = IVirtualMachine.create() // Stateful tests - one VM for all calls in sequence
-            val listener = EvaluationMetricListener(vm, test)
-            vm.addListener(listener)
-            test.statements().forEach { execute(vm, listener, it) }
-        }
+        (tests.ifEmpty { reference.tests }).forEach { run(it) }
 
         return results
     }

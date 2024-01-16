@@ -3,15 +3,13 @@ package tester
 import assertEquivalent
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
-import pt.iscte.witter.dsl.Call
+import pt.iscte.witter.dsl.call
 import pt.iscte.witter.dsl.Case
 import pt.iscte.witter.dsl.Suite
 import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.TestResult
 import pt.iscte.witter.testing.WhiteBoxTestResult
-import pt.iscte.witter.tsl.CheckSideEffects
 import pt.iscte.witter.tsl.CountLoopIterations
-import pt.iscte.witter.tsl.plus
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -54,8 +52,8 @@ class TestBinarySearch: BaseTest(
     fun testDSL() {
         val dsl = Suite(reference) {
             Case(CountLoopIterations()) {
-                Call("search", listOf(1, 2, 3, 4, 5, 6, 7), 1)
-                Call("search", listOf(1, 3, 7, 9, 11, 13, 17, 19), 18)
+                call("search", listOf(1, 2, 3, 4, 5, 6, 7), 1)
+                call("search", listOf(1, 3, 7, 9, 11, 13, 17, 19), 18)
             }
         }
         assert(dsl.apply(subject))

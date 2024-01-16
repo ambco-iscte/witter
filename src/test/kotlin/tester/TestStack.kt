@@ -29,14 +29,14 @@ class TestStack {
     fun testDSL() {
         val dsl = Suite(reference) {
             Case {
-                val x = Var("x") {
-                    Object("Stack", 5) {
-                        Call("push", 1)
-                        Call("push", 2)
-                        Call("push", 3)
+                val x = ref("x") {
+                    new("Stack", 5) {
+                        call("push", 1)
+                        call("push", 2)
+                        call("push", 3)
                     }
                 }
-                Call("size", x)
+                call("size", x)
             }
         }
         assert(dsl.apply(subject))

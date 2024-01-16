@@ -3,7 +3,7 @@ package tester
 import assertEquivalent
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
-import pt.iscte.witter.dsl.Call
+import pt.iscte.witter.dsl.call
 import pt.iscte.witter.dsl.Case
 import pt.iscte.witter.dsl.Suite
 import pt.iscte.witter.testing.ITestResult
@@ -55,7 +55,7 @@ class TestRecursiveFactorial: BaseTest(
     fun testDSL() {
         val dsl = Suite(reference) {
             Case(CountRecursiveCalls(1)) {
-                Call("factorial", 5)
+                call("factorial", 5)
             }
         }
         assert(dsl.apply(subject))

@@ -1,28 +1,39 @@
 package pt.iscte.witter
 
 import pt.iscte.witter.dsl.*
+import pt.iscte.witter.tsl.AssertConstantComplexity
 
 
 fun main() {
-    val ref = "src/test/java/reference/Stack.java"
-
-    val test = Suite(referencePath = ref) {
+    val test = Suite(referencePath = "src/test/java/reference/Stack.java") {
         Case {
-            val stack = Var("x") {
-                Object("Stack", 5) {
-                    Call("push", 3)
-                    Call("push", 5)
-                    Call("push", 7)
+            val stack = ref("x") {
+                new("Stack", 5) {
+                    call("push", 3)
+                    call("push", 5)
+                    call("push", 7)
                 }
             }
-            stack.Call("size")
-            stack.Call("pop")
-            stack.Call("size")
 
+            using(AssertConstantComplexity) {
+                call("size", stack)
+            }
+
+            call("pop", stack)
+
+            using(AssertConstantComplexity) {
+                call("size", stack)
+            }
+
+            // TODO:
+            //  VariableReference.call adds ProcedureCall to VariableReference's TestCase
+            //  How do I make it so calling VariableReference.call inside a using() TestCase
+            //  adds the call to that block/case and not to VariableReference's TestCase?
             /*
-            TODO: dentro do case/TestModule ter blocos de métricas em vez de ter as métricas logo no início para todo o case
-            AssertConstantComplexity {
-
+            using(AssertConstantComplexity) {
+                stack.call("size")
+                stack.call("pop")
+                stack.call("size")
             }
              */
         }

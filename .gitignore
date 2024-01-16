@@ -43,3 +43,4 @@ bin/
 
 ### Custom ###
 /src/main/java/antlr/
+/.idea/

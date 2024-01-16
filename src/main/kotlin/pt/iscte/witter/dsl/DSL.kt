@@ -11,31 +11,31 @@ fun Suite(referencePath: String, description: String = "", configure: TestSuite.
     return suite
 }
 
-fun TestCase.Object(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit): ObjectCreation {
+fun TestCaseStatement.new(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit): ObjectCreation {
     val obj = ObjectCreation(this, className, constructorArguments.toList())
     configure(obj)
     add(obj)
     return obj
 }
 
-fun ObjectCreation.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
+fun ObjectCreation.call(procedureID: String, vararg arguments: Any?): ProcedureCall {
     val call = ProcedureCall(case.module.getProcedure(procedureID), arguments.toList(), case.metrics)
     add(call)
     return call
 }
 
-fun TestCase.Var(id: String, configure: () -> IExpressionStatement): VariableReference {
+fun TestCaseStatement.ref(id: String, configure: () -> IExpressionStatement): VariableReference {
     add(VariableAssignment(id, configure))
     return VariableReference(this, id)
 }
 
-fun TestCase.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
+fun TestCaseStatement.call(procedureID: String, vararg arguments: Any?): ProcedureCall {
     val call = ProcedureCall(module.getProcedure(procedureID), arguments.toList(), metrics)
     add(call)
     return call
 }
 
-fun VariableReference.Call(procedureID: String, vararg arguments: Any?): ProcedureCall {
+fun VariableReference.call(procedureID: String, vararg arguments: Any?): ProcedureCall {
     val call = ProcedureCall(
         case.module.getProcedure(procedureID),
         listOf(this) + arguments.toList(),
@@ -45,13 +45,26 @@ fun VariableReference.Call(procedureID: String, vararg arguments: Any?): Procedu
     return call
 }
 
+fun TestCaseStatement.using(metrics: Set<ITestMetric>, description: String = "", configure: TestCaseStatement.() -> Unit): TestCaseStatement {
+    val case = TestCaseStatement(this.module, listOf(), description, metrics)
+    configure(case)
+    add(case)
+    return case
+}
+
+fun TestCaseStatement.using(metric: ITestMetric, description: String = "", configure: TestCaseStatement.() -> Unit): TestCaseStatement =
+    using(setOf(metric), description, configure)
+
+fun TestCaseStatement.using(description: String = "", configure: TestCaseStatement.() -> Unit): TestCaseStatement =
+    using(setOf(), description, configure)
+
 fun TestSuite.Case(
     metrics: Set<ITestMetric>,
     description: String = "",
-    configure: TestCase.() -> Unit = {}
-): TestCase {
+    configure: TestCaseStatement.() -> Unit = {}
+): TestCaseStatement {
     val module = Java2Strudel().load(File(referencePath))
-    val s = TestCase(
+    val s = TestCaseStatement(
         module,
         listOf(),
         description,
@@ -96,10 +109,10 @@ fun TestSuite.Stateless(
 fun TestSuite.Case(
     metric: ITestMetric,
     description: String = "",
-    configure: TestCase.() -> Unit = {}
-): TestCase = Case(setOf(metric), description, configure)
+    configure: TestCaseStatement.() -> Unit = {}
+): TestCaseStatement = Case(setOf(metric), description, configure)
 
 fun TestSuite.Case(
     description: String = "",
-    configure: TestCase.() -> Unit = {}
-): TestCase = Case(setOf(), description, configure)
+    configure: TestCaseStatement.() -> Unit = {}
+): TestCaseStatement = Case(setOf(), description, configure)

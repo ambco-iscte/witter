@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.*
 import pt.iscte.witter.tsl.*
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class TestDSL {
@@ -42,8 +41,8 @@ class TestDSL {
     fun testModulesWithInstructions() {
         val suite = Suite(referencePath = src) {
             Case(CheckSideEffects + CheckArrayAllocations) {
-                val x = Var("x") { Call("search", listOf(1, 2, 3, 4, 5, 6, 7), 1) }
-                Call("search", listOf(0, 1, 3, 7, 9, 11, 13, 17, 19), x)
+                val x = ref("x") { call("search", listOf(1, 2, 3, 4, 5, 6, 7), 1) }
+                call("search", listOf(0, 1, 3, 7, 9, 11, 13, 17, 19), x)
             }
         }
 

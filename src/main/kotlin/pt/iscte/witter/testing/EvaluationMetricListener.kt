@@ -7,12 +7,14 @@ import kotlin.reflect.KClass
 
 typealias Invocation = Pair<IProcedure, List<IValue>>
 
-class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestCase): IVirtualMachine.IListener {
+class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestCaseStatement): IVirtualMachine.IListener {
     private val values: MutableMap<Invocation, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
 
     private val previousArgumentsForProcedure: MutableMap<IProcedure, List<IValue>> = mutableMapOf()
 
     private val vmMemoryBefore: MutableMap<IProcedure, Int> = mutableMapOf()
+
+    private val extended: MutableSet<ITestMetric> = mutableSetOf()
 
     // TODO: array swaps
 
@@ -21,6 +23,13 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
         previousArgumentsForProcedure.clear()
         vmMemoryBefore.clear()
     }
+    
+    fun extend(metrics: Set<ITestMetric>) = extended.addAll(metrics)
+    
+    fun rebase() = extended.clear()
+    
+    private inline fun <reified T : ITestMetric> contains(): Boolean =
+        specification.contains<T>() or extended.any { it is T }
 
     private inner class ArrayReadAccessListener(private val procedure: IProcedure) : IArray.IListener {
         override fun elementRead(index: Int, value: IValue) {
@@ -32,11 +41,11 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
     override fun procedureCall(procedure: IProcedure, args: List<IValue>, caller: IProcedure?) {
         // Count used memory
         previousArgumentsForProcedure[procedure] = args
-        if (specification.contains<CountMemoryUsage>())
+        if (contains<CountMemoryUsage>())
             vmMemoryBefore[procedure] = vm.usedMemory
 
         // Track initial argument states
-        if (specification.contains<TrackParameterStates>()) {
+        if (contains<TrackParameterStates>()) {
             val init = mutableMapOf<IParameter, List<IValue>>()
             procedure.parameters.forEachIndexed { i, param ->
                 val arg = args[i]
@@ -46,13 +55,13 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
         }
 
         // Count recursive calls
-        if (specification.contains<CountRecursiveCalls>() && caller == procedure) {
+        if (contains<CountRecursiveCalls>() && caller == procedure) {
             val rec = getOrDefault(procedure, CountRecursiveCalls::class, 0)
             setMetric<CountRecursiveCalls>(procedure, rec + 1)
         }
 
         // Count read accesses for argument arrays
-        if (specification.contains<CountArrayReadAccesses>()) {
+        if (contains<CountArrayReadAccesses>()) {
             args.forEach {
                 if (it is IArray)  {
                     it.addListener(ArrayReadAccessListener(procedure))
@@ -64,7 +73,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
     }
 
     override fun procedureEnd(procedure: IProcedure, args: List<IValue>, result: IValue?) {
-        if (specification.contains<CountMemoryUsage>())
+        if (contains<CountMemoryUsage>())
             setMetric<CountMemoryUsage>(procedure, vm.usedMemory - vmMemoryBefore[procedure]!!)
     }
 
@@ -99,7 +108,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
 
     // Count loop iterations
     override fun loopIteration(loop: ILoop) {
-        if (!specification.contains<CountLoopIterations>()) return
+        if (!contains<CountLoopIterations>()) return
 
         val procedure = loop.ownerProcedure
         val current = getOrDefault(procedure, CountLoopIterations::class, 0)
@@ -108,7 +117,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
 
     // Count record allocations
     override fun recordAllocated(ref: IReference<IRecord>) {
-        if (!specification.contains<CheckObjectAllocations>()) return
+        if (!contains<CheckObjectAllocations>()) return
 
         val procedure = vm.callStack.topFrame.procedure
         val current = getOrDefault(procedure, CheckObjectAllocations::class, mutableMapOf<IType, Int>())
@@ -118,7 +127,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
 
     // Count array allocations
     override fun arrayAllocated(ref: IReference<IArray>) {
-        if (!specification.contains<CheckArrayAllocations>()) return
+        if (!contains<CheckArrayAllocations>()) return
 
         val procedure = vm.callStack.topFrame.procedure
 
@@ -134,12 +143,12 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
     override fun arrayElementAssignment(a: IArrayElementAssignment, ref: IReference<IArray>, index: Int, value: IValue) {
         val procedure = vm.callStack.topFrame.procedure
 
-        if (specification.contains<CountArrayWriteAccesses>()) {
+        if (contains<CountArrayWriteAccesses>()) {
             val current = getOrDefault(procedure, CountArrayWriteAccesses::class, 0)
             setMetric<CountArrayWriteAccesses>(procedure, current + 1)
         }
 
-        if (!specification.contains<TrackParameterStates>()) return
+        if (!contains<TrackParameterStates>()) return
 
         // TODO using id seems iffy... better way?
         procedure.parameters.find { it.id == a.arrayAccess.target.id }?.let { param ->
@@ -153,7 +162,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
         val procedure = a.ownerProcedure
 
         // Check parameter side effects
-        if (specification.contains<CheckSideEffects>()) {
+        if (contains<CheckSideEffects>()) {
             if (a.target in procedure.parameters) {
                 procedure.parameters.find { it.id == a.target.id }?.let { param ->
                     val allSideEffects = getOrDefault(procedure, CheckSideEffects::class, mutableMapOf<IParameter, IValue>())
@@ -164,7 +173,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
         }
 
         // Store argument states
-        if (!specification.contains<TrackParameterStates>()) return
+        if (!contains<TrackParameterStates>()) return
 
         procedure.parameters.find { it == a.target }?.let { param ->
             val allStates = getOrDefault(procedure, TrackParameterStates::class, mutableMapOf<IParameter, List<IValue>>())

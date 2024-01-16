@@ -2,11 +2,10 @@ package tester
 
 import assertEquivalent
 import org.junit.jupiter.api.Test
-import pt.iscte.witter.dsl.Call
+import pt.iscte.witter.dsl.call
 import pt.iscte.witter.dsl.Case
 import pt.iscte.witter.dsl.Suite
 import pt.iscte.witter.testing.ITestResult
-import pt.iscte.witter.testing.TestResult
 import pt.iscte.witter.testing.WhiteBoxTestResult
 import pt.iscte.witter.tsl.*
 import kotlin.test.assertEquals
@@ -50,7 +49,7 @@ class TestInsertionSort: BaseTest(
     fun testDSL() {
         val dsl = Suite(reference) {
             Case(CountArrayReadAccesses() + CountArrayWriteAccesses() + CheckSideEffects) {
-                Call("sort", listOf(5, 4, 3, 2, 1))
+                call("sort", listOf(5, 4, 3, 2, 1))
             }
         }
         assert(dsl.apply(subject))
