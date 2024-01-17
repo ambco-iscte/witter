@@ -123,6 +123,10 @@ class Test(private val referenceFile: File) {
 
                             // BLACK-BOX
                             val expected = stmt.evaluate(vm, reference, listener)
+                            if (stmt.expected != null && !expected.sameAs(vm.getValue(stmt.expected)))
+                                throw AssertionError("Reference solution return value does not match " +
+                                        "user-specified expected return value for procedure call: $stmt")
+
                             val actual = stmt.evaluate(vm, subject, listener)
                             builder.black(expected, actual, args)?.let { results.add(it) }
 

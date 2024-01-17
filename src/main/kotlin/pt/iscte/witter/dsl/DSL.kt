@@ -18,8 +18,8 @@ fun TestCaseStatement.new(className: String, vararg constructorArguments: Any, c
     return obj
 }
 
-fun ObjectCreation.call(procedureID: String, vararg arguments: Any?): ProcedureCall {
-    val call = ProcedureCall(case.module.getProcedure(procedureID), arguments.toList(), case.metrics)
+fun ObjectCreation.call(procedureID: String, vararg arguments: Any?, expected: Any? = null): ProcedureCall {
+    val call = ProcedureCall(case.module.getProcedure(procedureID), arguments.toList(), case.metrics, expected)
     add(call)
     return call
 }
@@ -29,17 +29,18 @@ fun TestCaseStatement.ref(id: String, configure: () -> IExpressionStatement): Va
     return VariableReference(this, id)
 }
 
-fun TestCaseStatement.call(procedureID: String, vararg arguments: Any?): ProcedureCall {
-    val call = ProcedureCall(module.getProcedure(procedureID), arguments.toList(), metrics)
+fun TestCaseStatement.call(procedureID: String, vararg arguments: Any?, expected: Any? = null): ProcedureCall {
+    val call = ProcedureCall(module.getProcedure(procedureID), arguments.toList(), metrics, expected)
     add(call)
     return call
 }
 
-fun VariableReference.call(procedureID: String, vararg arguments: Any?): ProcedureCall {
+fun VariableReference.call(procedureID: String, vararg arguments: Any?, expected: Any? = null): ProcedureCall {
     val call = ProcedureCall(
         case.module.getProcedure(procedureID),
         listOf(this) + arguments.toList(),
-        case.metrics
+        case.metrics,
+        expected
     )
     case.add(call)
     return call

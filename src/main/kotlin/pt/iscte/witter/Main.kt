@@ -17,11 +17,7 @@ fun main() {
 
             using(AssertConstantComplexity) {
                 call("size", stack)
-            }
-
-            call("pop", stack)
-
-            using(AssertConstantComplexity) {
+                call("pop", stack)
                 call("size", stack)
             }
 

@@ -48,7 +48,12 @@ data class VariableAssignment(val id: String, val initializer: () -> IExpression
     override fun toString(): String = "$id = ${initializer()}"
 }
 
-data class ProcedureCall(val procedure: IProcedure, val arguments: List<Any?>, val metrics: Set<ITestMetric> = setOf()): IExpressionStatement {
+data class ProcedureCall(
+    val procedure: IProcedure,
+    val arguments: List<Any?>,
+    val metrics: Set<ITestMetric> = setOf(),
+    val expected: Any? = null
+): IExpressionStatement {
 
     override fun toString(): String = "${procedure.id}(${arguments.joinToString()})"
 }

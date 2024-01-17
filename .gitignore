@@ -44,3 +44,5 @@ bin/
 ### Custom ###
 /src/main/java/antlr/
 /.idea/
+/coverage/
+/src/main/kotlin/pt/iscte/witter/CoverageAnalysis.kt
