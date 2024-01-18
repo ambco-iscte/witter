@@ -3,6 +3,9 @@ package pt.iscte.witter.tsl
 import pt.iscte.strudel.model.IModule
 import pt.iscte.strudel.model.IProcedure
 
+@DslMarker
+annotation class WitterDSL
+
 /**
  * Procedure test contemplating set of evaluation [metrics].
  * @param module Reference module.
@@ -10,6 +13,7 @@ import pt.iscte.strudel.model.IProcedure
  * @param description Description of the test module.
  * @param metrics A set of the evaluation metrics ([ITestMetric]) that should be calculated.
  */
+@WitterDSL
 class TestCaseStatement(
     val module: IModule,
     statements: List<IStatement>,
@@ -44,10 +48,12 @@ sealed interface IStatement
 
 sealed interface IExpressionStatement: IStatement
 
+@WitterDSL
 data class VariableAssignment(val id: String, val initializer: () -> IExpressionStatement): IStatement {
     override fun toString(): String = "$id = ${initializer()}"
 }
 
+@WitterDSL
 data class ProcedureCall(
     val procedure: IProcedure,
     val arguments: List<Any?>,
@@ -58,6 +64,7 @@ data class ProcedureCall(
     override fun toString(): String = "${procedure.id}(${arguments.joinToString()})"
 }
 
+@WitterDSL
 class ObjectCreation(
     val case: TestCaseStatement,
     val className: String,
@@ -81,6 +88,7 @@ class ObjectCreation(
             "$className(${constructorArguments.joinToString()}).apply {\n\t${configure.joinToString("\n\t")}\n}"
 }
 
+@WitterDSL
 data class VariableReference(val case: TestCaseStatement, val id: String): IExpressionStatement {
     override fun toString(): String = "Var($id)"
 }

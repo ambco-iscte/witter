@@ -50,9 +50,13 @@ val IModule.tests: List<TestCaseStatement>
 
 fun IModule.findMatchingProcedure(procedure: IProcedure): IProcedure? =
     if (procedure.module == this) procedure
-    else runCatching { procedure.id?.let { getProcedure(it) } }.getOrNull()
-// TODO find procedure with closest (levenshtein, etc?) descriptor string
-
+    else {
+        val matches = procedures.filter {
+            it.returnType == procedure.returnType
+                    && it.parameters.map { p -> p.type.id } == procedure.parameters.map { p -> p.type.id }
+        }
+        matches.minByOrNull { it.id!!.compareTo(procedure.id!!) }
+    }
 
 internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
     is Collection<*> -> {
@@ -76,6 +80,7 @@ internal fun IRecord.properties(): Map<IVariableDeclaration<IRecordType>, IValue
     return type.fields.associateWith { getField(it) }
 }
 
+// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 internal fun IType.descriptor(): String = when (this) {
         VOID -> "V"
         INT -> "I"
@@ -89,6 +94,5 @@ internal fun IType.descriptor(): String = when (this) {
         else -> throw UnsupportedOperationException("Unsupported descriptor for type: ${this.id}")
     }
 
-// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 internal val IProcedure.descriptor: String
     get() = "(" + parameters.joinToString("") { it.type.descriptor() } + ")" + returnType.descriptor()

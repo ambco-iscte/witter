@@ -1,6 +1,7 @@
 package pt.iscte.witter.testing
 
 import pt.iscte.strudel.javaparser.Java2Strudel
+import pt.iscte.strudel.javaparser.StrudelUnsupported
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.*
@@ -15,14 +16,21 @@ class Test(private val referenceFile: File) {
 
     private val memory = mutableMapOf<IModule, MutableMap<String, IValue>>()
 
-    fun apply(subjectFile: File): List<ITestResult> = apply(loader.load(subjectFile))
+    fun apply(subjectFile: File): List<ITestResult> = apply(subjectFile, listOf())
 
-    fun apply(subjectPath: String): List<ITestResult> = apply(loader.load(File(subjectPath)))
+    fun apply(subjectPath: String): List<ITestResult> = apply(File(subjectPath))
 
     fun apply(subjectPath: String, suite: TestSuite): List<ITestResult> =
-        apply(loader.load(File(subjectPath)), suite.cases())
+        apply(File(subjectPath), suite.cases())
 
-    fun apply(subjectFile: File, suite: TestSuite): List<ITestResult> = apply(loader.load(subjectFile), suite.cases())
+    fun apply(subjectFile: File, suite: TestSuite): List<ITestResult> = apply(subjectFile, suite.cases())
+
+    private fun apply(subjectFile: File, tests: List<TestCaseStatement> = listOf()): List<ITestResult> {
+        val module = runCatching { loader.load(subjectFile) }.onFailure {
+            return listOf(FileLoadingError(subjectFile, it))
+        }.getOrThrow()
+        return apply(module, tests)
+    }
 
     fun dereference(collection: Collection<Any>, vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): List<IValue> =
         collection.map { when(it) {
@@ -90,58 +98,62 @@ class Test(private val referenceFile: File) {
 
         fun run(case: TestCaseStatement) {
             fun execute(vm: IVirtualMachine, listener: EvaluationMetricListener, stmt: IStatement) {
-                when (stmt) {
-                    is TestCaseStatement -> run(stmt)
-                    is VariableAssignment -> {
-                        val value = stmt.initializer().evaluate(vm, reference, listener)
-                        memory[reference]!![stmt.id] = value
-                        memory[subject]!![stmt.id] = stmt.initializer().evaluate(vm, subject, listener)
-                    }
-                    is IExpressionStatement -> when(stmt) {
-                        is ProcedureCall -> {
-                            listener.extend(case.metrics + stmt.metrics)
+                try {
+                    when (stmt) {
+                        is TestCaseStatement -> run(stmt)
+                        is VariableAssignment -> {
+                            val value = stmt.initializer().evaluate(vm, reference, listener)
+                            memory[reference]!![stmt.id] = value
+                            memory[subject]!![stmt.id] = stmt.initializer().evaluate(vm, subject, listener)
+                        }
+                        is IExpressionStatement -> when(stmt) {
+                            is ProcedureCall -> {
+                                listener.extend(case.metrics + stmt.metrics)
 
-                            val referenceProcedure = reference.findMatchingProcedure(stmt.procedure)!!
-                            val subjectProcedure = subject.findMatchingProcedure(stmt.procedure)
+                                val referenceProcedure = reference.findMatchingProcedure(stmt.procedure)!!
+                                val subjectProcedure = subject.findMatchingProcedure(stmt.procedure)
 
-                            if (subjectProcedure == null) {
-                                if (results.none { it is ProcedureNotImplemented && it.procedure == stmt.procedure })
-                                    results.add(ProcedureNotImplemented(stmt.procedure))
-                                return
+                                if (subjectProcedure == null) {
+                                    if (results.none { it is ProcedureNotImplemented && it.procedure == stmt.procedure })
+                                        results.add(ProcedureNotImplemented(stmt.procedure))
+                                    return
+                                }
+
+                                val builder = ResultBuilder(referenceProcedure, subjectProcedure)
+
+                                // TODO: Bug
+                                //  Reference to record in arguments is always the same, so every call will show the
+                                //  final, modified record, even for calls that were made before the object reached
+                                //  its final state. :/
+                                val args = (stmt.arguments as List<Any>).map { when(it) {
+                                    is IExpressionStatement -> it.evaluate(vm, reference, listener)
+                                    else -> getValue(vm, it)
+                                } }
+
+                                // BLACK-BOX
+                                val expected = stmt.evaluate(vm, reference, listener)
+                                if (stmt.expected != null && !expected.sameAs(vm.getValue(stmt.expected)))
+                                    throw AssertionError("Reference solution return value does not match " +
+                                            "user-specified expected return value for procedure call: $stmt")
+
+                                val actual = stmt.evaluate(vm, subject, listener)
+                                builder.black(expected, actual, args)?.let { results.add(it) }
+
+                                // WHITE-BOX
+                                results.addAll(builder.white(listener, args))
+
+                                // Reset listener so metrics aren't cumulative between procedure calls
+                                listener.reset()
+                                listener.rebase()
                             }
-
-                            val builder = ResultBuilder(referenceProcedure, subjectProcedure)
-
-                            // TODO: Bug
-                            //  Reference to record in arguments is always the same, so every call will show the
-                            //  final, modified record, even for calls that were made before the object reached
-                            //  its final state. :/
-                            val args = (stmt.arguments as List<Any>).map { when(it) {
-                                is IExpressionStatement -> it.evaluate(vm, reference, listener)
-                                else -> getValue(vm, it)
-                            } }
-
-                            // BLACK-BOX
-                            val expected = stmt.evaluate(vm, reference, listener)
-                            if (stmt.expected != null && !expected.sameAs(vm.getValue(stmt.expected)))
-                                throw AssertionError("Reference solution return value does not match " +
-                                        "user-specified expected return value for procedure call: $stmt")
-
-                            val actual = stmt.evaluate(vm, subject, listener)
-                            builder.black(expected, actual, args)?.let { results.add(it) }
-
-                            // WHITE-BOX
-                            results.addAll(builder.white(listener, args))
-
-                            // Reset listener so metrics aren't cumulative between procedure calls
-                            listener.reset()
-                            listener.rebase()
-                        }
-                        else -> {
-                            stmt.evaluate(vm, reference, listener)
-                            stmt.evaluate(vm, subject, listener)
+                            else -> {
+                                stmt.evaluate(vm, reference, listener)
+                                stmt.evaluate(vm, subject, listener)
+                            }
                         }
                     }
+                } catch (ex: Exception) {
+                    results.add(ExceptionThrown(stmt, ex))
                 }
             }
 

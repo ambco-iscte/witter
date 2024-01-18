@@ -1,6 +1,7 @@
 package pt.iscte.witter.dsl
 
 import pt.iscte.strudel.javaparser.Java2Strudel
+import pt.iscte.strudel.javaparser.StrudelUnsupported
 import pt.iscte.witter.testing.TestSuite
 import pt.iscte.witter.tsl.*
 import java.io.File
@@ -11,7 +12,7 @@ fun Suite(referencePath: String, description: String = "", configure: TestSuite.
     return suite
 }
 
-fun TestCaseStatement.new(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit): ObjectCreation {
+fun TestCaseStatement.new(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit = { }): ObjectCreation {
     val obj = ObjectCreation(this, className, constructorArguments.toList())
     configure(obj)
     add(obj)
@@ -37,7 +38,9 @@ fun TestCaseStatement.call(procedureID: String, vararg arguments: Any?, expected
 
 fun VariableReference.call(procedureID: String, vararg arguments: Any?, expected: Any? = null): ProcedureCall {
     val call = ProcedureCall(
-        case.module.getProcedure(procedureID),
+        runCatching { case.module.getProcedure(procedureID) }.onFailure {
+            throw AssertionError("Reference solution does not implement procedure with ID $procedureID", it)
+        }.getOrThrow(),
         listOf(this) + arguments.toList(),
         case.metrics,
         expected
@@ -64,7 +67,17 @@ fun TestSuite.Case(
     description: String = "",
     configure: TestCaseStatement.() -> Unit = {}
 ): TestCaseStatement {
-    val module = Java2Strudel().load(File(referencePath))
+    val module = runCatching {
+        Java2Strudel().load(File(referencePath))
+    }.onFailure {
+        when (it) {
+            is StrudelUnsupported -> throw Exception(
+                "Strudel could not load the file $referencePath: ${it.message}\n\t${it.locations.joinToString("\n\t")}",
+                it
+            )
+            else -> throw Exception("Exception thrown when loading file $referencePath: ${it.message}", it)
+        }
+    }.getOrThrow()
     val s = TestCaseStatement(
         module,
         listOf(),

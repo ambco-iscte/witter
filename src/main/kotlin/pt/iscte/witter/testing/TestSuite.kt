@@ -24,10 +24,10 @@ class TestSuite(val referencePath: String, val description: String, cases: List<
         val results = mutableMapOf<String, List<ITestResult>>()
         val ref = File(referencePath)
         root.walkTopDown().forEach {
-            if (it.isFile && it.path != referencePath && it.name == ref.name) {
+            if (it != ref && it.name == ref.name) {
                 results[it.path] = apply(it)
             }
         }
-        return TestReport(results.toMap())
+        return TestReport(this, results.toMap(), description)
     }
 }

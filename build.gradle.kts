@@ -18,7 +18,8 @@ dependencies {
     implementation("org.antlr:antlr4:4.13.1")
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation(files("libs/strudel-0.8.1.jar"))
+    implementation("org.jetbrains.kotlinx:kotlinx-html:0.8.0")
+    implementation(files("libs/strudel-0.8.2.jar"))
 }
 
 tasks.test {
