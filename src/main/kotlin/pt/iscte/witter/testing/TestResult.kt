@@ -1,6 +1,6 @@
 package pt.iscte.witter.testing
 
-import pt.iscte.strudel.javaparser.StrudelUnsupported
+import pt.iscte.strudel.javaparser.StrudelUnsupportedException
 import pt.iscte.strudel.model.IProcedure
 import pt.iscte.strudel.model.IType
 import pt.iscte.strudel.vm.IRecord
@@ -30,28 +30,35 @@ private val Throwable.msg: String
     get() = message ?: cause?.message ?: "No exception message was provided."
 
 sealed interface ITestResult {
+    val passed: Boolean
+        get() = false
     val message: String
 }
 
 data class FileLoadingError(val file: File, val cause: Throwable): ITestResult {
 
     override val message: String = when (cause) {
-        is StrudelUnsupported -> "${cause::class.simpleName} occurred when parsing source code file $file: ${cause.msg}\n\tat: ${cause.locations.joinToString()}"
+        is StrudelUnsupportedException -> "${cause::class.simpleName} occurred when parsing source code file $file: ${cause.msg}\n\tat: ${cause.locations.joinToString()}"
         else -> "${cause::class.simpleName} occurred when loading source code file $file:\n\t${cause.msg}"
     }
 
-    override fun toString(): String = "[fail] $message"
+    override fun toString(): String = "[error] $message"
 }
 
-data class ExceptionThrown(val stmt: IStatement, val exception: Exception): ITestResult {
+data class ExceptionTestResult(
+    val procedure: IProcedure,
+    val args: Iterable<IValue>,
+    val expected: Throwable?,
+    val actual: Throwable?
+): ITestResult {
+
+    override val passed: Boolean
+        get() = expected == actual
 
     override val message: String =
-        if (exception.cause == null)
-            "${exception::class.simpleName} thrown when executing statement $stmt: ${exception.msg}"
-        else
-            "${exception.cause!!::class.simpleName} thrown when executing statement $stmt: ${exception.cause!!.msg}"
+        "${procedure.id}(${args.pretty()})\n\tExpected exception: $expected\n\tFound: $actual"
 
-    override fun toString(): String = "[fail] $message"
+    override fun toString(): String = "[${if (passed) "pass" else "error"}] $message"
 }
 
 data class ProcedureNotImplemented(val procedure: IProcedure): ITestResult {
@@ -61,11 +68,11 @@ data class ProcedureNotImplemented(val procedure: IProcedure): ITestResult {
             "${it.type}"
         }}) not implemented."
 
-    override fun toString(): String = "[fail] $message"
+    override fun toString(): String = "[error] $message"
 }
 
 open class TestResult(
-    open val passed: Boolean,
+    override val passed: Boolean,
     open val procedure: IProcedure,
     open val args: Iterable<IValue>,
     open val expected: IValue,

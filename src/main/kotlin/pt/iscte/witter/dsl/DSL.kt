@@ -1,7 +1,7 @@
 package pt.iscte.witter.dsl
 
 import pt.iscte.strudel.javaparser.Java2Strudel
-import pt.iscte.strudel.javaparser.StrudelUnsupported
+import pt.iscte.strudel.javaparser.StrudelUnsupportedException
 import pt.iscte.witter.testing.TestSuite
 import pt.iscte.witter.tsl.*
 import java.io.File
@@ -71,7 +71,7 @@ fun TestSuite.Case(
         Java2Strudel().load(File(referencePath))
     }.onFailure {
         when (it) {
-            is StrudelUnsupported -> throw Exception(
+            is StrudelUnsupportedException -> throw Exception(
                 "Strudel could not load the file $referencePath: ${it.message}\n\t${it.locations.joinToString("\n\t")}",
                 it
             )

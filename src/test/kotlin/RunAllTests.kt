@@ -6,12 +6,10 @@ import tester.TestRecursiveFactorial
 import tester.TestStack
 import tsl.TestDSL
 import tsl.TestJava2Kotlin
-import tsl.TestJava2Strudel
 import tsl.TestTSLParser
 
 @Suite
 @SelectClasses(
-    TestJava2Strudel::class,
     TestJava2Kotlin::class,
     TestTSLParser::class,
     TestDSL::class,

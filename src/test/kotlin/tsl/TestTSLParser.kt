@@ -7,6 +7,7 @@ import pt.iscte.strudel.model.INT
 import pt.iscte.strudel.vm.IVirtualMachine
 import pt.iscte.witter.testing.EvaluationMetricListener
 import pt.iscte.witter.tsl.*
+import reference.Stack
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,34 +17,11 @@ class TestTSLParser {
 
     @Test
     fun parseArgumentsString() {
-        val ref = "src/test/java/reference/Stack.java"
-
-        val test = pt.iscte.witter.testing.Test(ref)
-        val vm: IVirtualMachine = IVirtualMachine.create()
-        val module: IModule = Java2Strudel().load(File(ref))
-        val listener = EvaluationMetricListener(
-            vm,
-            TestCaseStatement(module, listOf(), "", setOf())
-        )
-
-        val obj = vm.allocateRecord(module.getRecordType("Stack"))
-        val constructor = module.getProcedure("\$init")
-        vm.execute(constructor, obj, vm.getValue(5))
-        val args = listOf(
-            vm.getValue(2),
-            vm.getValue(-3),
-            vm.getValue(5.1),
-            vm.getValue(-3.4),
-            vm.allocateArrayOf(INT, 1, 2, 3, 4, 5),
-            obj
-        )
+        val args = listOf(2, -3, 5.1, -3.4, listOf(1, 2, 3, 4, 5))
 
         assertEquivalent(
             args,
-            TestSpecifier.javaToStrudel(
-                test, vm, module, listener,
-                "2, -3, 5.1, -3.4, new int[] {1,2,3,4,5}, new Stack(5)"
-            )
+            TestSpecifier.javaToKotlin("2, -3, 5.1, -3.4, new int[] {1,2,3,4,5}")
         )
     }
 

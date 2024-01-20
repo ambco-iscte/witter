@@ -15,6 +15,8 @@ class TestStack {
     private val subject = "src/test/java/submission/Stack.java"
 
     private fun assert(results: List<ITestResult>) {
+        println(results)
+
         assertEquals(1, results.size)
 
         assertTrue(results[0] is TestResult)
@@ -29,14 +31,14 @@ class TestStack {
     fun testDSL() {
         val dsl = Suite(reference) {
             Case {
-                val x = ref("x") {
+                val stack = ref("x") {
                     new("Stack", 5) {
                         call("push", 1)
                         call("push", 2)
                         call("push", 3)
                     }
                 }
-                call("size", x)
+                call("size", stack)
             }
         }
         assert(dsl.apply(subject))

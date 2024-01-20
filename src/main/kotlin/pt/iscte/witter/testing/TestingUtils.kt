@@ -50,13 +50,16 @@ val IModule.tests: List<TestCaseStatement>
 
 fun IModule.findMatchingProcedure(procedure: IProcedure): IProcedure? =
     if (procedure.module == this) procedure
-    else {
-        val matches = procedures.filter {
-            it.returnType == procedure.returnType
-                    && it.parameters.map { p -> p.type.id } == procedure.parameters.map { p -> p.type.id }
-        }
-        matches.minByOrNull { it.id!!.compareTo(procedure.id!!) }
+    else runCatching { getProcedure(procedure.id!!) }.getOrNull()
+/*
+{
+    val matches = procedures.filter {
+        it.returnType.id == procedure.returnType.id
+                && it.parameters.map { p -> p.type.id } == procedure.parameters.map { p -> p.type.id }
     }
+    matches.minByOrNull { it.id!!.compareTo(procedure.id!!) }
+}
+ */
 
 internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
     is Collection<*> -> {
@@ -79,6 +82,9 @@ internal fun IRecord.properties(): Map<IVariableDeclaration<IRecordType>, IValue
     }
     return type.fields.associateWith { getField(it) }
 }
+
+internal val IProcedure.signature: String
+    get() = "${id}(${parameters.joinToString { it.type.id ?: "null" }})"
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 internal fun IType.descriptor(): String = when (this) {

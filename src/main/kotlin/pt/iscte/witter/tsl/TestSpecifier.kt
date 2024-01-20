@@ -22,16 +22,6 @@ object TestSpecifier {
             TSLParser(CommonTokenStream(TSLLexer(CharStreams.fromString(annotation)))).specification().translate(procedure)
         }
 
-    fun javaToStrudel(
-        tester: Test,
-        vm: IVirtualMachine,
-        module: IModule,
-        listener: EvaluationMetricListener,
-        str: String
-    ): List<IValue> = str.split(ARGUMENT_SPLIT_REGEX).map {
-        JavaArgument2Strudel(tester, vm, module, listener).translate(it.trim())
-    }
-
     fun javaToKotlin(str: String): List<Any?> =
         str.split(ARGUMENT_SPLIT_REGEX).map { Java2Kotlin().translate(it.trim()) }
 

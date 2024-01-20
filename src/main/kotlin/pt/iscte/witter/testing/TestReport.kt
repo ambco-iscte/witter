@@ -4,7 +4,6 @@ import kotlinx.html.*
 import kotlinx.html.dom.*
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.math.truncate
 import kotlin.reflect.KClass
 
 data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResult>>, val title: String = "") {
@@ -87,7 +86,7 @@ data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResu
                                         ul {
                                             lst.forEach {
                                                 br
-                                                li { +it.message }
+                                                li { pre { +it.message } }
                                             }
                                         }
                                     }
@@ -97,13 +96,15 @@ data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResu
                     }
                     br
                     li {
-                        val threw = this@TestReport.getAll { it is ExceptionThrown } as List<ExceptionThrown>
+                        val threw = (this@TestReport.getAll {
+                            it is ExceptionTestResult
+                        } as List<ExceptionTestResult>).filter { !it.passed && it.actual != null }
                         details {
                             summary {
-                                + "${threw.size} statement(s) threw exceptions."
+                                + "${threw.size} statement(s) threw unexpected exceptions."
                             }
                             ul {
-                                val grouped = threw.groupBy { it.exception::class.simpleName }
+                                val grouped = threw.groupBy { it.actual!!::class.simpleName }
                                 grouped.forEach { (name, lst) ->
                                     br
                                     details {
@@ -111,7 +112,7 @@ data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResu
                                         ul {
                                             lst.forEach {
                                                 br
-                                                li { +it.message }
+                                                li { pre { +it.message } }
                                             }
                                         }
                                     }
