@@ -9,6 +9,8 @@ import pt.iscte.strudel.vm.IValue
 import pt.iscte.witter.tsl.IStatement
 import pt.iscte.witter.tsl.ITestMetric
 import java.io.File
+import java.util.*
+import kotlin.reflect.full.isSuperclassOf
 
 fun Iterable<Any?>.pretty(): String = joinToString {
     when (it) {
@@ -26,8 +28,15 @@ fun Iterable<Any?>.pretty(): String = joinToString {
     }
 }
 
+private fun Throwable.getRootCause(): Throwable {
+    var current = this
+    while (current.cause != null)
+        current = current.cause!!
+    return current
+}
+
 private val Throwable.msg: String
-    get() = message ?: cause?.message ?: "No exception message was provided."
+    get() = message ?: getRootCause().message ?: "No exception message was provided."
 
 sealed interface ITestResult {
     val passed: Boolean
@@ -38,11 +47,23 @@ sealed interface ITestResult {
 data class FileLoadingError(val file: File, val cause: Throwable): ITestResult {
 
     override val message: String = when (cause) {
-        is StrudelUnsupportedException -> "${cause::class.simpleName} occurred when parsing source code file $file: ${cause.msg}\n\tat: ${cause.locations.joinToString()}"
-        else -> "${cause::class.simpleName} occurred when loading source code file $file:\n\t${cause.msg}"
+        is StrudelUnsupportedException ->
+            "${cause::class.simpleName} occurred when parsing source code file $file at node of type ${cause.getFirstNodeType()?.simpleName}\n\t${cause.msg}\n\tat: \n\t  ${cause.stackTrace.joinToString("\n\t  ")}"
+        else ->
+            "${cause::class.simpleName} occurred when loading source code file $file:\n\t${cause.msg}\n\tat: \n\t  ${cause.stackTrace.joinToString("\n\t  ")}"
     }
 
     override fun toString(): String = "[error] $message"
+}
+
+data class ProcedureNotImplemented(val procedure: IProcedure): ITestResult {
+    override val message: String
+        get() = "Procedure ${procedure.id}(${procedure.parameters.joinToString {
+            "${it.type} ${it.id}"
+        }}) not implemented."
+
+    override fun toString(): String = "[error] $message"
+
 }
 
 data class ExceptionTestResult(
@@ -53,22 +74,16 @@ data class ExceptionTestResult(
 ): ITestResult {
 
     override val passed: Boolean
-        get() = expected == actual
-
-    override val message: String =
-        "${procedure.id}(${args.pretty()})\n\tExpected exception: $expected\n\tFound: $actual"
-
-    override fun toString(): String = "[${if (passed) "pass" else "error"}] $message"
-}
-
-data class ProcedureNotImplemented(val procedure: IProcedure): ITestResult {
+        get() = expected == actual || (expected != null && actual != null && expected::class.isSuperclassOf(actual::class))
 
     override val message: String
-        get() = "Procedure ${procedure.id}(${procedure.parameters.joinToString {
-            "${it.type}"
-        }}) not implemented."
+        get() {
+            val exp = if (expected == null) "null" else expected::class.qualifiedName
+            val act = if (actual == null) "null" else actual::class.qualifiedName
+            return "${procedure.id}(${args.pretty()})\n\tExpected exception: $exp (${expected?.message})\n\tFound: $act (${actual?.message})"
+        }
 
-    override fun toString(): String = "[error] $message"
+    override fun toString(): String = "[${if (passed) "pass" else "error"}] $message"
 }
 
 open class TestResult(

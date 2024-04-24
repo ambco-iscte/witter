@@ -12,8 +12,8 @@ fun Suite(referencePath: String, description: String = "", configure: TestSuite.
     return suite
 }
 
-fun TestCaseStatement.new(className: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit = { }): ObjectCreation {
-    val obj = ObjectCreation(this, className, constructorArguments.toList())
+fun TestCaseStatement.new(qualifiedName: String, vararg constructorArguments: Any, configure: ObjectCreation.() -> Unit = { }): ObjectCreation {
+    val obj = ObjectCreation(this, qualifiedName, constructorArguments.toList())
     configure(obj)
     add(obj)
     return obj
@@ -75,7 +75,7 @@ fun TestSuite.Case(
                 "Strudel could not load the file $referencePath: ${it.message}\n\t${it.locations.joinToString("\n\t")}",
                 it
             )
-            else -> throw Exception("Exception thrown when loading file $referencePath: ${it.message}", it)
+            else -> throw Exception("${it::class.simpleName} thrown when loading file $referencePath: ${it.message}", it)
         }
     }.getOrThrow()
     val s = TestCaseStatement(

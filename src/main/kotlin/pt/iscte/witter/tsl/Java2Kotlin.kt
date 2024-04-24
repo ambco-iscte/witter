@@ -3,12 +3,6 @@ package pt.iscte.witter.tsl
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.type.PrimitiveType
-import com.github.javaparser.ast.type.Type
-import pt.iscte.strudel.javaparser.getOrNull
-import pt.iscte.strudel.model.*
-import pt.iscte.strudel.model.dsl.array
-import pt.iscte.strudel.vm.*
-import kotlin.jvm.optionals.getOrNull
 import kotlin.reflect.KClass
 
 class Java2Kotlin {

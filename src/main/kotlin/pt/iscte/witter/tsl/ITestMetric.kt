@@ -6,8 +6,6 @@ sealed interface ITestMetric {
 
 operator fun ITestMetric.plus(other: ITestMetric): Set<ITestMetric> = setOf(this, other)
 
-val AssertConstantComplexity = CountLoopIterations() + CountRecursiveCalls()
-
 data class CountLoopIterations(val margin: Int = 0): ITestMetric {
     override val description: String = "loop iterations"
 }

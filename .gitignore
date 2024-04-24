@@ -46,3 +46,4 @@ bin/
 /.idea/
 /coverage/
 /src/main/kotlin/pt/iscte/witter/CoverageAnalysis.kt
+/src/main/kotlin/pt/iscte/witter/coverage

@@ -2,7 +2,6 @@ package tsl
 
 import assertEquivalent
 import pt.iscte.strudel.javaparser.Java2Strudel
-import pt.iscte.strudel.model.IModule
 import pt.iscte.strudel.model.INT
 import pt.iscte.strudel.vm.IVirtualMachine
 import pt.iscte.witter.testing.EvaluationMetricListener

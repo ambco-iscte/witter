@@ -1,5 +1,6 @@
 package pt.iscte.witter.testing
 
+import pt.iscte.witter.testing.report.TestReport
 import pt.iscte.witter.tsl.TestCaseStatement
 import java.io.File
 
@@ -24,9 +25,8 @@ class TestSuite(val referencePath: String, val description: String, cases: List<
         val results = mutableMapOf<String, List<ITestResult>>()
         val ref = File(referencePath)
         root.walkTopDown().forEach {
-            if (it != ref && it.name == ref.name) {
+            if (it != ref && it.name == ref.name)
                 results[it.path] = apply(it)
-            }
         }
         return TestReport(this, results.toMap(), description)
     }

@@ -35,12 +35,15 @@ class Test(private val referenceFile: File) {
     private fun apply(subject: IModule, tests: List<TestCaseStatement> = listOf()): List<ITestResult> {
         val reference: IModule = loader.load(referenceFile)
 
-        val results = mutableListOf<ITestResult>()
+        val results = mutableSetOf<ITestResult>()
 
         // Initialise empty memory
-        memory.clear()
-        memory[reference] = mutableMapOf()
-        memory[subject] = mutableMapOf()
+        fun MutableMap<IModule, MutableMap<String, IValue>>.init() {
+            clear()
+            put(reference, mutableMapOf())
+            put(subject, mutableMapOf())
+        }
+        memory.init()
 
         fun run(case: TestCaseStatement) {
             fun execute(vm: IVirtualMachine, listener: EvaluationMetricListener, stmt: IStatement) {
@@ -49,10 +52,10 @@ class Test(private val referenceFile: File) {
                     vm: IVirtualMachine,
                     module: IModule,
                     listener: EvaluationMetricListener,
-                    evaluator: IExpressionStatement.(IVirtualMachine, IModule, EvaluationMetricListener) -> IValue
+                    evaluator: IExpressionStatement.(IVirtualMachine, IModule, EvaluationMetricListener) -> Result<IValue>
                 ): List<IValue> =
                     collection.map { when(it) {
-                        is IExpressionStatement -> it.evaluator(vm, module, listener)
+                        is IExpressionStatement -> it.evaluator(vm, module, listener).getOrThrow()
                         else -> getValue(vm, it)
                     } }
 
@@ -62,19 +65,30 @@ class Test(private val referenceFile: File) {
                     vm: IVirtualMachine,
                     listener: EvaluationMetricListener,
                     expr: ObjectCreation,
-                    evaluator: IExpressionStatement.(IVirtualMachine, IModule, EvaluationMetricListener) -> IValue
+                    evaluator: IExpressionStatement.(IVirtualMachine, IModule, EvaluationMetricListener) -> Result<IValue>
                 ): IReference<IRecord> {
-                    val type: IRecordType = getRecordType(expr.className)
+                    val type: IRecordType = getRecordType(expr.qualifiedName)
                     val ref: IReference<IRecord> = vm.allocateRecord(type)
 
-                    val constructor: IProcedure = getProcedure("\$init")
                     val args = dereference(listOf(ref) + expr.constructorArguments, vm, this, listener, evaluator)
 
-                    try {
-                        vm.execute(constructor, *args.toTypedArray())
-                    } catch (e: Exception) {
-                        results.add(ExceptionTestResult(constructor, args, null, e))
-                        throw e
+                    val referenceConstructor = reference.findAcceptingProcedure("\$init", args)
+
+                    if (referenceConstructor == null) {
+                        println("\tCouldn't find reference constructor \$init matching arguments ${args.joinToString()}")
+                        throw NoSuchMethodException("Couldn't find reference constructor \$init matching arguments ${args.joinToString()}")
+                    }
+
+                    val constructor: IProcedure? = findMatchingProcedure(referenceConstructor)
+
+                    if (constructor == null) {
+                        results.add(ProcedureNotImplemented(referenceConstructor))
+                        throw NoSuchMethodException("No procedure found matching ${referenceConstructor.descriptor}")
+                    }
+
+                    kotlin.runCatching { vm.execute(constructor, *args.toTypedArray()) }.onFailure {
+                        results.add(ExceptionTestResult(constructor, args, null, it))
+                        throw RuntimeException(it)
                     }
 
                     // Add $this argument to member function calls
@@ -113,29 +127,24 @@ class Test(private val referenceFile: File) {
 
                 // Evaluates a TSL expression.
                 @Suppress("UNCHECKED_CAST")
-                fun IExpressionStatement.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): IValue {
-
-                    fun ProcedureCall.arguments(): List<IValue> =
-                        dereference(arguments as List<Any>, vm, module, listener, IExpressionStatement::evaluate)
-
-                    return when (this) {
-                        is VariableReference -> memory[module]!![id] ?: NULL
-                        is ProcedureCall -> {
-                            val args = arguments().toTypedArray()
-                            val procedure = module.findMatchingProcedure(procedure) ?: return NULL
-                            vm.execute(procedure, *args) ?: NULL
+                fun IExpressionStatement.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): Result<IValue> =
+                    runCatching {
+                        when (this) {
+                            is VariableReference -> (memory[module] ?: throw RuntimeException("Test has no memory for module ${module.id}"))[id] ?: NULL
+                            is ProcedureCall -> {
+                                val args = dereference(arguments as List<Any>, vm, module, listener, IExpressionStatement::evaluate).toTypedArray()
+                                module.findMatchingProcedure(procedure)?.let { vm.execute(it, *args) } ?: NULL
+                            }
+                            is ObjectCreation -> module.allocate(vm, listener, this, IExpressionStatement::evaluate)
                         }
-                        is ObjectCreation -> module.allocate(vm, listener, this, IExpressionStatement::evaluate)
                     }
-                }
 
                 runCatching {
                     when (stmt) {
                         is TestCaseStatement -> run(stmt)
                         is VariableAssignment -> {
-                            val value = stmt.initializer().evaluate(vm, reference, listener)
-                            memory[reference]!![stmt.id] = value
-                            memory[subject]!![stmt.id] = stmt.initializer().evaluate(vm, subject, listener)
+                            (memory[reference] ?: throw RuntimeException("Test has no memory for module ${reference.id}"))[stmt.id] = stmt.initializer().evaluate(vm, reference, listener).getOrThrow()
+                            (memory[subject] ?: throw RuntimeException("Test has no memory for module ${subject.id}"))[stmt.id] = stmt.initializer().evaluate(vm, subject, listener).getOrThrow()
                         }
                         is IExpressionStatement -> when(stmt) {
                             is ProcedureCall -> {
@@ -158,13 +167,17 @@ class Test(private val referenceFile: File) {
                                 //  Reference to record in arguments is always the same, so every call will show the
                                 //  final, modified record, even for calls that were made before the object reached
                                 //  its final state. :/
-                                val args = (stmt.arguments as List<Any>).map { when(it) {
-                                    is IExpressionStatement -> it.evaluate(vm, reference, listener)
+                                val args: Result<List<IValue>> = runCatching { (stmt.arguments as List<Any>).map {
+                                    when(it) {
+                                    is IExpressionStatement -> it.evaluate(vm, reference, listener).getOrThrow()
                                     else -> getValue(vm, it)
-                                } }
+                                } } }
+
+                                //if (args.isFailure)
+                                    //println("\tFailed to get arguments for procedure call $stmt: ${args.exceptionOrNull()}")
 
                                 // BLACK-BOX
-                                val expected: Result<IValue> = runCatching { stmt.evaluate(vm, reference, listener) }
+                                val expected: Result<IValue> = stmt.evaluate(vm, reference, listener)
                                 if (expected.isSuccess) {
                                     if (stmt.expected != null && !expected.getOrThrow().sameAs(vm.getValue(stmt.expected)))
                                         throw AssertionError("Reference solution return value does not match " +
@@ -173,15 +186,15 @@ class Test(private val referenceFile: File) {
                                     throw AssertionError("Reference solution return value does not match " +
                                             "user-specified expected return value for procedure call: $stmt")
 
-                                val actual = runCatching { stmt.evaluate(vm, subject, listener) }
+                                val actual = stmt.evaluate(vm, subject, listener)
 
-                                if (expected.isSuccess && actual.isSuccess) {
-                                    builder.black(expected.getOrThrow(), actual.getOrThrow(), args)?.let { results.add(it) }
+                                if (args.isSuccess && expected.isSuccess && actual.isSuccess) {
+                                    builder.black(expected.getOrThrow(), actual.getOrThrow(), args.getOrThrow())?.let { results.add(it) }
                                 }
-                                else {
+                                else if (args.isSuccess && actual.exceptionOrNull() !is RuntimeError) {
                                     val ex = ExceptionTestResult(
                                         referenceProcedure,
-                                        args,
+                                        args.getOrThrow(),
                                         expected.exceptionOrNull(),
                                         actual.exceptionOrNull()
                                     )
@@ -191,7 +204,8 @@ class Test(private val referenceFile: File) {
                                 }
 
                                 // WHITE-BOX
-                                results.addAll(builder.white(listener, args))
+                                if (args.isSuccess)
+                                    results.addAll(builder.white(listener, args.getOrThrow()))
 
                                 // Reset listener so metrics aren't cumulative between procedure calls
                                 listener.reset()
@@ -206,15 +220,18 @@ class Test(private val referenceFile: File) {
                 }
             }
 
-            val vm = IVirtualMachine.create() // Stateful tests - one VM for all calls in sequence
+            val vm = IVirtualMachine.create(loopIterationMaximum = 10000) // Stateful tests - one VM for all calls in sequence
             val listener = EvaluationMetricListener(vm, case)
             vm.addListener(listener)
             case.statements().forEach { execute(vm, listener, it) }
         }
 
         // Run all tests
-        (tests.ifEmpty { reference.tests }).forEach { run(it) }
+        (tests.ifEmpty { reference.tests }).forEach {
+            memory.init()
+            run(it)
+        }
 
-        return results
+        return results.toList()
     }
 }

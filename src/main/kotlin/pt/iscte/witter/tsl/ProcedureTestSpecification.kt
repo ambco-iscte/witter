@@ -67,7 +67,7 @@ data class ProcedureCall(
 @WitterDSL
 class ObjectCreation(
     val case: TestCaseStatement,
-    val className: String,
+    val qualifiedName: String,
     val constructorArguments: List<Any>,
     configure: List<ProcedureCall> = listOf()
 ): IExpressionStatement {
@@ -83,12 +83,19 @@ class ObjectCreation(
 
     override fun toString(): String =
         if (configure.isEmpty())
-            "$className(${constructorArguments.joinToString()})"
+            "$qualifiedName(${constructorArguments.joinToString()})"
         else
-            "$className(${constructorArguments.joinToString()}).apply {\n\t${configure.joinToString("\n\t")}\n}"
+            "$qualifiedName(${constructorArguments.joinToString()}).apply {\n\t${configure.joinToString("\n\t")}\n}"
 }
 
 @WitterDSL
 data class VariableReference(val case: TestCaseStatement, val id: String): IExpressionStatement {
+
+    companion object {
+        private var uuid: Long = 0
+
+        fun uuid(): Long = uuid++
+    }
+
     override fun toString(): String = "Var($id)"
 }

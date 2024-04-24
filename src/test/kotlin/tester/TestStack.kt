@@ -7,6 +7,7 @@ import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.TestResult
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class TestStack {
@@ -19,7 +20,7 @@ class TestStack {
 
         assertEquals(1, results.size)
 
-        assertTrue(results[0] is TestResult)
+        assertIs<TestResult>(results[0])
 
         assertFalse((results[0] as TestResult).passed)
 

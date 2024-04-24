@@ -5,14 +5,14 @@ import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.*
 import kotlin.reflect.KClass
 
-typealias Invocation = Pair<IProcedure, List<IValue>>
+typealias Invocation = Pair<IProcedureDeclaration, List<IValue>>
 
 class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestCaseStatement): IVirtualMachine.IListener {
     private val values: MutableMap<Invocation, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
 
-    private val previousArgumentsForProcedure: MutableMap<IProcedure, List<IValue>> = mutableMapOf()
+    private val previousArgumentsForProcedure: MutableMap<IProcedureDeclaration, List<IValue>> = mutableMapOf()
 
-    private val vmMemoryBefore: MutableMap<IProcedure, Int> = mutableMapOf()
+    private val vmMemoryBefore: MutableMap<IProcedureDeclaration, Int> = mutableMapOf()
 
     private val extended: MutableSet<ITestMetric> = mutableSetOf()
 
@@ -31,14 +31,14 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
     private inline fun <reified T : ITestMetric> contains(): Boolean =
         specification.contains<T>() or extended.any { it is T }
 
-    private inner class ArrayReadAccessListener(private val procedure: IProcedure) : IArray.IListener {
+    private inner class ArrayReadAccessListener(private val procedure: IProcedureDeclaration) : IArray.IListener {
         override fun elementRead(index: Int, value: IValue) {
             val current = getOrDefault(procedure, CountArrayReadAccesses::class, 0)
             setMetric<CountArrayReadAccesses>(procedure, current + 1)
         }
     }
 
-    override fun procedureCall(procedure: IProcedure, args: List<IValue>, caller: IProcedure?) {
+    override fun procedureCall(procedure: IProcedureDeclaration, args: List<IValue>, caller: IProcedure?) {
         // Count used memory
         previousArgumentsForProcedure[procedure] = args
         if (contains<CountMemoryUsage>())
@@ -72,15 +72,15 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
         }
     }
 
-    override fun procedureEnd(procedure: IProcedure, args: List<IValue>, result: IValue?) {
+    override fun procedureEnd(procedure: IProcedureDeclaration, args: List<IValue>, result: IValue?) {
         if (contains<CountMemoryUsage>())
             setMetric<CountMemoryUsage>(procedure, vm.usedMemory - vmMemoryBefore[procedure]!!)
     }
 
-    private fun invocation(procedure: IProcedure): Invocation = Pair(procedure, previousArgumentsForProcedure[procedure]!!)
+    private fun invocation(procedure: IProcedureDeclaration): Invocation = Pair(procedure, previousArgumentsForProcedure[procedure]!!)
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getOrDefault(procedure: IProcedure, parameter: KClass<out ITestMetric>, default: T): T {
+    fun <T> getOrDefault(procedure: IProcedureDeclaration, parameter: KClass<out ITestMetric>, default: T): T {
         val invocation = invocation(procedure)
         return if (values.containsKey(invocation) && values[invocation]!!.containsKey(parameter))
             values[invocation]!![parameter] as T
@@ -88,7 +88,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getAll(procedure: IProcedure, parameter: KClass<out ITestMetric>): List<T> {
+    fun <T> getAll(procedure: IProcedureDeclaration, parameter: KClass<out ITestMetric>): List<T> {
         val all = mutableListOf<T>()
         values.forEach { (invocation, metric) ->
             if (invocation.first == procedure) metric.forEach { (type, value) ->
@@ -99,7 +99,7 @@ class EvaluationMetricListener(val vm: IVirtualMachine, val specification: TestC
         return all
     }
 
-    private inline fun <reified T : ITestMetric> setMetric(procedure: IProcedure, value: Any) {
+    private inline fun <reified T : ITestMetric> setMetric(procedure: IProcedureDeclaration, value: Any) {
         val invocation = invocation(procedure)
         if (!values.containsKey(invocation))
             values[invocation] = mutableMapOf()

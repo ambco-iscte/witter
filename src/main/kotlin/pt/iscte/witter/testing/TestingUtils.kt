@@ -1,10 +1,23 @@
 package pt.iscte.witter.testing
 
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.comments.Comment
+import com.github.javaparser.ast.stmt.BlockStmt
+import com.github.javaparser.ast.visitor.ModifierVisitor
+import com.github.javaparser.ast.visitor.Visitable
+import pt.iscte.strudel.javaparser.extensions.string
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.model.VOID
+import pt.iscte.strudel.model.dsl.False
 import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.TestCaseStatement
 import pt.iscte.witter.tsl.TestSpecifier
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 
 internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
 
@@ -42,22 +55,41 @@ internal fun <K, V> Map<K, V>.describe(descriptor: (Map.Entry<K, V>) -> String):
 val IModule.tests: List<TestCaseStatement>
     get() {
         val tests = mutableListOf<TestCaseStatement>()
-        procedures.forEach { procedure ->
+        procedures.filterIsInstance<IProcedure>().forEach { procedure ->
             TestSpecifier.translate(procedure)?.let { tests.add(it) }
         }
         return tests.toList()
     }
 
+fun IProcedureDeclaration.isInstanceMethod(): Boolean = kotlin.runCatching { thisParameter }.isSuccess
+
+fun IProcedure.matchesSignature(other: IProcedure): Boolean {
+    if (isInstanceMethod() && other.isInstanceMethod()) {
+        val paramsMatch = parameters.subList(1, parameters.size).map { p -> p.type.id } == other.parameters.subList(1, other.parameters.size).map { p -> p.type.id }
+        val thisMatch = runCatching { thisParameter.type.id }.getOrNull() == runCatching { other.thisParameter.type.id }.getOrNull()
+        return returnType.id == other.returnType.id && paramsMatch // FIXME qualified names: && thisMatch
+    } else if (!isInstanceMethod() && !other.isInstanceMethod()) {
+        val paramsMatch = parameters.map { p -> p.type.id } == other.parameters.map { p -> p.type.id }
+        return returnType.id == other.returnType.id && paramsMatch
+    } else
+        return false
+}
+
 fun IModule.findMatchingProcedure(procedure: IProcedure): IProcedure? =
-    if (procedure.module == this) procedure
-    else runCatching { getProcedure(procedure.id!!) }.getOrNull()
+    procedures.filterIsInstance<IProcedure>().filter { it.matchesSignature(procedure) }.firstOrNull { it.id == procedure.id }
+
+fun IModule.findAcceptingProcedure(id: String, arguments: List<IValue>): IProcedure? =
+    procedures.filterIsInstance<IProcedure>().firstOrNull {
+        it.id == id && it.parameters.map { p -> p.type.id } == arguments.map { a -> a.type.id }
+    }
+
 /*
 {
     val matches = procedures.filter {
         it.returnType.id == procedure.returnType.id
                 && it.parameters.map { p -> p.type.id } == procedure.parameters.map { p -> p.type.id }
     }
-    matches.minByOrNull { it.id!!.compareTo(procedure.id!!) }
+    return matches.minByOrNull { it.id!!.compareTo(procedure.id!!) }
 }
  */
 
@@ -72,6 +104,7 @@ internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
         }
     }
     is IValue -> value
+    is String -> string(value)
     else -> vm.getValue(value)
 }
 

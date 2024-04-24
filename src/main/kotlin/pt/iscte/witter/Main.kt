@@ -1,7 +1,10 @@
 package pt.iscte.witter
 
+import pt.iscte.strudel.javaparser.extensions.string
 import pt.iscte.witter.dsl.*
-import pt.iscte.witter.tsl.AssertConstantComplexity
+import pt.iscte.witter.tsl.CountLoopIterations
+import pt.iscte.witter.tsl.CountRecursiveCalls
+import pt.iscte.witter.tsl.plus
 
 
 fun main() {
@@ -15,23 +18,11 @@ fun main() {
                 }
             }
 
-            using(AssertConstantComplexity) {
+            using(CountLoopIterations() + CountRecursiveCalls()) {
                 call("size", stack)
                 call("pop", stack)
                 call("size", stack)
             }
-
-            // TODO:
-            //  VariableReference.call adds ProcedureCall to VariableReference's TestCase
-            //  How do I make it so calling VariableReference.call inside a using() TestCase
-            //  adds the call to that block/case and not to VariableReference's TestCase?
-            /*
-            using(AssertConstantComplexity) {
-                stack.call("size")
-                stack.call("pop")
-                stack.call("size")
-            }
-             */
         }
     }
 
