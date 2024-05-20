@@ -11,9 +11,13 @@ import java.io.File
 class Test(private val referenceFile: File) {
     constructor(referenceFilePath: String) : this(File(referenceFilePath))
 
+    var currentSubject: File? = null
+
     private val loader = Java2Strudel()
 
     private val memory = mutableMapOf<IModule, MutableMap<String, IValue>>()
+
+    private val machines = mutableMapOf<TestCaseStatement, Pair<IVirtualMachine, EvaluationMetricListener>>()
 
     fun apply(subjectFile: File): List<ITestResult> = apply(subjectFile, listOf())
 
@@ -28,6 +32,7 @@ class Test(private val referenceFile: File) {
         val module = runCatching { loader.load(subjectFile) }.onFailure {
             return listOf(FileLoadingError(subjectFile, it))
         }.getOrThrow()
+        currentSubject = subjectFile
         return apply(module, tests)
     }
 
@@ -44,6 +49,7 @@ class Test(private val referenceFile: File) {
             put(subject, mutableMapOf())
         }
         memory.init()
+        machines.clear()
 
         fun run(case: TestCaseStatement) {
             fun execute(vm: IVirtualMachine, listener: EvaluationMetricListener, stmt: IStatement) {
@@ -130,7 +136,7 @@ class Test(private val referenceFile: File) {
                 fun IExpressionStatement.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): Result<IValue> =
                     runCatching {
                         when (this) {
-                            is VariableReference -> (memory[module] ?: throw RuntimeException("Test has no memory for module ${module.id}"))[id] ?: NULL
+                            is VariableReference -> (memory[module] ?: throw RuntimeException("Test has no memory for module ${module.id}"))[id] ?: throw RuntimeException("No value stored for variable reference $this!")
                             is ProcedureCall -> {
                                 val args = dereference(arguments as List<Any>, vm, module, listener, IExpressionStatement::evaluate).toTypedArray()
                                 module.findMatchingProcedure(procedure)?.let { vm.execute(it, *args) } ?: NULL
@@ -158,6 +164,7 @@ class Test(private val referenceFile: File) {
                                 if (subjectProcedure == null) {
                                     if (results.none { it is ProcedureNotImplemented && it.procedure == stmt.procedure })
                                         results.add(ProcedureNotImplemented(stmt.procedure))
+                                    System.err.println("Exiting due to procedure not implemented: ${stmt.procedure.signature}")
                                     return
                                 }
 
@@ -173,11 +180,10 @@ class Test(private val referenceFile: File) {
                                     else -> getValue(vm, it)
                                 } } }
 
-                                //if (args.isFailure)
-                                    //println("\tFailed to get arguments for procedure call $stmt: ${args.exceptionOrNull()}")
+                                listener.setProcedure(referenceProcedure)
+                                val expected: Result<IValue> = stmt.evaluate(vm, reference, listener)
 
                                 // BLACK-BOX
-                                val expected: Result<IValue> = stmt.evaluate(vm, reference, listener)
                                 if (expected.isSuccess) {
                                     if (stmt.expected != null && !expected.getOrThrow().sameAs(vm.getValue(stmt.expected)))
                                         throw AssertionError("Reference solution return value does not match " +
@@ -186,6 +192,7 @@ class Test(private val referenceFile: File) {
                                     throw AssertionError("Reference solution return value does not match " +
                                             "user-specified expected return value for procedure call: $stmt")
 
+                                listener.setProcedure(subjectProcedure)
                                 val actual = stmt.evaluate(vm, subject, listener)
 
                                 if (args.isSuccess && expected.isSuccess && actual.isSuccess) {
@@ -199,17 +206,20 @@ class Test(private val referenceFile: File) {
                                         actual.exceptionOrNull()
                                     )
                                     results.add(ex)
-                                    if (!ex.passed)
+                                    if (!ex.passed) {
+                                        System.err.println("Exiting because unexpected exception: $ex")
                                         return
+                                    }
                                 }
 
                                 // WHITE-BOX
                                 if (args.isSuccess)
                                     results.addAll(builder.white(listener, args.getOrThrow()))
+                                else
+                                    System.err.println("Failed to collect arguments: ${args.exceptionOrNull()!!.stackTraceToString()}")
 
                                 // Reset listener so metrics aren't cumulative between procedure calls
                                 listener.reset()
-                                listener.rebase()
                             }
                             else -> {
                                 stmt.evaluate(vm, reference, listener)
@@ -220,9 +230,13 @@ class Test(private val referenceFile: File) {
                 }
             }
 
-            val vm = IVirtualMachine.create(loopIterationMaximum = 10000) // Stateful tests - one VM for all calls in sequence
-            val listener = EvaluationMetricListener(vm, case)
-            vm.addListener(listener)
+            if (!machines.containsKey(case.root)) {
+                val vm = IVirtualMachine.create(loopIterationMaximum = 1000) // Stateful tests - one VM for all calls in sequence
+                val listener = EvaluationMetricListener(vm, case)
+                vm.addListener(listener)
+                machines[case.root] = Pair(vm, listener)
+            }
+            val (vm, listener) = machines[case.root]!!
             case.statements().forEach { execute(vm, listener, it) }
         }
 

@@ -20,7 +20,7 @@ INTEGER: [0-9]+;
 IDENTIFIER: [a-zA-Z_$][a-zA-Z0-9_$]*; // Variable identifier
 
 TEST_ARGUMENTS: TEST_ARGUMENT (TEST_ARGUMENT)*; // Modified to remove left-recursion
-TEST_ARGUMENT: ~('(' | ')' | '\n' | '\r'); // Excluded newlines because they were breaking everything
+TEST_ARGUMENT: ~('(' | ')' | '\n' | '\r');
 
 IGNORE: (WHITESPACE | COMMENT | NEWLINE) -> skip;
 

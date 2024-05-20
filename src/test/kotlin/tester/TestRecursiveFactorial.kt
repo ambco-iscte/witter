@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.call
 import pt.iscte.witter.dsl.Case
-import pt.iscte.witter.dsl.Suite
+import pt.iscte.witter.dsl.TestSuite
 import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.TestResult
 import pt.iscte.witter.testing.WhiteBoxTestResult
@@ -17,15 +17,6 @@ class TestRecursiveFactorial: BaseTest(
     "src/test/java/reference/RecursiveFactorial.java",
     "src/test/java/submission/IterativeFactorial.java"
 ) {
-
-    private val expected = """
-[fail] factorial(5)
-	Expected result: 120
-	Found: 0
-
-[fail] factorial(5)
-	Expected recursive calls: 4 (± 1)
-	Found: 0""".trimIndent()
 
     private fun assert(results: List<ITestResult>) {
         assertEquals(2, results.size)
@@ -53,11 +44,11 @@ class TestRecursiveFactorial: BaseTest(
 
     @Test
     fun testDSL() {
-        val dsl = Suite(reference) {
+        val tests = TestSuite(reference) {
             Case(CountRecursiveCalls(1)) {
                 call("factorial", 5)
             }
         }
-        assert(dsl.apply(subject))
+        assert(tests.apply(subject))
     }
 }

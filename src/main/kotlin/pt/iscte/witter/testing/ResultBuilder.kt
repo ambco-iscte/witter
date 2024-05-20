@@ -34,7 +34,7 @@ class ResultBuilder(
 
     fun white(listener: EvaluationMetricListener, arguments: List<IValue>): List<ITestResult> {
         val results = mutableListOf<ITestResult>()
-        listener.specification.metrics.forEach { parameter -> when (parameter) {
+        listener.metrics().forEach { parameter -> when (parameter) {
             is CountLoopIterations, is CountArrayReadAccesses, is CountArrayWriteAccesses, is CountMemoryUsage -> {
                 results.add(numeric(listener, parameter, arguments))
             }

@@ -4,7 +4,7 @@ import assertEquivalent
 import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.call
 import pt.iscte.witter.dsl.Case
-import pt.iscte.witter.dsl.Suite
+import pt.iscte.witter.dsl.TestSuite
 import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.WhiteBoxTestResult
 import pt.iscte.witter.tsl.*
@@ -18,6 +18,8 @@ class TestInsertionSort: BaseTest(
 ) {
 
     private fun assert(results: List<ITestResult>) {
+        results.forEach { println(it) }
+
         assertEquals(3, results.size)
 
         assertTrue(results[0] is WhiteBoxTestResult)
@@ -47,7 +49,7 @@ class TestInsertionSort: BaseTest(
 
     @Test
     fun testDSL() {
-        val dsl = Suite(reference) {
+        val dsl = TestSuite(reference) {
             Case(CountArrayReadAccesses() + CountArrayWriteAccesses() + CheckSideEffects) {
                 call("sort", listOf(5, 4, 3, 2, 1))
             }

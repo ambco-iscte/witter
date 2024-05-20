@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.call
 import pt.iscte.witter.dsl.Case
-import pt.iscte.witter.dsl.Suite
+import pt.iscte.witter.dsl.TestSuite
 import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.TestResult
 import pt.iscte.witter.testing.WhiteBoxTestResult
@@ -50,7 +50,7 @@ class TestBinarySearch: BaseTest(
 
     @Test
     fun testDSL() {
-        val dsl = Suite(reference) {
+        val dsl = TestSuite(reference) {
             Case(CountLoopIterations()) {
                 call("search", listOf(1, 2, 3, 4, 5, 6, 7), 1)
                 call("search", listOf(1, 3, 7, 9, 11, 13, 17, 19), 18)

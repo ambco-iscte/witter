@@ -24,7 +24,7 @@ internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - mar
 @Suppress("UNCHECKED_CAST")
 internal fun IValue.sameAs(other: IValue): Boolean =
     if (this is IArray && other is IArray) (value as Array<IValue>).sameAs(other.value as Array<IValue>)
-    else if (this is IRecord && other is IRecord) properties().values.sameAs(other.properties().values)
+    else if (this is IRecord && other is IRecord) type.id == other.type.id && properties().values.sameAs(other.properties().values)
     else if (this is IReference<*> && other is IReference<*>) target.sameAs(other.target)
     else value == other.value
 
@@ -63,17 +63,16 @@ val IModule.tests: List<TestCaseStatement>
 
 fun IProcedureDeclaration.isInstanceMethod(): Boolean = kotlin.runCatching { thisParameter }.isSuccess
 
-fun IProcedure.matchesSignature(other: IProcedure): Boolean {
+fun IProcedure.matchesSignature(other: IProcedure): Boolean =
     if (isInstanceMethod() && other.isInstanceMethod()) {
         val paramsMatch = parameters.subList(1, parameters.size).map { p -> p.type.id } == other.parameters.subList(1, other.parameters.size).map { p -> p.type.id }
         val thisMatch = runCatching { thisParameter.type.id }.getOrNull() == runCatching { other.thisParameter.type.id }.getOrNull()
-        return returnType.id == other.returnType.id && paramsMatch // FIXME qualified names: && thisMatch
+        returnType.id == other.returnType.id && paramsMatch // FIXME qualified names: && thisMatch
     } else if (!isInstanceMethod() && !other.isInstanceMethod()) {
         val paramsMatch = parameters.map { p -> p.type.id } == other.parameters.map { p -> p.type.id }
-        return returnType.id == other.returnType.id && paramsMatch
+        returnType.id == other.returnType.id && paramsMatch
     } else
-        return false
-}
+        false
 
 fun IModule.findMatchingProcedure(procedure: IProcedure): IProcedure? =
     procedures.filterIsInstance<IProcedure>().filter { it.matchesSignature(procedure) }.firstOrNull { it.id == procedure.id }

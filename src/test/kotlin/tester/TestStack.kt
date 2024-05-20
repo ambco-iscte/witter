@@ -5,10 +5,13 @@ import org.junit.jupiter.api.Test
 import pt.iscte.witter.dsl.*
 import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.TestResult
+import pt.iscte.witter.testing.TestSuite
+import pt.iscte.witter.tsl.CountArrayReadAccesses
+import pt.iscte.witter.tsl.CountLoopIterations
+import pt.iscte.witter.tsl.plus
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class TestStack {
 
@@ -30,18 +33,43 @@ class TestStack {
 
     @Test
     fun testDSL() {
-        val dsl = Suite(reference) {
+        val dsl = TestSuite(reference) {
             Case {
-                val stack = ref("x") {
+                val stack = ref {
                     new("Stack", 5) {
                         call("push", 1)
                         call("push", 2)
                         call("push", 3)
                     }
                 }
-                call("size", stack)
+                call("size", stack, expected = 3)
             }
         }
         assert(dsl.apply(subject))
     }
+
+    /*
+    @Test
+    fun testForDissertationExample() {
+        val tests = TestSuite(reference) {
+            Case {
+                val stack = ref { new("Stack", 10) }
+
+                using (CountArrayReadAccesses()) {
+                    call("size", stack, expected = 0)
+                }
+
+                stack.call("push", 1)
+                stack.call("push", 2)
+                stack.call("push", 3)
+
+                using (CountArrayReadAccesses()) {
+                    call("size", stack, expected = 3)
+                }
+            }
+        }
+
+        tests.apply(subject).forEach { println("$it\n") }
+    }
+     */
 }

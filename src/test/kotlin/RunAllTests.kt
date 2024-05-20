@@ -1,9 +1,6 @@
 import org.junit.platform.suite.api.SelectClasses
 import org.junit.platform.suite.api.Suite
-import tester.TestBinarySearch
-import tester.TestInsertionSort
-import tester.TestRecursiveFactorial
-import tester.TestStack
+import tester.*
 import tsl.TestDSL
 import tsl.TestJava2Kotlin
 import tsl.TestTSLParser
@@ -16,6 +13,7 @@ import tsl.TestTSLParser
     TestBinarySearch::class,
     TestInsertionSort::class,
     TestRecursiveFactorial::class,
-    TestStack::class
+    TestStack::class,
+    TestStackDissertation::class
 )
 class RunAllTests

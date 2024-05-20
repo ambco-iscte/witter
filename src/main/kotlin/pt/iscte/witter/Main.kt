@@ -1,6 +1,5 @@
 package pt.iscte.witter
 
-import pt.iscte.strudel.javaparser.extensions.string
 import pt.iscte.witter.dsl.*
 import pt.iscte.witter.tsl.CountLoopIterations
 import pt.iscte.witter.tsl.CountRecursiveCalls
@@ -8,7 +7,7 @@ import pt.iscte.witter.tsl.plus
 
 
 fun main() {
-    val test = Suite(referencePath = "src/test/java/reference/Stack.java") {
+    val test = TestSuite(referencePath = "src/test/java/reference/Stack.java") {
         Case {
             val stack = ref("x") {
                 new("Stack", 5) {

@@ -6,7 +6,7 @@ import pt.iscte.witter.testing.TestSuite
 import pt.iscte.witter.tsl.*
 import java.io.File
 
-fun Suite(referencePath: String, description: String = "", configure: TestSuite.() -> Unit = {}): TestSuite {
+fun TestSuite(referencePath: String, description: String = "", configure: TestSuite.() -> Unit = {}): TestSuite {
     val suite = TestSuite(referencePath, description)
     configure(suite)
     return suite
@@ -30,6 +30,12 @@ fun TestCaseStatement.ref(id: String, configure: () -> IExpressionStatement): Va
     return VariableReference(this, id)
 }
 
+fun TestCaseStatement.ref(configure: () -> IExpressionStatement): VariableReference {
+    val assign = VariableAssignment(configure)
+    add(assign)
+    return VariableReference(this, assign.id)
+}
+
 fun TestCaseStatement.call(procedureID: String, vararg arguments: Any?, expected: Any? = null): ProcedureCall {
     val call = ProcedureCall(module.getProcedure(procedureID), arguments.toList(), metrics, expected)
     add(call)
@@ -50,7 +56,7 @@ fun VariableReference.call(procedureID: String, vararg arguments: Any?, expected
 }
 
 fun TestCaseStatement.using(metrics: Set<ITestMetric>, description: String = "", configure: TestCaseStatement.() -> Unit): TestCaseStatement {
-    val case = TestCaseStatement(this.module, listOf(), description, metrics)
+    val case = TestCaseStatement(this.module, listOf(), description, metrics, this)
     configure(case)
     add(case)
     return case

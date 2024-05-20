@@ -61,7 +61,7 @@ data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResu
                             style="padding: 0.5em;"
                             p {
                                 style = STYLE_FONT_POPPINS
-                                +"Found ${this@TestReport.data.size} Java source code files matching reference file ${File(this@TestReport.suite.referencePath).name}."
+                                +"Found ${this@TestReport.data.size} valid Java source code files matching reference file ${File(this@TestReport.suite.referencePath).name}."
                             }
 
                             p {

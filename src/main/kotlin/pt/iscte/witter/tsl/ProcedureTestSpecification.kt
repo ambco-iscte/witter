@@ -18,9 +18,21 @@ class TestCaseStatement(
     val module: IModule,
     statements: List<IStatement>,
     val description: String,
-    val metrics: Set<ITestMetric>
+    val metrics: Set<ITestMetric>,
+    val owner: TestCaseStatement? = null
 ): IStatement {
     private val statements: MutableList<IStatement> = mutableListOf()
+
+    private val isNested: Boolean
+        get() = owner != null
+
+    val root: TestCaseStatement
+        get() {
+            var current: TestCaseStatement = this
+            while (current.owner != null)
+                current = current.owner!!
+            return current
+        }
 
     init {
         this.statements.addAll(statements)
@@ -35,13 +47,15 @@ class TestCaseStatement(
     /**
      * Does this test module contain a given [ITestMetric]?
      */
-    inline fun <reified T : ITestMetric> contains(): Boolean = metrics.find { it is T } != null
+    inline fun <reified T : ITestMetric> contains(): Boolean = metrics.any { it is T }
 
     /**
      * Returns the [ITestMetric] associated with this test module, or null if such a metric does not exist
      * for the module.
      */
     inline fun <reified T : ITestMetric> get(): T? = metrics.find { it is T } as? T
+
+    override fun toString(): String = "Test $description {\n\t${statements.joinToString("\n\t")}\n}"
 }
 
 sealed interface IStatement
@@ -50,6 +64,13 @@ sealed interface IExpressionStatement: IStatement
 
 @WitterDSL
 data class VariableAssignment(val id: String, val initializer: () -> IExpressionStatement): IStatement {
+
+    companion object {
+        private var index = 0
+    }
+
+    constructor(initializer: () -> IExpressionStatement) : this("var${index++}", initializer)
+
     override fun toString(): String = "$id = ${initializer()}"
 }
 
@@ -97,5 +118,5 @@ data class VariableReference(val case: TestCaseStatement, val id: String): IExpr
         fun uuid(): Long = uuid++
     }
 
-    override fun toString(): String = "Var($id)"
+    override fun toString(): String = id
 }

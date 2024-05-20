@@ -6,6 +6,7 @@ import pt.iscte.strudel.model.IType
 import pt.iscte.strudel.vm.IRecord
 import pt.iscte.strudel.vm.IReference
 import pt.iscte.strudel.vm.IValue
+import pt.iscte.witter.tsl.CheckSideEffects
 import pt.iscte.witter.tsl.IStatement
 import pt.iscte.witter.tsl.ITestMetric
 import java.io.File
@@ -43,6 +44,18 @@ sealed interface ITestResult {
         get() = false
     val message: String
 }
+
+val ITestResult.failed: Boolean
+    get() = !passed
+
+val ITestResult.isError: Boolean
+    get() = this is FileLoadingError || this is ProcedureNotImplemented
+
+val ITestResult.isBlackbox: Boolean
+    get() = !isError && (this !is WhiteBoxTestResult || this.metric is CheckSideEffects)
+
+val ITestResult.isWhitebox: Boolean
+    get() = !isError && this is WhiteBoxTestResult && this.metric !is CheckSideEffects
 
 data class FileLoadingError(val file: File, val cause: Throwable): ITestResult {
 

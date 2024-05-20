@@ -12,7 +12,7 @@ class TestDSL {
 
     @Test
     fun testSuiteCreation() {
-        val suite = Suite(referencePath = "") { }
+        val suite = TestSuite(referencePath = "") { }
         assertTrue(suite.referencePath == "")
         assertTrue(suite.description == "")
         assertTrue(suite.cases().isEmpty())
@@ -20,7 +20,7 @@ class TestDSL {
 
     @Test
     fun testModules() {
-        val suite = Suite(referencePath = src) {
+        val suite = TestSuite(referencePath = src) {
             Case(CheckSideEffects + CheckArrayAllocations) {
 
             }
@@ -39,7 +39,7 @@ class TestDSL {
 
     @Test
     fun testModulesWithInstructions() {
-        val suite = Suite(referencePath = src) {
+        val suite = TestSuite(referencePath = src) {
             Case(CheckSideEffects + CheckArrayAllocations) {
                 val x = ref("x") { call("search", listOf(1, 2, 3, 4, 5, 6, 7), 1) }
                 call("search", listOf(0, 1, 3, 7, 9, 11, 13, 17, 19), x)
