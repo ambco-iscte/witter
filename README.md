@@ -5,7 +5,9 @@
 **A Library for White-Box Testing of
 Introductory Programming Algorithms**
 
-[![ACM SPLASH'23 - Check out Witter's paper](https://img.shields.io/badge/ACM_SPLASH'23-Check_out_Witter's_paper-ebc034?logo=acm)](https://doi.org/10.1145/3622780.3623650)
+[![ACM SPLASH'23 - Check out Witter's first paper](https://img.shields.io/badge/ACM_SPLASH'23-Check_out_Witter's_first_paper-ebc034?logo=acm)](https://doi.org/10.1145/3622780.3623650) 
+
+[![ICPEC'24 - Check out Witter's second paper!](https://img.shields.io/badge/ICPEC'24-Check_out_Witter's_second_paper!_(Coming_soon!)_-052d6d?logo=dblp)](https://doi.org/10.4230/OASIcs.ICPEC.2024.15)
 
 **Witter** is a software testing library that allows programming instructors to define white-box
 tests for Java source code. Witter analyzes the execution of a method against a reference
@@ -29,7 +31,7 @@ the project root in `/build/libs`. This file should be copied to your own projec
 and then added as a dependency in your build automation tool of choice. For example, in Gradle:
 ```kotlin
 dependencies {
-    implementation(files("libs/witter-0.4.1.jar"))
+    implementation(files("libs/witter-0.5.6.jar"))
 }
 ```
 Note, of course, that the file name can change when updates for Witter are released, and should be changed
@@ -64,21 +66,77 @@ public static int sum(int[] a) {
 ```
 
 ### Instantiating Test Specifications Using Witter’s DSL
-Coming soon™!
+Test cases can be configured to use any number of white-box metrics either throughout 
+the test or within a bounded scope (`using` directive). As in the initial version of 
+Witter, evaluation metrics can be optionally instantiated with a *margin* parameter that 
+specifies an acceptable deviation interval from the reference value.
+
+An object can be created using the `new` directive by passing the name of the class to 
+instantiate followed by a list of arguments to one of the class constructors. References to 
+the created objects can be stored using `ref`. Class methods can be invoked by using the 
+`call` directive on a previously declared reference. A sequence of these directives defines a 
+stateful test case.
+
+The `call` directive is used by specifying the name of the method to be invoked and a list 
+of arguments. We may use the "dot notation" to perform calls on instance methods given its 
+reference (`ref.call(...)`). For every call, the return values of the evaluated method are 
+compared to the reference solution, allowing for regular black-box testing. Additionally, if 
+the optional *expected* argument is passed, Witter will assert that both the reference 
+solution and the solution under evaluation produce the expected result.
+
+The following example illustrates Witter's DSL with a *test suite* for list data structures, 
+containing two *test cases*.
+
+```kotlin
+val test = TestSuite(referencePath = "path/to/reference/solution/ArrayList.java") {
+    Case("testContains") {
+        // Create new object and store a reference to it
+        val list = ref { new("ArrayList", 3) }
+
+        // Executed without white-box metrics (black-box only)
+        list.call("size", expected = 0)
+        list.call("add", "hello")
+        list.call("size", expected = 1)
+        list.call("add", "world")
+        list.call("size", expected = 2)
+
+        using(CountLoopIterations() + CountArrayReadAccesses()) {
+            // These calls compare loop iterations
+            call("add", list, "algorithm")
+            call("size", list, expected = 3)
+        }
+    }
+
+    // All the calls within this case compare loop iterations
+    Case(CountLoopIterations(), "testIsEmpty") {
+        val list = ref { new("ArrayList", 3) }
+        list.call("isEmpty", expected = true)
+        list.call("add", "hello")
+        list.call("add", "icpec")
+        list.call("isEmpty", expected = false)
+    }
+}
+```
 
 <br>
 
 ## Testing Arbitrary Solutions
 As Witter is designed for third-party integration, it provides
 a form of executing the tests programmatically. Tests are executed providing an annotated reference
-solution as described, and a solution that one wishes to assess:
+solution or a test suite created using the DSL as described, and a solution that one wishes to assess.
+
+Using an annotated reference solution, one can execute:
 ```java
-Test tester = new Test("ReferenceSolution.java");
-        
-List<TestResult> results = tester.execute("Solution.java");
+val tester: Test = Test("ReferenceSolution.java")
+val results: List<TestResult> = tester.execute("Solution.java")
+```
+For a test suite created using the DSL, the process is similar:
+```kotlin
+val test = TestSuite(referencePath = "path/to/reference/Solution.java")
+val results = test.apply(subjectPath = "path/to/submitted/Solution.java")
 ```
 
-The tester results consist of a list of feedback
+The results consist of a list of feedback
 items for each aspect defined in the tester specification,
 holding the following information:
 - a flag indicating success or failure;
@@ -88,16 +146,16 @@ holding the following information:
 
 Witter currently supports the following runtime metrics.
 
-| **Metric**         | **TSL Annotation**                  | **Verification**                                                                                  |
-|--------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
-| Return values      | @Test(_[...args]_)                  | Return value is equal to reference solution. Multiple annotations can be used.                    |
-| Side effects       | @CheckSideEffects                   | Side effects on arguments (presence and absence) are the same to those of the reference solution. |
-| Loop iterations    | @CountLoopIterations(_[threshold]_) | Total number of loop iterations matches the one of the reference solution.                        |
-| Array allocations  | @CheckArrayAllocations              | The array allocations match those of the reference solution (component types and lengths).        |
-| Array reads        | @CountArrayReads(_[threshold]_)     | The number of array read accesses is the same as in the reference solution.                       |
-| Array writes       | @CountArrayWrites(_[threshold]_)    | The number of array write accesses is the same as in the reference solution.                      |
-| Object allocations | @CheckObjectAllocations             | The number of object allocations and their types match those of the reference solution.           |
-| Recursive calls    | @CountRecursiveCalls(_[threshold]_) | The number of recursive calls matches the one of the reference solution.                          |
+| **Metric**         | **TSL Annotation <br/>(DSL is identical, without the @)** | **Verification**                                                                                  |
+|--------------------|-----------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| Return values      | @Test(_[...args]_)                                        | Return value is equal to reference solution. Multiple annotations can be used.                    |
+| Side effects       | @CheckSideEffects                                         | Side effects on arguments (presence and absence) are the same to those of the reference solution. |
+| Loop iterations    | @CountLoopIterations(_[threshold]_)                       | Total number of loop iterations matches the one of the reference solution.                        |
+| Array allocations  | @CheckArrayAllocations                                    | The array allocations match those of the reference solution (component types and lengths).        |
+| Array reads        | @CountArrayReads(_[threshold]_)                           | The number of array read accesses is the same as in the reference solution.                       |
+| Array writes       | @CountArrayWrites(_[threshold]_)                          | The number of array write accesses is the same as in the reference solution.                      |
+| Object allocations | @CheckObjectAllocations                                   | The number of object allocations and their types match those of the reference solution.           |
+| Recursive calls    | @CountRecursiveCalls(_[threshold]_)                       | The number of recursive calls matches the one of the reference solution.                          |
 
 
 <br>
@@ -105,7 +163,7 @@ Witter currently supports the following runtime metrics.
 ## Examples
 ### Annotated Reference Solutions
 <details>
-<summary><b>Factorial (recursive)</b></summary>
+<summary><b>Factorial (Recursive)</b></summary>
 
 Reference solution with recursion:
 ```java
@@ -144,7 +202,7 @@ Witter tester results (black-box and white-box fail):
 <br>
 
 <details>
-<summary><b>Binary search (iterative)</b></summary>
+<summary><b>Binary Search (Iterative)</b></summary>
 
 Reference solution using binary search:
 ```java
@@ -209,7 +267,7 @@ Witter tester results (black-box pass, white-box fail):
 <br>
 
 <details>
-<summary><b>Insertion sort (procedure)</b></summary>
+<summary><b>Insertion Sort (Procedure)</b></summary>
 
 Reference solution performing insertion sort:
 ```java
@@ -261,7 +319,118 @@ Witter tester results (black-box pass, white-box fail):
 </details>
 
 ### Tests Specified Using the DSL
-Coming soon™!
+<details>
+<summary><b>Array Average (Procedure)</b></summary>
+
+Reference solution (Average.java):
+```java
+static double average(double[] a) {
+    double sum = 0.0;
+    for (int i = 0; i < a.length; i++) sum += a[i];
+    return sum / a.length;
+}
+```
+
+DSL Test Suite:
+```java
+val tests = TestSuite("path/to/reference/Average.java") {
+    Case(CountLoopIterations()) {
+        call("average", listOf(1,2,3,4,5), expected = 3.0)
+        call("average", listOf(0,2,3,5,7), expected = 3.4)
+    }
+}
+```
+
+Solution under testing with a defect - starts at index 1 (Solution.java):
+```java
+static double average(double[] a) {
+    double sum = 0.0;
+    for (int i = 1; i < a.length; i++) sum += a[i];
+    return sum / a.length;
+}
+```
+
+Applying the Test Suite to the solution under evaluation:
+```java
+val results: List<ITestResult> = tests.apply(
+    subjectPath = "path/to/Solution.java"
+)
+results.forEach { println("$it\n") }
+```
+
+Test results:
+```java
+[fail] average([1, 2, 3, 4, 5])
+	Expected: 3.0
+	Found: 2.8
+
+[fail] average([1, 2, 3, 4, 5])
+	Expected loop iterations: 5
+	Found: 4
+
+[pass] average([0, 2, 3, 5, 7])
+	Expected: 3.4
+
+[fail] average([0, 2, 3, 5, 7])
+	Expected loop iterations: 5
+	Found: 4
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>Stack (Data Structure)</b></summary>
+
+Reference solution's _size_ method (StackReference.java):
+```java
+public int size() {
+    return this.size; // Auxiliary integer attribute
+}
+```
+
+DSL Test Suite:
+```java
+val tests = TestSuite("path/to/reference/StackReference.java") {
+    Case {
+        val stack = ref { new("Stack", 5) }
+        call("push", stack, 1)
+        call("push", stack, 2)
+        call("push", stack, 3)
+        using (CountLoopIterations() + CountArrayReadAccesses()) {
+            call("size", stack, expected = 3)
+        }
+    }
+}
+```
+
+Solution under testing with a defect - counts non-zero items individually (StackSolution.java):
+```java
+public int size() {
+    int s = 0;
+    for (int i = 0; i < stack.length; i++)
+        if (stack[i] != 0) 
+            s += 1;
+    return s;
+}
+```
+
+Test results:
+```java
+[pass] size(Stack(stack=[1, 2, 3, 0, 0], size=3))
+	Expected: 3
+
+[fail] size(Stack(stack=[1, 2, 3, 0, 0], size=3))
+	Expected loop iterations: 0
+	Found: 5
+
+[fail] size(Stack(stack=[1, 2, 3, 0, 0], size=3))
+	Expected array reads: 0
+	Found: 5
+```
+
+</details>
 
 <br>
 
@@ -273,8 +442,11 @@ development system, using a simple GUI custom-made for example purposes.
 
 <br>
 
-## Citation
-If you use or reference Witter in your academic work, you should cite the following paper.
+## Citations
+If you use or reference Witter in your academic work, you should cite the relevant following paper(s).
+
+<details>
+<summary><b>Witter: A Library for White-Box Testing of Introductory Programming Algorithms</b></summary>
 
 **ACM Reference Format**
 > Afonso B. Caniço and André L. Santos. 2023. Witter: A Library for
@@ -304,10 +476,24 @@ ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
 }
 ```
 
+</details>
+
+<br>
+
+<details>
+<summary><b>A Domain-Specific Language for Dynamic White-Box Evaluation of Java Assignments</b></summary>
+
+**BibTeX**
+```
+Coming soon! :D
+```
+
+</details>
+
 <br>
 
 ## Contacts
 If you have any questions regarding Witter, its development process, or the related academic
-publication, feel free to contact the authors:
+publications, feel free to contact the authors:
 - Afonso B. Caniço - [ambco@iscte-iul.pt](mailto:ambco@iscte-iul.pt)
 - André L. Santos - [andre.santos@iscte-iul.pt](mailto:andre.santos@iscte-iul.pt)
