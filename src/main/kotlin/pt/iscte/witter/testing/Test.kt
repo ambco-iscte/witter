@@ -8,14 +8,19 @@ import pt.iscte.witter.tsl.IExpressionStatement
 import pt.iscte.witter.tsl.IStatement
 import java.io.File
 
+const val LOOP_ITERATION_LIMIT = 1000
+
 class Test(private val referenceFile: File) {
     constructor(referenceFilePath: String) : this(File(referenceFilePath))
 
     var currentSubject: File? = null
 
-    private val loader = Java2Strudel()
+    private val loader = Java2Strudel(preprocessing = {
+        removePackageDeclaration()
+        removeMainMethod()
+    })
 
-    private val memory = mutableMapOf<IModule, MutableMap<String, IValue>>()
+    private val memory = mutableMapOf<IModule, MutableMap<VariableAssignment, IValue>>()
 
     private val machines = mutableMapOf<TestCaseStatement, Pair<IVirtualMachine, EvaluationMetricListener>>()
 
@@ -43,7 +48,7 @@ class Test(private val referenceFile: File) {
         val results = mutableSetOf<ITestResult>()
 
         // Initialise empty memory
-        fun MutableMap<IModule, MutableMap<String, IValue>>.init() {
+        fun MutableMap<IModule, MutableMap<VariableAssignment, IValue>>.init() {
             clear()
             put(reference, mutableMapOf())
             put(subject, mutableMapOf())
@@ -136,7 +141,12 @@ class Test(private val referenceFile: File) {
                 fun IExpressionStatement.evaluate(vm: IVirtualMachine, module: IModule, listener: EvaluationMetricListener): Result<IValue> =
                     runCatching {
                         when (this) {
-                            is VariableReference -> (memory[module] ?: throw RuntimeException("Test has no memory for module ${module.id}"))[id] ?: throw RuntimeException("No value stored for variable reference $this!")
+                            is VariableReference -> {
+                                val value = (memory[module] ?: throw RuntimeException("Test has no memory for module ${module.id}"))[assignment]
+                                 if (value == null)
+                                     throw RuntimeException("No value stored for variable reference $this")
+                                value
+                            }
                             is ProcedureCall -> {
                                 val args = dereference(arguments as List<Any>, vm, module, listener, IExpressionStatement::evaluate).toTypedArray()
                                 module.findMatchingProcedure(procedure)?.let { vm.execute(it, *args) } ?: NULL
@@ -149,12 +159,16 @@ class Test(private val referenceFile: File) {
                     when (stmt) {
                         is TestCaseStatement -> run(stmt)
                         is VariableAssignment -> {
-                            (memory[reference] ?: throw RuntimeException("Test has no memory for module ${reference.id}"))[stmt.id] = stmt.initializer().evaluate(vm, reference, listener).getOrThrow()
-                            (memory[subject] ?: throw RuntimeException("Test has no memory for module ${subject.id}"))[stmt.id] = stmt.initializer().evaluate(vm, subject, listener).getOrThrow()
+                            val refValue = stmt.initializer().evaluate(vm, reference, listener)
+                            val subValue = stmt.initializer().evaluate(vm, subject, listener)
+                            (memory[reference] ?: throw RuntimeException("Test has no memory for module ${reference.id}"))[stmt] = refValue.getOrThrow()
+                            (memory[subject] ?: throw RuntimeException("Test has no memory for module ${subject.id}"))[stmt] = subValue.getOrThrow()
                         }
                         is IExpressionStatement -> when(stmt) {
                             is ProcedureCall -> {
                                 listener.extend(case.metrics + stmt.metrics)
+
+                                // println("Executing $stmt with metrics ${case.metrics + stmt.metrics}")
 
                                 val referenceProcedure = reference.findMatchingProcedure(stmt.procedure) ?:
                                 throw AssertionError("Reference solution does not implement procedure matching ${stmt.procedure.signature}")
@@ -164,24 +178,23 @@ class Test(private val referenceFile: File) {
                                 if (subjectProcedure == null) {
                                     if (results.none { it is ProcedureNotImplemented && it.procedure == stmt.procedure })
                                         results.add(ProcedureNotImplemented(stmt.procedure))
-                                    System.err.println("Exiting due to procedure not implemented: ${stmt.procedure.signature}")
                                     return
                                 }
 
-                                val builder = ResultBuilder(referenceProcedure, subjectProcedure)
+                                val builder = ResultBuilder(referenceProcedure, subjectProcedure, stmt)
 
-                                // TODO: Bug
-                                //  Reference to record in arguments is always the same, so every call will show the
-                                //  final, modified record, even for calls that were made before the object reached
-                                //  its final state. :/
-                                val args: Result<List<IValue>> = runCatching { (stmt.arguments as List<Any>).map {
-                                    when(it) {
-                                    is IExpressionStatement -> it.evaluate(vm, reference, listener).getOrThrow()
-                                    else -> getValue(vm, it)
-                                } } }
+                                val args: Result<List<IValue>> = runCatching {
+                                    (stmt.arguments as List<Any>).map {
+                                        when(it) {
+                                            is IExpressionStatement -> it.evaluate(vm, reference, listener).getOrThrow().deepCopy(vm)
+                                            else -> getValue(vm, it).deepCopy(vm)
+                                        }
+                                    }
+                                }.onFailure { println("Error cloning arguments: ${it.stackTraceToString()}") }
 
+                                val referenceArguments = dereference(stmt.arguments as List<Any>, vm, reference, listener, IExpressionStatement::evaluate).toTypedArray()
                                 listener.setProcedure(referenceProcedure)
-                                val expected: Result<IValue> = stmt.evaluate(vm, reference, listener)
+                                val expected: Result<IValue> = kotlin.runCatching { vm.execute(referenceProcedure, *referenceArguments) ?: NULL }
 
                                 // BLACK-BOX
                                 if (expected.isSuccess) {
@@ -192,11 +205,14 @@ class Test(private val referenceFile: File) {
                                     throw AssertionError("Reference solution return value does not match " +
                                             "user-specified expected return value for procedure call: $stmt")
 
+                                val subjectArguments = dereference(stmt.arguments, vm, subject, listener, IExpressionStatement::evaluate).toTypedArray()
                                 listener.setProcedure(subjectProcedure)
-                                val actual = stmt.evaluate(vm, subject, listener)
+                                val actual = kotlin.runCatching { vm.execute(subjectProcedure, *subjectArguments) ?: NULL }
 
                                 if (args.isSuccess && expected.isSuccess && actual.isSuccess) {
-                                    builder.black(expected.getOrThrow(), actual.getOrThrow(), args.getOrThrow())?.let { results.add(it) }
+                                    val black = builder.black(expected.getOrThrow(), actual.getOrThrow(), args.getOrThrow())
+                                    if (black != null)
+                                        results.add(black)
                                 }
                                 else if (args.isSuccess && actual.exceptionOrNull() !is RuntimeError) {
                                     val ex = ExceptionTestResult(
@@ -206,10 +222,8 @@ class Test(private val referenceFile: File) {
                                         actual.exceptionOrNull()
                                     )
                                     results.add(ex)
-                                    if (!ex.passed) {
-                                        System.err.println("Exiting because unexpected exception: $ex")
+                                    if (!ex.passed)
                                         return
-                                    }
                                 }
 
                                 // WHITE-BOX
@@ -231,7 +245,7 @@ class Test(private val referenceFile: File) {
             }
 
             if (!machines.containsKey(case.root)) {
-                val vm = IVirtualMachine.create(loopIterationMaximum = 1000) // Stateful tests - one VM for all calls in sequence
+                val vm = IVirtualMachine.create(loopIterationMaximum = LOOP_ITERATION_LIMIT) // Stateful tests - one VM for all calls in sequence
                 val listener = EvaluationMetricListener(vm, case)
                 vm.addListener(listener)
                 machines[case.root] = Pair(vm, listener)

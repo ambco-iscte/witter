@@ -10,7 +10,8 @@ import kotlin.reflect.full.declaredMemberProperties
 
 class ResultBuilder(
     private val referenceProcedure: IProcedure,
-    private val subjectProcedure: IProcedure
+    private val subjectProcedure: IProcedure,
+    private val procedureCall: ProcedureCall
 ) {
 
     private fun ITestMetric.margin(): Int =
@@ -22,6 +23,7 @@ class ResultBuilder(
     fun black(expected: IValue, actual: IValue, arguments: List<IValue>): ITestResult? {
         return if (subjectProcedure.returnType != VOID || referenceProcedure.returnType != VOID)
             return TestResult(
+                procedureCall,
                 actual.sameAs(expected),
                 subjectProcedure,
                 arguments,
@@ -58,6 +60,7 @@ class ResultBuilder(
         val margin = parameter.margin()
         val passed = act.inRange(exp, margin)
         return WhiteBoxTestResult(
+            procedureCall,
             passed,
             subjectProcedure,
             arguments,
@@ -77,6 +80,7 @@ class ResultBuilder(
         exp.keys.forEachIndexed { index, type ->
             val passed = exp[type] == act[type]
             res.add(AllocationsTestResult(
+                procedureCall,
                 passed,
                 subjectProcedure,
                 arguments,
@@ -103,6 +107,7 @@ class ResultBuilder(
 
             val passed = act.sameAs(exp)
             results.add(WhiteBoxTestResult(
+                procedureCall,
                 passed,
                 subjectProcedure,
                 arguments,
@@ -123,6 +128,7 @@ class ResultBuilder(
         val margin = parameter.margin()
         val passed = act.inRange(exp, margin)
         return WhiteBoxTestResult(
+            procedureCall,
             passed,
             subjectProcedure,
             arguments,

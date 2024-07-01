@@ -45,31 +45,7 @@ class TestStack {
                 call("size", stack, expected = 3)
             }
         }
+        //println(dsl)
         assert(dsl.apply(subject))
     }
-
-    /*
-    @Test
-    fun testForDissertationExample() {
-        val tests = TestSuite(reference) {
-            Case {
-                val stack = ref { new("Stack", 10) }
-
-                using (CountArrayReadAccesses()) {
-                    call("size", stack, expected = 0)
-                }
-
-                stack.call("push", 1)
-                stack.call("push", 2)
-                stack.call("push", 3)
-
-                using (CountArrayReadAccesses()) {
-                    call("size", stack, expected = 3)
-                }
-            }
-        }
-
-        tests.apply(subject).forEach { println("$it\n") }
-    }
-     */
 }

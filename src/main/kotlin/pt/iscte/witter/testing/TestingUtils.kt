@@ -1,23 +1,38 @@
 package pt.iscte.witter.testing
 
-import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.comments.Comment
+import com.github.javaparser.ast.comments.JavadocComment
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.ast.visitor.ModifierVisitor
 import com.github.javaparser.ast.visitor.Visitable
-import pt.iscte.strudel.javaparser.extensions.string
+import pt.iscte.strudel.javaparser.extensions.getString
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.model.VOID
-import pt.iscte.strudel.model.dsl.False
 import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.TestCaseStatement
 import pt.iscte.witter.tsl.TestSpecifier
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
+
+internal fun CompilationUnit.removeMainMethod() {
+    val visitor = object : ModifierVisitor<Void>() {
+        private fun isMain(n: MethodDeclaration): Boolean =
+            n.isPublic
+                    && n.isStatic
+                    && n.typeAsString == "void"
+                    && n.nameAsString == "main"
+                    && n.parameters.size == 1
+                    && n.parameters.first().typeAsString == "String[]"
+
+        override fun visit(n: MethodDeclaration?, arg: Void?): Visitable? {
+            if (n != null && isMain(n)) {
+                n.body.ifPresent { n.setComment(JavadocComment(it.toString())) }
+                n.setBody(BlockStmt())
+            }
+            return super.visit(n, arg)
+        }
+    }
+    accept(visitor, null)
+}
 
 internal fun Int.inRange(start: Int, margin: Int): Boolean = this >= start - margin && this <= start + margin
 
@@ -63,7 +78,7 @@ val IModule.tests: List<TestCaseStatement>
 
 fun IProcedureDeclaration.isInstanceMethod(): Boolean = kotlin.runCatching { thisParameter }.isSuccess
 
-fun IProcedure.matchesSignature(other: IProcedure): Boolean =
+fun IProcedureDeclaration.matchesSignature(other: IProcedureDeclaration): Boolean = // FIXME refactor
     if (isInstanceMethod() && other.isInstanceMethod()) {
         val paramsMatch = parameters.subList(1, parameters.size).map { p -> p.type.id } == other.parameters.subList(1, other.parameters.size).map { p -> p.type.id }
         val thisMatch = runCatching { thisParameter.type.id }.getOrNull() == runCatching { other.thisParameter.type.id }.getOrNull()
@@ -92,19 +107,41 @@ fun IModule.findAcceptingProcedure(id: String, arguments: List<IValue>): IProced
 }
  */
 
+internal fun IVirtualMachine.allocateStringArray(vararg values: String): IReference<IArray> =
+    allocateArrayOf(getString("").type, *values.map { getString(it) }.toTypedArray())
+
 internal fun getValue(vm: IVirtualMachine, value: Any): IValue = when (value) {
     is Collection<*> -> {
         if (value.isEmpty()) TODO("Cannot allocate empty Strudel array!")
-        else {
+        else if (runCatching { vm.getValue(value.first()) }.isSuccess) {
             val type = vm.getValue(value.first()).type
             vm.allocateArrayOf(type, *value.map {
                 it ?: TODO("Cannot allocate Strudel array with null elements!")
             }.toTypedArray())
+        } else if (value.first() is String) {
+            vm.allocateStringArray(*(value as Collection<String>).toTypedArray())
+        } else {
+            val type = HostRecordType(value.first()!!::class.java.canonicalName)
+            vm.allocateArrayOf(type, *value.map { it ?: TODO("Cannot allocate Strudel array with null elements!") }.toTypedArray())
         }
     }
     is IValue -> value
-    is String -> string(value)
+    is String -> getString(value)
     else -> vm.getValue(value)
+}
+
+internal fun IValue.deepCopy(vm: IVirtualMachine): IValue = when (this) {
+    is IRecord -> {
+        val record = vm.allocateRecord(type.asRecordType).target
+        this.properties().forEach { (field, value) ->
+            val f = record.type.asRecordType.fields.find { it.type == field.type && it.id == field.id }
+            if (f != null)
+                record.setField(f, value.deepCopy(vm))
+        }
+        record
+    }
+    is IReference<*> -> target.deepCopy(vm).reference()
+    else -> copy()
 }
 
 internal fun IRecord.properties(): Map<IVariableDeclaration<IRecordType>, IValue> {

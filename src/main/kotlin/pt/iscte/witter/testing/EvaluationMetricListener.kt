@@ -9,9 +9,11 @@ import kotlin.reflect.KClass
 class EvaluationMetricListener(val vm: IVirtualMachine, private val specification: TestCaseStatement): IVirtualMachine.IListener {
     private var procedureBeingMeasured: IProcedureDeclaration? = null
 
-    private val values: MutableMap<IProcedureDeclaration, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
+    val values: MutableMap<IProcedureDeclaration, MutableMap<KClass<out ITestMetric>, Any>> = mutableMapOf()
     private val vmMemoryBefore: MutableMap<IProcedureDeclaration, Int> = mutableMapOf()
     private val extended: MutableSet<ITestMetric> = mutableSetOf()
+
+    private val listeningTo: MutableSet<IArray> = mutableSetOf()
 
     fun setProcedure(procedure: IProcedureDeclaration) {
         this.procedureBeingMeasured = procedure
@@ -22,23 +24,35 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
         values.clear()
         vmMemoryBefore.clear()
         extended.clear()
+        listeningTo.clear()
     }
 
     fun extend(metrics: Set<ITestMetric>) = extended.addAll(metrics)
 
     fun metrics(): Set<ITestMetric> = specification.metrics.plus(extended)
 
+    private fun listenTo(ref: IReference<IArray>) {
+        if (!listeningTo.contains(ref.target)) {
+            ref.target.addListener(ArrayAccessListener(ref))
+            listeningTo.add(ref.target)
+        }
+    }
+
     private inline fun <reified T : ITestMetric> contains(): Boolean = metrics().any { it is T }
 
     private inner class ArrayAccessListener(private val ref: IReference<IArray>) : IArray.IListener {
 
+        init {
+            listeningTo.add(ref.target)
+        }
+
         override fun elementRead(index: Int, value: IValue) {
-            if (contains<CountArrayReadAccesses>())
+            if (procedureBeingMeasured != null && contains<CountArrayReadAccesses>())
                 increment<CountArrayReadAccesses>()
         }
 
         override fun elementChanged(index: Int, oldValue: IValue, newValue: IValue) {
-            if (contains<CountArrayWriteAccesses>())
+            if (procedureBeingMeasured != null && contains<CountArrayWriteAccesses>())
                 increment<CountArrayWriteAccesses>()
         }
     }
@@ -80,6 +94,9 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
     }
 
     override fun procedureCall(procedure: IProcedureDeclaration, args: List<IValue>, caller: IProcedure?) {
+        if (procedureBeingMeasured == null)
+            return
+
         // Count used memory
         if (procedure == procedureBeingMeasured && contains<CountMemoryUsage>())
             vmMemoryBefore[procedure] = vm.usedMemory
@@ -98,28 +115,36 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
         if (caller == procedure && contains<CountRecursiveCalls>())
             increment<CountRecursiveCalls>()
 
-        if (contains<CountArrayReadAccesses>() || contains<CountArrayWriteAccesses>()) {
-            // Count read accesses for argument arrays
-            args.forEach {
-                if (it is IReference<*> && it.target is IArray)
-                    (it.target as IArray).addListener(ArrayAccessListener(it as IReference<IArray>))
-            }
+        // Count read accesses for argument arrays
+        args.forEach {
+            if (it is IReference<*> && it.target is IArray)
+                listenTo(it as IReference<IArray>)
+                // (it.target as IArray).addListener(ArrayAccessListener(it as IReference<IArray>))
         }
     }
 
     override fun procedureEnd(procedure: IProcedureDeclaration, args: List<IValue>, result: IValue?) {
+        if (procedureBeingMeasured == null)
+            return
+
         if (procedure == procedureBeingMeasured && contains<CountMemoryUsage>())
             setMetric<CountMemoryUsage>(vm.usedMemory - vmMemoryBefore[procedure]!!)
     }
 
     // Count loop iterations
     override fun loopIteration(loop: ILoop) {
+        if (procedureBeingMeasured == null)
+            return
+
         if (contains<CountLoopIterations>())
             increment<CountLoopIterations>()
     }
 
     // Count record allocations
     override fun recordAllocated(ref: IReference<IRecord>) {
+        if (procedureBeingMeasured == null)
+            return
+
         if (contains<CheckObjectAllocations>()) {
             val current = getOrDefault(procedureBeingMeasured!!, CheckObjectAllocations::class, mutableMapOf<IType, Int>())
             current[ref.target.type] = (current[ref.target.type] ?: 0) + 1
@@ -129,6 +154,9 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
 
     // Count array allocations
     override fun arrayAllocated(ref: IReference<IArray>) {
+        if (procedureBeingMeasured == null)
+            return
+
         if (contains<CheckArrayAllocations>()) {
             val current = getOrDefault(procedureBeingMeasured!!, CheckArrayAllocations::class, mutableMapOf<IType, Int>())
             current[ref.target.type] = (current[ref.target.type] ?: 0) + 1
@@ -138,6 +166,9 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
 
     // Count array write (assignment) accesses
     override fun arrayElementAssignment(a: IArrayElementAssignment, ref: IReference<IArray>, index: Int, value: IValue) {
+        if (procedureBeingMeasured == null)
+            return
+
         val procedure = vm.callStack.topFrame.procedure
         if (procedure == procedureBeingMeasured && contains<TrackParameterStates>()) {
             if (a.arrayAccess.target is IVariableExpression && (a.arrayAccess.target as IVariableExpression).variable in procedureBeingMeasured!!.parameters) {
@@ -153,10 +184,14 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
     override fun fieldAssignment(a: IRecordFieldAssignment, ref: IReference<IRecord>, value: IValue) {
         // Add array listener to allocated array
         if (a.expression is IArrayAllocation && value.type.isArrayReference)
-            ((value as IReference<*>).target as IArray).addListener(ArrayAccessListener(value as IReference<IArray>))
+            listenTo(value as IReference<IArray>)
+            // ((value as IReference<*>).target as IArray).addListener(ArrayAccessListener(value as IReference<IArray>))
     }
 
     override fun variableAssignment(a: IVariableAssignment, value: IValue) {
+        if (procedureBeingMeasured == null)
+            return
+
         // Check parameter side effects
         if (a.target in procedureBeingMeasured!!.parameters && contains<CheckSideEffects>()) {
             procedureBeingMeasured!!.parameters.find { it.id == a.target.id }?.let { param ->
@@ -168,7 +203,8 @@ class EvaluationMetricListener(val vm: IVirtualMachine, private val specificatio
 
         if (a.expression is IArrayAllocation && (contains<CountArrayReadAccesses>() || contains<CountArrayWriteAccesses>())) {
             if (value.type.isArrayReference)
-                ((value as IReference<*>).target as IArray).addListener(ArrayAccessListener(value as IReference<IArray>))
+                listenTo(value as IReference<IArray>)
+                // ((value as IReference<*>).target as IArray).addListener(ArrayAccessListener(value as IReference<IArray>))
         }
 
         // Store argument states

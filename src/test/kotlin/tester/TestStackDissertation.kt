@@ -47,7 +47,7 @@ class TestStackDissertation {
 
     @Test
     fun testDSL() {
-        val dsl = TestSuite(reference) {
+        val tests = TestSuite(reference) {
             Case {
                 val stack = ref { new("StackDissertation", 5) }
 
@@ -60,6 +60,6 @@ class TestStackDissertation {
                 }
             }
         }
-        assert(dsl.apply(subject))
+        assert(tests.apply(subject))
     }
 }

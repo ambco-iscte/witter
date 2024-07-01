@@ -55,7 +55,7 @@ class TestCaseStatement(
      */
     inline fun <reified T : ITestMetric> get(): T? = metrics.find { it is T } as? T
 
-    override fun toString(): String = "Test $description {\n\t${statements.joinToString("\n\t")}\n}"
+    override fun toString(): String = "Test $description {\n\t${statements.toList().joinToString("\n\t")}\n}"
 }
 
 sealed interface IStatement
@@ -110,13 +110,7 @@ class ObjectCreation(
 }
 
 @WitterDSL
-data class VariableReference(val case: TestCaseStatement, val id: String): IExpressionStatement {
+data class VariableReference(val case: TestCaseStatement, val assignment: VariableAssignment): IExpressionStatement {
 
-    companion object {
-        private var uuid: Long = 0
-
-        fun uuid(): Long = uuid++
-    }
-
-    override fun toString(): String = id
+    override fun toString(): String = assignment.toString()
 }

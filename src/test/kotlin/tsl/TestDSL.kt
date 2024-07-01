@@ -53,7 +53,7 @@ class TestDSL {
         assertTrue((statements[0] as VariableAssignment).initializer() is ProcedureCall)
         assertTrue(statements[1] is ProcedureCall)
         assertEquals((statements[1] as ProcedureCall).arguments, listOf(
-            listOf(0, 1, 3, 7, 9, 11, 13, 17, 19), VariableReference(suite.cases()[0], "x")
+            listOf(0, 1, 3, 7, 9, 11, 13, 17, 19), VariableReference(suite.cases()[0], statements[0] as VariableAssignment)
         ))
 
     }

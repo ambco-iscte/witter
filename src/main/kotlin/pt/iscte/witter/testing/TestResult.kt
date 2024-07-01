@@ -9,6 +9,7 @@ import pt.iscte.strudel.vm.IValue
 import pt.iscte.witter.tsl.CheckSideEffects
 import pt.iscte.witter.tsl.IStatement
 import pt.iscte.witter.tsl.ITestMetric
+import pt.iscte.witter.tsl.ProcedureCall
 import java.io.File
 import java.util.*
 import kotlin.reflect.full.isSuperclassOf
@@ -100,6 +101,7 @@ data class ExceptionTestResult(
 }
 
 open class TestResult(
+    open val procedureCall: ProcedureCall,
     override val passed: Boolean,
     open val procedure: IProcedure,
     open val args: Iterable<IValue>,
@@ -117,6 +119,7 @@ open class TestResult(
 }
 
 open class WhiteBoxTestResult(
+    override val procedureCall: ProcedureCall,
     override val passed: Boolean,
     override val procedure: IProcedure,
     override val args: Iterable<IValue>,
@@ -124,7 +127,7 @@ open class WhiteBoxTestResult(
     override val expected: IValue,
     override val margin: Number,
     override val actual: IValue,
-): TestResult(passed, procedure, args, expected, margin, actual) {
+): TestResult(procedureCall, passed, procedure, args, expected, margin, actual) {
 
     override val message: String
         get() = "${procedure.id}(${args.pretty()})\n" +
@@ -133,6 +136,7 @@ open class WhiteBoxTestResult(
 }
 
 data class AllocationsTestResult(
+    override val procedureCall: ProcedureCall,
     override val passed: Boolean,
     override val procedure: IProcedure,
     override val args: Iterable<IValue>,
@@ -141,7 +145,7 @@ data class AllocationsTestResult(
     override val margin: Number,
     override val actual: IValue,
     override val metric: ITestMetric
-): WhiteBoxTestResult(passed, procedure, args, metric, expected, margin, actual) {
+): WhiteBoxTestResult(procedureCall, passed, procedure, args, metric, expected, margin, actual) {
 
     override val message: String
         get() = "${procedure.id}(${args.pretty()})\n" +

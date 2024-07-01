@@ -6,9 +6,7 @@ public class HeapSorting {
     
     public static void sort(Comparable[] a) {
         int N = a.length;
-        
         heapify(a, N);
-        
         sortdown(a, N);
     }
     

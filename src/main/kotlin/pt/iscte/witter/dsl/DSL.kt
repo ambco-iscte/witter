@@ -26,14 +26,15 @@ fun ObjectCreation.call(procedureID: String, vararg arguments: Any?, expected: A
 }
 
 fun TestCaseStatement.ref(id: String, configure: () -> IExpressionStatement): VariableReference {
-    add(VariableAssignment(id, configure))
-    return VariableReference(this, id)
+    val assign = VariableAssignment(id, configure)
+    add(assign)
+    return VariableReference(this, assign)
 }
 
 fun TestCaseStatement.ref(configure: () -> IExpressionStatement): VariableReference {
     val assign = VariableAssignment(configure)
     add(assign)
-    return VariableReference(this, assign.id)
+    return VariableReference(this, assign)
 }
 
 fun TestCaseStatement.call(procedureID: String, vararg arguments: Any?, expected: Any? = null): ProcedureCall {

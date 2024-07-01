@@ -8,23 +8,23 @@ import pt.iscte.witter.testing.*
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
+data class TimedResult(val millis: Long, val results: List<ITestResult>)
 
-
-data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResult>>, val title: String = "") {
+data class TestReport(val suite: TestSuite, val data: Map<String, TimedResult>, val title: String = "") {
 
     fun fileCount(): Int = data.size
 
     fun getAll(predicate: (ITestResult) -> Boolean = { true }): List<ITestResult> {
         val all = mutableListOf<ITestResult>()
         data.forEach { (_, results) ->
-            results.forEach { if (predicate(it)) all.add(it) }
+            results.results.forEach { if (predicate(it)) all.add(it) }
         }
         return all.toList()
     }
 
-    inline fun <reified T: ITestResult> count(): Int = data.values.sumOf { it.count { res -> res is T } }
+    inline fun <reified T: ITestResult> count(): Int = data.values.sumOf { it.results.count { res -> res is T } }
 
-    fun countPassed(path: String): Int = data[path]?.count { it is TestResult && it.passed } ?: 0
+    fun countPassed(path: String): Int = data[path]?.results?.count { it is TestResult && it.passed } ?: 0
 
     fun toHTML(path: String) {
         if (!path.endsWith(".html") && !path.endsWith(".htm"))
@@ -225,7 +225,7 @@ data class TestReport(val suite: TestSuite, val data: Map<String, List<ITestResu
                                         style = STYLE_FONT_POPPINS
                                         +"Passed ${countPassed(path)} tests."
                                     }
-                                    results.forEach {
+                                    results.results.forEach {
                                         pre {
                                             style = STYLE_FONT_JETBRAINS
                                             +("➤ $it")
