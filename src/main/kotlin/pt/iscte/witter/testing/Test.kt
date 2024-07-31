@@ -1,6 +1,6 @@
 package pt.iscte.witter.testing
 
-import pt.iscte.strudel.javaparser.Java2Strudel
+import pt.iscte.strudel.parsing.java.Java2Strudel
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.vm.*
 import pt.iscte.witter.tsl.*

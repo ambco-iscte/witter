@@ -1,17 +1,15 @@
 package pt.iscte.witter.testing
 
-import pt.iscte.strudel.javaparser.StrudelUnsupportedException
+import pt.iscte.strudel.parsing.java.StrudelUnsupportedException
 import pt.iscte.strudel.model.IProcedure
 import pt.iscte.strudel.model.IType
 import pt.iscte.strudel.vm.IRecord
 import pt.iscte.strudel.vm.IReference
 import pt.iscte.strudel.vm.IValue
 import pt.iscte.witter.tsl.CheckSideEffects
-import pt.iscte.witter.tsl.IStatement
 import pt.iscte.witter.tsl.ITestMetric
 import pt.iscte.witter.tsl.ProcedureCall
 import java.io.File
-import java.util.*
 import kotlin.reflect.full.isSuperclassOf
 
 fun Iterable<Any?>.pretty(): String = joinToString {

@@ -3,7 +3,7 @@ package pt.iscte.witter.testing.report
 import com.github.javaparser.StaticJavaParser
 import kotlinx.html.*
 import kotlinx.html.dom.*
-import pt.iscte.strudel.javaparser.StrudelUnsupportedException
+import pt.iscte.strudel.parsing.java.StrudelUnsupportedException
 import pt.iscte.witter.testing.*
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory

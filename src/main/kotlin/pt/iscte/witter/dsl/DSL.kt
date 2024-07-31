@@ -1,7 +1,7 @@
 package pt.iscte.witter.dsl
 
-import pt.iscte.strudel.javaparser.Java2Strudel
-import pt.iscte.strudel.javaparser.StrudelUnsupportedException
+import pt.iscte.strudel.parsing.java.Java2Strudel
+import pt.iscte.strudel.parsing.java.StrudelUnsupportedException
 import pt.iscte.witter.testing.TestSuite
 import pt.iscte.witter.tsl.*
 import java.io.File

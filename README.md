@@ -5,9 +5,12 @@
 **A Library for White-Box Testing of
 Introductory Programming Algorithms**
 
-[![ACM SPLASH'23 - Check out Witter's first paper](https://img.shields.io/badge/ACM_SPLASH'23-Check_out_Witter's_first_paper-ebc034?logo=acm)](https://doi.org/10.1145/3622780.3623650) 
+[![ACM SPLASH'23 - Check out Witter's first paper!](https://img.shields.io/badge/ACM_SPLASH'23-Check_out_Witter's_first_paper!-ebc034?logo=acm)](https://doi.org/10.1145/3622780.3623650) 
 
-[![ICPEC'24 - Check out Witter's second paper!](https://img.shields.io/badge/ICPEC'24-Check_out_Witter's_second_paper!_(Coming_soon!)_-052d6d?logo=dblp)](https://doi.org/10.4230/OASIcs.ICPEC.2024.15)
+[![ICPEC'24 - Check out Witter's second paper!](https://img.shields.io/badge/ICPEC'24-Check_out_Witter's_second_paper!_(Coming_soon!)_-052d6d?logo=doi&logoColor=white)]()
+
+[![ISCTE-IUL - Check out the MSc Dissertation for which Witter was developed! (Coming soon!)](https://img.shields.io/badge/ISCTE--IUL-Check_out_the_MSc_Dissertation_for_which_Witter_was_developed!_(Coming_soon!)-14bfb8?logo=doi&logoColor=white)]()
+
 
 **Witter** is a software testing library that allows programming instructors to define white-box
 tests for Java source code. Witter analyzes the execution of a method against a reference
@@ -79,7 +82,8 @@ stateful test case.
 
 The `call` directive is used by specifying the name of the method to be invoked and a list 
 of arguments. We may use the "dot notation" to perform calls on instance methods given its 
-reference (`ref.call(...)`). For every call, the return values of the evaluated method are 
+reference (`ref.call(...)`), as opposed to calling an instance method by passing its reference as the first argument (`call("methodName", ref, ...)`). 
+For every call, the return values of the evaluated method are 
 compared to the reference solution, allowing for regular black-box testing. Additionally, if 
 the optional *expected* argument is passed, Witter will assert that both the reference 
 solution and the solution under evaluation produce the expected result.
@@ -126,7 +130,7 @@ a form of executing the tests programmatically. Tests are executed providing an 
 solution or a test suite created using the DSL as described, and a solution that one wishes to assess.
 
 Using an annotated reference solution, one can execute:
-```java
+```kotlin
 val tester: Test = Test("ReferenceSolution.java")
 val results: List<TestResult> = tester.execute("Solution.java")
 ```
@@ -443,7 +447,7 @@ development system, using a simple GUI custom-made for example purposes.
 <br>
 
 ## Citations
-If you use or reference Witter in your academic work, you should cite the relevant following paper(s).
+If you use or reference Witter in your academic work, you should cite the relevant following publication(s).
 
 <details>
 <summary><b>Witter: A Library for White-Box Testing of Introductory Programming Algorithms</b></summary>
@@ -473,7 +477,6 @@ ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
     keywords = {programming education, white-box testing, feedback, assessment},
     location = {Cascais, Portugal},
     series = {SPLASH-E 2023}
-}
 ```
 
 </details>
@@ -492,8 +495,32 @@ Coming soon! :D
 
 <br>
 
+<details>
+<summary><b>White-Box Assessment for Programming Education</b></summary>
+
+This is a dissertation produced for the completion of the Master's of Science (MSc) in Computer
+Science and Engineering by the author [Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv).
+
+Citation coming soon!
+
+</details>
+
+<br>
+
 ## Contacts
 If you have any questions regarding Witter, its development process, or the related academic
 publications, feel free to contact the authors:
-- Afonso B. Caniço - [ambco@iscte-iul.pt](mailto:ambco@iscte-iul.pt)
+- Afonso B. Caniço - [ambco@iscte-iul.pt](mailto:ambco@iscte-iul.pt) (Principal Author)
 - André L. Santos - [andre.santos@iscte-iul.pt](mailto:andre.santos@iscte-iul.pt)
+
+<br>
+
+## Credit
+
+The Witter library is authored, developed, and currently maintained by 
+[Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv). (That's me! :D)
+
+Credit for the [Strudel]() library, which is used within Witter as the runtime environment for code execution,
+goes to [André L. Santos](https://ciencia.iscte-iul.pt/authors/andre-leal-santos/cv), its author and main contributor. 
+Contributions to Java translation and minor contributions to some aspects of the Strudel library were made by
+[Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv).

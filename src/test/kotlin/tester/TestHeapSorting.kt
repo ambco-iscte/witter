@@ -1,7 +1,7 @@
 package tester
 
 import org.junit.jupiter.api.Test
-import pt.iscte.strudel.javaparser.Java2Strudel
+import pt.iscte.strudel.parsing.java.Java2Strudel
 import java.io.File
 
 class TestHeapSorting {

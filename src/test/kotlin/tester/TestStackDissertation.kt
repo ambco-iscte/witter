@@ -2,16 +2,13 @@ package tester
 
 import assertEquivalent
 import org.junit.jupiter.api.Test
-import pt.iscte.strudel.javaparser.Java2Strudel
 import pt.iscte.witter.dsl.*
 import pt.iscte.witter.testing.ITestResult
 import pt.iscte.witter.testing.TestResult
-import pt.iscte.witter.testing.TestSuite
 import pt.iscte.witter.testing.WhiteBoxTestResult
 import pt.iscte.witter.tsl.CountArrayReadAccesses
 import pt.iscte.witter.tsl.CountLoopIterations
 import pt.iscte.witter.tsl.plus
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs

@@ -6,7 +6,7 @@ import com.github.javaparser.ast.comments.JavadocComment
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.ast.visitor.ModifierVisitor
 import com.github.javaparser.ast.visitor.Visitable
-import pt.iscte.strudel.javaparser.extensions.getString
+import pt.iscte.strudel.parsing.java.extensions.getString
 import pt.iscte.strudel.model.*
 import pt.iscte.strudel.model.VOID
 import pt.iscte.strudel.vm.*

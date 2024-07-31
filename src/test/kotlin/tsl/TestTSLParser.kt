@@ -1,12 +1,8 @@
 package tsl
 
 import assertEquivalent
-import pt.iscte.strudel.javaparser.Java2Strudel
-import pt.iscte.strudel.model.INT
-import pt.iscte.strudel.vm.IVirtualMachine
-import pt.iscte.witter.testing.EvaluationMetricListener
+import pt.iscte.strudel.parsing.java.Java2Strudel
 import pt.iscte.witter.tsl.*
-import reference.Stack
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
