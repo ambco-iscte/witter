@@ -9,7 +9,7 @@ Introductory Programming Algorithms**
 
 [![ICPEC'24 - Check out Witter's second paper!](https://img.shields.io/badge/ICPEC'24-Check_out_Witter's_second_paper!_(Coming_soon!)_-052d6d?logo=doi&logoColor=white)]()
 
-[![ISCTE-IUL - Check out the MSc Dissertation for which Witter was developed! (Coming soon!)](https://img.shields.io/badge/ISCTE--IUL-Check_out_the_MSc_Dissertation_for_which_Witter_was_developed!_(Coming_soon!)-14bfb8?logo=doi&logoColor=white)]()
+[![ISCTE-IUL - Check out the MSc Dissertation for which Witter was developed!](https://img.shields.io/badge/ISCTE--IUL-Check_out_the_MSc_Dissertation_for_which_Witter_was_developed!-14bfb8?logo=doi&logoColor=white)](http://hdl.handle.net/10071/32252)
 
 
 **Witter** is a software testing library that allows programming instructors to define white-box
@@ -460,7 +460,7 @@ on SPLASH-E (SPLASH-E ’23), October 25, 2023, Cascais, Portugal._
 ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
 
 **BibTeX**
-```
+```bibtex
 @inproceedings{canicosantos2023,
     author = {Cani\c{c}o, Afonso and Santos, Andr\'{e}},
     title = {Witter: A Library for White-Box Testing of Introductory Programming Algorithms},
@@ -486,8 +486,11 @@ ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
 <details>
 <summary><b>A Domain-Specific Language for Dynamic White-Box Evaluation of Java Assignments</b></summary>
 
+**ACM Reference Format**
+> Coming soon! :D
+
 **BibTeX**
-```
+```bibtex
 Coming soon! :D
 ```
 
@@ -501,7 +504,24 @@ Coming soon! :D
 This is a dissertation produced for the completion of the Master's of Science (MSc) in Computer
 Science and Engineering by the author [Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv).
 
-Citation coming soon!
+**ACM Reference Format**
+> Afonso Manuel Barral Caniço. 2024. *White-box assessment for programming education*. Master's Thesis.
+> Iscte - Instituto Universitário de Lisboa, Avenida das Forças Armadas, 1649-026 Lisboa.
+> http://hdl.handle.net/10071/32252.
+
+**BibTeX**
+```bibtex
+@mastersthesis{canico2024,
+  author = {Cani\c{c}o, Afonso Manuel Barral},
+  title = {White-box assessment for programming education},
+  school = {Iscte - Instituto Universit\'{a}rio de Lisboa},
+  year = {2024},
+  type = {Master's Thesis},
+  address = {Avenida das For\c{c}as Armadas, 1649-026, Lisboa},
+  month = {July},
+  note = {\url{http://hdl.handle.net/10071/32252}}
+}
+```
 
 </details>
 
@@ -511,7 +531,7 @@ Citation coming soon!
 If you have any questions regarding Witter, its development process, or the related academic
 publications, feel free to contact the authors:
 - Afonso B. Caniço - [ambco@iscte-iul.pt](mailto:ambco@iscte-iul.pt) (Principal Author)
-- André L. Santos - [andre.santos@iscte-iul.pt](mailto:andre.santos@iscte-iul.pt)
+- André L. Santos - [andre.santos@iscte-iul.pt](mailto:andre.santos@iscte-iul.pt) (Advisor)
 
 <br>
 
