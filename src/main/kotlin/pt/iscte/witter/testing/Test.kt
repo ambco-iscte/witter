@@ -245,7 +245,7 @@ class Test(private val referenceFile: File) {
             }
 
             if (!machines.containsKey(case.root)) {
-                val vm = IVirtualMachine.create(loopIterationMaximum = LOOP_ITERATION_LIMIT) // Stateful tests - one VM for all calls in sequence
+                val vm = IVirtualMachine.create(loopIterationMaximum = LOOP_ITERATION_LIMIT, availableMemory = 32768  ) // Stateful tests - one VM for all calls in sequence
                 val listener = EvaluationMetricListener(vm, case)
                 vm.addListener(listener)
                 machines[case.root] = Pair(vm, listener)

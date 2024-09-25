@@ -7,7 +7,7 @@ Introductory Programming Algorithms**
 
 [![ACM SPLASH'23 - Check out Witter's first paper!](https://img.shields.io/badge/ACM_SPLASH'23-Check_out_Witter's_first_paper!-ebc034?logo=acm)](https://doi.org/10.1145/3622780.3623650) 
 
-[![ICPEC'24 - Check out Witter's second paper!](https://img.shields.io/badge/ICPEC'24-Check_out_Witter's_second_paper!_(Coming_soon!)_-052d6d?logo=doi&logoColor=white)]()
+[![ICPEC'24 - Check out Witter's second paper!](https://img.shields.io/badge/ICPEC'24-Check_out_Witter's_second_paper!-052d6d?logo=doi&logoColor=white)](https://doi.org/10.4230/OASIcs.ICPEC.2024.2)
 
 [![ISCTE-IUL - Check out the MSc Dissertation for which Witter was developed!](https://img.shields.io/badge/ISCTE--IUL-Check_out_the_MSc_Dissertation_for_which_Witter_was_developed!-14bfb8?logo=doi&logoColor=white)](http://hdl.handle.net/10071/32252)
 
@@ -477,6 +477,7 @@ ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
     keywords = {programming education, white-box testing, feedback, assessment},
     location = {Cascais, Portugal},
     series = {SPLASH-E 2023}
+}
 ```
 
 </details>
@@ -486,12 +487,29 @@ ACM, New York, NY, USA, 6 pages. https://doi.org/10.1145/3622780.3623650
 <details>
 <summary><b>A Domain-Specific Language for Dynamic White-Box Evaluation of Java Assignments</b></summary>
 
-**ACM Reference Format**
-> Coming soon! :D
+**Dagstuhl Reference Format**
+> Afonso B. Caniço and André L. Santos. A Domain-Specific Language for Dynamic White-Box Evaluation of Java Assignments. In 5th International Computer Programming Education Conference (ICPEC 2024). Open Access Series in Informatics (OASIcs), Volume 122, pp. 2:1-2:13, Schloss Dagstuhl – Leibniz-Zentrum für Informatik (2024) https://doi.org/10.4230/OASIcs.ICPEC.2024.2
 
 **BibTeX**
 ```bibtex
-Coming soon! :D
+@InProceedings{b.canico_et_al:OASIcs.ICPEC.2024.2,
+    author = {B. Cani\c{c}o, Afonso and Santos, Andr\'{e} L.},
+    title = {{A Domain-Specific Language for Dynamic White-Box Evaluation of Java Assignments}},
+    booktitle = {5th International Computer Programming Education Conference (ICPEC 2024)},
+    pages = {2:1--2:13},
+    series = {Open Access Series in Informatics (OASIcs)},
+    ISBN = {978-3-95977-347-8},
+    ISSN = {2190-6807},
+    year = {2024},
+    volume = {122},
+    editor = {Santos, Andr\'{e} L. and Pinto-Albuquerque, Maria},
+    publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+    address = {Dagstuhl, Germany},
+    URL = {https://drops.dagstuhl.de/entities/document/10.4230/OASIcs.ICPEC.2024.2},
+    URN = {urn:nbn:de:0030-drops-209715},
+    doi = {10.4230/OASIcs.ICPEC.2024.2},
+    annote = {Keywords: White-box assessment, student assessment, programming education}
+}
 ```
 
 </details>
@@ -505,21 +523,21 @@ This is a dissertation produced for the completion of the Master's of Science (M
 Science and Engineering by the author [Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv).
 
 **ACM Reference Format**
-> Afonso Manuel Barral Caniço. 2024. *White-box assessment for programming education*. Master's Thesis.
+> Afonso Manuel Barral Caniço. 2024. *White-Box Assessment for Programming Education*. Master's Thesis.
 > Iscte - Instituto Universitário de Lisboa, Avenida das Forças Armadas, 1649-026 Lisboa.
 > http://hdl.handle.net/10071/32252.
 
 **BibTeX**
 ```bibtex
 @mastersthesis{canico2024,
-  author = {Cani\c{c}o, Afonso Manuel Barral},
-  title = {White-box assessment for programming education},
-  school = {Iscte - Instituto Universit\'{a}rio de Lisboa},
-  year = {2024},
-  type = {Master's Thesis},
-  address = {Avenida das For\c{c}as Armadas, 1649-026, Lisboa},
-  month = {July},
-  note = {\url{http://hdl.handle.net/10071/32252}}
+    author = {Cani\c{c}o, Afonso Manuel Barral},
+    title = {White-Box Assessment for Programming Education},
+    school = {Iscte - Instituto Universit\'{a}rio de Lisboa},
+    year = {2024},
+    type = {Master's Thesis},
+    address = {Avenida das For\c{c}as Armadas, 1649-026, Lisboa},
+    month = {July},
+    note = {\url{http://hdl.handle.net/10071/32252}}
 }
 ```
 
@@ -540,7 +558,7 @@ publications, feel free to contact the authors:
 The Witter library is authored, developed, and currently maintained by 
 [Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv). (That's me! :D)
 
-Credit for the [Strudel]() library, which is used within Witter as the runtime environment for code execution,
+Credit for the [Strudel](https://github.com/andre-santos-pt/strudel) library, which is used within Witter as the runtime environment for code execution,
 goes to [André L. Santos](https://ciencia.iscte-iul.pt/authors/andre-leal-santos/cv), its author and main contributor. 
 Contributions to Java translation and minor contributions to some aspects of the Strudel library were made by
 [Afonso B. Caniço](https://ciencia.iscte-iul.pt/authors/afonso-canico/cv).
